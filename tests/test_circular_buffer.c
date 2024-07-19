@@ -1,5 +1,6 @@
 
 #include <stdint.h>
+#include <stddef.h>
 
 #include "unity.h"
 
@@ -90,14 +91,18 @@ void test_write_and_read_indices_are_independent(void)
 
 void test_buffer_is_clean_after_full_buffer_cycle_completed(void)
 {
-    TEST_IGNORE(); // Remove this when the test is written
-
+    int32_t data_empty = readCircBuf(&buff); 
     // Arange: given buffer is fully written to and and then fully read from
+        writeConsecutiveSequenceToBuffer(20, STANDARD_TEST_CAPACITY);
+    for (uint32_t i = 0; i < STANDARD_TEST_CAPACITY; i++) {
+        readCircBuf(&buff);
+    }
 
     // Act: when buffer is read
+    int32_t data_full = readCircBuf(&buff); 
 
     // Assert: same behaviour as when buffer was empty
-
+    TEST_ASSERT_EQUAL(data_empty, data_full);
 }
 
 void test_buffer_is_circular(void)
@@ -152,18 +157,17 @@ void test_min_capacity_when_single_element_written_to_buffer_then_same_value_is_
 
 void test_capacity_0_invalid(void)
 {
-    TEST_IGNORE(); // Remove this when the test is written
-
     // Arrange/Act
 
     // Assert: the return value of initCircBuf is NULL
+    TEST_ASSERT_EQUAL(NULL, initCircBuf(&buff, 0));
 }
 
 void test_capacity_higher_than_max_invalid(void)
 {
-    TEST_IGNORE(); // Remove this when the test is written
-
+    TEST_IGNORE();
     // Arrange/Act
 
     // Assert: the return value of initCircBuf is NULL
+    TEST_ASSERT_EQUAL(NULL, initCircBuf(&buff, UINT32_MAX+4));
 }
