@@ -1,4 +1,8 @@
+
+#include <stdint.h>
+
 #include "unity.h"
+
 #include "circBufT.h"
 
 const uint8_t STANDARD_TEST_CAPACITY = 5;
@@ -93,19 +97,25 @@ void test_buffer_is_clean_after_full_buffer_cycle_completed(void)
     // Act: when buffer is read
 
     // Assert: same behaviour as when buffer was empty
+
 }
 
 void test_buffer_is_circular(void)
 {
-    TEST_IGNORE(); // Remove this when the test is written
-
     // Arange: given buffer is fully written to and then fully read from
+    writeConsecutiveSequenceToBuffer(20, STANDARD_TEST_CAPACITY);
+    for (uint32_t i = 0; i < STANDARD_TEST_CAPACITY; i++) {
+        readCircBuf(&buff);
+    }
 
     // Arrange: given a new value is written
+    writeCircBuf(&buff, 2);
 
     // Act: when buffer is read
+    int32_t data = readCircBuf(&buff); 
 
     // Assert: the last written element is returned
+    TEST_ASSERT_EQUAL(2, data);
 }
 
 void test_no_values_overwritten_after_full(void)
