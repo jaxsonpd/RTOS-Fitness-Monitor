@@ -89,8 +89,9 @@ void test_write_and_read_indices_are_independent(void)
     }
 }
 
+// TODO
 void test_buffer_is_clean_after_full_buffer_cycle_completed(void)
-{
+{ 
     int32_t data_empty = readCircBuf(&buff); 
     // Arange: given buffer is fully written to and and then fully read from
         writeConsecutiveSequenceToBuffer(20, STANDARD_TEST_CAPACITY);
@@ -99,7 +100,7 @@ void test_buffer_is_clean_after_full_buffer_cycle_completed(void)
     }
 
     // Act: when buffer is read
-    int32_t data_full = readCircBuf(&buff); 
+    int32_t data_full = readCircBuf(&buff);
 
     // Assert: same behaviour as when buffer was empty
     TEST_ASSERT_EQUAL(data_empty, data_full);
@@ -123,6 +124,7 @@ void test_buffer_is_circular(void)
     TEST_ASSERT_EQUAL(2, data);
 }
 
+// TODO
 void test_no_values_overwritten_after_full(void)
 {
     TEST_IGNORE(); // Remove this when the test is written
@@ -163,6 +165,7 @@ void test_capacity_0_invalid(void)
     TEST_ASSERT_EQUAL(NULL, initCircBuf(&buff, 0));
 }
 
+// TODO
 void test_capacity_higher_than_max_invalid(void)
 {
     TEST_IGNORE();
