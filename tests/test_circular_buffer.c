@@ -89,23 +89,48 @@ void test_buffer_is_clean_after_full_buffer_cycle_completed(void)
     TEST_IGNORE(); // Remove this when the test is written
 
     // Arange: given buffer is fully written to and and then fully read from
+    int32_t pre_value = readCircBuf(&buff);
 
+    for (size_t i = 0; i < STANDARD_TEST_CAPACITY; i++)
+    {
+        writeCircBuf(&buff, 20 + i);
+    }
+
+    for (size_t i = 0; i < STANDARD_TEST_CAPACITY; i++)
+    {
+        readCircBuf(&buff);
+    }
+    
     // Act: when buffer is read
+    int32_t post_value = readCircBuf(&buff);
 
     // Assert: same behaviour as when buffer was empty
+    TEST_ASSERT_EQUAL(pre_value, post_value);
 }
 
 void test_buffer_is_circular(void)
 {
-    TEST_IGNORE(); // Remove this when the test is written
 
     // Arange: given buffer is fully written to and then fully read from
+    for (size_t i = 0; i < STANDARD_TEST_CAPACITY; i++)
+        {
+            writeCircBuf(&buff, 20 + i);
+        }
+
+        for (size_t i = 0; i < STANDARD_TEST_CAPACITY; i++)
+        {
+            readCircBuf(&buff);
+        }
 
     // Arrange: given a new value is written
+    int32_t value = 42;
+    writeCircBuf(&buff, value);
 
     // Act: when buffer is read
+    int32_t read_value = readCircBuf(&buff);
 
     // Assert: the last written element is returned
+    TEST_ASSERT_EQUAL(value, read_value);
 }
 
 void test_no_values_overwritten_after_full(void)
