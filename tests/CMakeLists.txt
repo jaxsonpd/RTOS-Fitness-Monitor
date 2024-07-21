@@ -8,5 +8,5 @@ add_subdirectory(unity)
 
 add_unity_test(test_example test_example.c)
 add_unity_test(test_fff test_fff.c)
-add_unity_test(test_circular_buffer test_circular_buffer.c ${SRC_DIR}/circBufT.c)
+add_unity_test(test_circular_buffer test_circular_buffer.c ${SRC_DIR}/circular_buffer_T.c)
 target_include_directories(test_circular_buffer PRIVATE ${SRC_DIR})

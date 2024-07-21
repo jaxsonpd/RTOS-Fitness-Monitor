@@ -1,38 +1,38 @@
 #include "unity.h"
-#include "circBufT.h"
+#include "circular_buffer_T.h"
 
 const uint8_t STANDARD_TEST_CAPACITY = 5;
-static circBuf_t buff;
+static CircBuf_t buff;
 
 void setUp(void)
 {
-    initCircBuf(&buff, STANDARD_TEST_CAPACITY);
+    CircBuf_init(&buff, STANDARD_TEST_CAPACITY);
 }
 
 void tearDown(void)
 {
-    freeCircBuf(&buff);
+    CircBuf_free(&buff);
 }
 
 /* Helper functions */
 void writeConsecutiveSequenceToBuffer(uint16_t start, uint16_t size)
 {
     for (uint16_t i = 0; i < size; i++) {
-      writeCircBuf(&buff, start + i);
+      CircBuf_write(&buff, start + i);
     }
 } 
 
 void assertReadingSequence(uint16_t start, uint16_t size)
 {
     for (uint16_t i = 0; i < size; i++) {
-      TEST_ASSERT_EQUAL(start + i, readCircBuf(&buff));
+      TEST_ASSERT_EQUAL(start + i, CircBuf_read(&buff));
     }
 } 
 
 int32_t * reconstructBufferWithSize(uint16_t size)
 {
-  freeCircBuf(&buff);
-  return initCircBuf(&buff, size);
+  CircBuf_free(&buff);
+  return CircBuf_init(&buff, size);
 }
 
 /* Test cases */
@@ -42,7 +42,7 @@ void test_new_buffer_is_empty(void)
     // Arrange: given buffer is empty
 
     // Act: when buffer is read
-    int32_t value = readCircBuf(&buff);
+    int32_t value = CircBuf_read(&buff);
 
     // Assert: then 0 is returned
     TEST_ASSERT_EQUAL(0, value);
@@ -51,10 +51,10 @@ void test_new_buffer_is_empty(void)
 void test_single_element_in_single_element_out(void)
 {
     // Arrange: given buffer has a single element
-    writeCircBuf(&buff, 11);
+    CircBuf_write(&buff, 11);
 
     // Act: when buffer is read
-    int32_t value = readCircBuf(&buff);
+    int32_t value = CircBuf_read(&buff);
 
     // Assert: then the same value is returned
     TEST_ASSERT_EQUAL(11, value);
@@ -74,10 +74,10 @@ void test_write_and_read_indices_are_independent(void)
     for (uint8_t i = 0; i < STANDARD_TEST_CAPACITY; i++)
     {
       // Arrange: given one element is written
-      writeCircBuf(&buff, 20 + i);
+      CircBuf_write(&buff, 20 + i);
 
       // Act: when buffer is read
-      int32_t value = readCircBuf(&buff);
+      int32_t value = CircBuf_read(&buff);
 
       // Assert: the last written element is returned
       TEST_ASSERT_EQUAL(20 + i, value);
@@ -125,7 +125,7 @@ void test_min_capacity_when_buffer_is_created_then_buffer_empty(void)
     reconstructBufferWithSize(1);
 
     // Act/Assert
-    TEST_ASSERT_EQUAL(0, readCircBuf(&buff));
+    TEST_ASSERT_EQUAL(0, CircBuf_read(&buff));
 }
 
 void test_min_capacity_when_single_element_written_to_buffer_then_same_value_is_read(void)
@@ -134,10 +134,10 @@ void test_min_capacity_when_single_element_written_to_buffer_then_same_value_is_
     reconstructBufferWithSize(1);
 
     // Act
-    writeCircBuf(&buff, 87);
+    CircBuf_write(&buff, 87);
 
     // Act/Assert
-    TEST_ASSERT_EQUAL(87, readCircBuf(&buff));
+    TEST_ASSERT_EQUAL(87, CircBuf_read(&buff));
 }
 
 void test_capacity_0_invalid(void)

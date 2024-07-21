@@ -1,5 +1,5 @@
-#ifndef CIRCBUFT_H_
-#define CIRCBUFT_H_
+#ifndef circular_buffer_T_H_
+#define circular_buffer_T_H_
 
 // *******************************************************
 // 
@@ -55,4 +55,4 @@ vector3_t readVecCircBuf (circBufVec_t *buffer);
 // re initialised by another call to initCircBuf().
 void freeVecCircBuf (circBufVec_t *buffer);
 
-#endif /*CIRCBUFT_H_*/
+#endif /*circular_buffer_T_H_*/

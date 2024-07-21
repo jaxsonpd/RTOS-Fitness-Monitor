@@ -5,7 +5,7 @@
 DEFINE_FFF_GLOBALS;
 #define FFF_MOCK_IMPL // Includes mock implementations
 
-#include "circBufT_mock.h"
+#include "circular_buffer_T_mock.h"
 #include "tiva_mocks/adc_mock.h"
 #include "tiva_mocks/sysctl_mock.h"
 
@@ -17,14 +17,14 @@ void reset_fff(void)
 {
     FFF_ADC_FAKES_LIST(RESET_FAKE);
     FFF_SYSCTL_FAKES_LIST(RESET_FAKE);
-    FFF_CIRCBUFT_FAKES_LIST(RESET_FAKE);
+    FFF_circular_buffer_T_FAKES_LIST(RESET_FAKE);
     FFF_RESET_HISTORY();
 }
 
-circBuf_t* get_circBuf_ptr_and_reset_fff(void)
+CircBuf_t* get_circBuf_ptr_and_reset_fff(void)
 {
     initADC();
-    circBuf_t* buffer_ptr = initCircBuf_fake.arg0_val;
+    CircBuf_t* buffer_ptr = initCircBuf_fake.arg0_val;
     reset_fff();
     return buffer_ptr;
 }
