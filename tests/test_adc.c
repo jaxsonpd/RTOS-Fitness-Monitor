@@ -10,7 +10,7 @@ DEFINE_FFF_GLOBALS;
 #include "tiva_mocks/sysctl_mock.h"
 
 #define ADC_BUF_SIZE 10
-#define FAKE_ADC_VALUE 0xFACCEADC // No K's in hex
+#define FAKE_ADC_VALUE 0xFACE // Reduced size as buffer write value is int32_t, so uint32_t overflows.
 
 /* Helper functions */      
 void reset_fff(void)
@@ -202,14 +202,21 @@ void test_adc_isr_writes_to_correct_buffer(void)
 void test_adc_isr_writes_correct_value(void)
 {
     // Act
-    
+    ADCSequenceDataGet_fake.custom_fake = ADCSequenceDataGet_fake_adc_value;
+    ADCIntHandler();
+
     // Assert
+    TEST_ASSERT_EQUAL(FAKE_ADC_VALUE,*ADCSequenceDataGet_fake.arg2_val);
+    TEST_ASSERT_EQUAL(FAKE_ADC_VALUE,writeCircBuf_fake.arg1_val);
 }
 
 void test_isr_clears_interrupt_flag(void)
 {
     // Act
-    
+    ADCIntHandler();
+
     // Assert
+    assert_func_called_with_args(ADCIntClear_fake,ADC0_BASE,3);
 }
+
 /* Test cases - readADC */
