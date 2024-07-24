@@ -111,11 +111,16 @@ void initADC (void)
 }
 
 uint32_t readADC() {
-      uint32_t sum = 0;
-      uint16_t i = 0;
-      for (i = 0; i < ADC_BUF_SIZE; i++)
-          sum = sum + CircBuf_read (&ADC_inBuffer);
+    int32_t value;
+    uint32_t sum;
+    uint32_t i = 0;
+    
+    // Read the current data from the buffer
+    while ((value = CircBuf_read(&ADC_inBuffer)) != BUF_EMPTY_VAL) {
+        sum += (uint32_t)value;
+        i ++;
+    }
 
-      return sum/ADC_BUF_SIZE;
+    return sum / i;
 }
 
