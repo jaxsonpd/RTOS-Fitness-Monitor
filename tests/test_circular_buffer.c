@@ -1,4 +1,9 @@
+
+#include <stdint.h>
+#include <stddef.h>
+
 #include "unity.h"
+
 #include "circular_buffer_T.h"
 
 const uint8_t STANDARD_TEST_CAPACITY = 5;
@@ -84,30 +89,43 @@ void test_write_and_read_indices_are_independent(void)
     }
 }
 
+// TODO
 void test_buffer_is_clean_after_full_buffer_cycle_completed(void)
-{
-    TEST_IGNORE(); // Remove this when the test is written
+{ 
+    int32_t data_empty = CircBuf_read(&buff); 
 
     // Arange: given buffer is fully written to and and then fully read from
+    writeConsecutiveSequenceToBuffer(20, STANDARD_TEST_CAPACITY);
+    for (uint32_t i = 0; i < STANDARD_TEST_CAPACITY; i++) {
+        CircBuf_read(&buff);
+    }
 
     // Act: when buffer is read
+    int32_t data_full = CircBuf_read(&buff);
 
     // Assert: same behaviour as when buffer was empty
+    TEST_ASSERT_EQUAL(data_empty, data_full);
 }
 
 void test_buffer_is_circular(void)
 {
-    TEST_IGNORE(); // Remove this when the test is written
-
     // Arange: given buffer is fully written to and then fully read from
+    writeConsecutiveSequenceToBuffer(20, STANDARD_TEST_CAPACITY);
+    for (uint32_t i = 0; i < STANDARD_TEST_CAPACITY; i++) {
+        CircBuf_read(&buff);
+    }
 
     // Arrange: given a new value is written
+    CircBuf_write(&buff, 2);
 
     // Act: when buffer is read
+    int32_t data = CircBuf_read(&buff); 
 
     // Assert: the last written element is returned
+    TEST_ASSERT_EQUAL(2, data);
 }
 
+// TODO
 void test_no_values_overwritten_after_full(void)
 {
     TEST_IGNORE(); // Remove this when the test is written
@@ -142,18 +160,18 @@ void test_min_capacity_when_single_element_written_to_buffer_then_same_value_is_
 
 void test_capacity_0_invalid(void)
 {
-    TEST_IGNORE(); // Remove this when the test is written
-
     // Arrange/Act
 
     // Assert: the return value of initCircBuf is NULL
+    TEST_ASSERT_EQUAL(NULL, CircBuf_init(&buff, 0));
 }
 
-void test_capacity_higher_than_max_invalid(void)
-{
-    TEST_IGNORE(); // Remove this when the test is written
-
+void test_capacity_higher_than_max_invalid(void) {
     // Arrange/Act
-
+    
     // Assert: the return value of initCircBuf is NULL
+    TEST_ASSERT_EQUAL(NULL, CircBuf_init(&buff, 2001));
+
+    // Allow for overflow in size around a uint32_t
+    TEST_ASSERT_NOT_EQUAL(NULL, CircBuf_init(&buff, UINT32_MAX+4));
 }
