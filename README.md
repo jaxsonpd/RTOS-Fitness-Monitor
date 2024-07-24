@@ -4,6 +4,12 @@ This repository contains the code and build system for the ENCE464 Fitness
 Monitor project, to run on the
 [Texas Instruments TM4C123G LaunchPad Evaluation Kit](https://www.ti.com/tool/EK-TM4C123GXL). 
 
+## Group 01 specific information
+
+This project uses a slightly custom c style guide which can be found [here](https://github.com/jaxsonpd/etc/blob/c9df38a3fe2fe28541c374cd260abd5af4f3bfc9/guides/C%20Style%20Guide.md).
+
+All documentation can be found in the `/docs` folder.
+
 ## Repository structure
 
 The repository is structured as follows:
