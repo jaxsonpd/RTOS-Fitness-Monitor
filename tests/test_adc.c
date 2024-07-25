@@ -190,8 +190,10 @@ void test_adc_isr_reads_from_correct_adc_channel(void)
 
 void test_adc_isr_writes_to_correct_buffer(void)
 {
-    // Act
+    // Arrange
     circBuf_t *correct_buffer = get_circBuf_ptr_and_reset_fff();
+    
+    // Act
     ADCIntHandler();
     
     // Assert
@@ -220,3 +222,66 @@ void test_isr_clears_interrupt_flag(void)
 }
 
 /* Test cases - readADC */
+void test_adc_read_reads_correct_buffer(void)
+{
+    // Arrange
+    circBuf_t* correct_buffer = get_circBuf_ptr_and_reset_fff();
+
+    // Act
+    readADC();
+
+    // Assert
+    TEST_ASSERT_EQUAL(correct_buffer,readCircBuf_fake.arg0_val);
+}
+
+void test_adc_reads_buffer_correct_amount(void)
+{
+    // Act
+    readADC();
+
+    // Assert
+    TEST_ASSERT_EQUAL(ADC_BUF_SIZE,readCircBuf_fake.call_count);
+}
+
+void test_adc_averages_correctly_homogenous(void)
+{
+    // Arrange
+    uint32_t fake_avg;
+    int32_t fake_buffer_values[ADC_BUF_SIZE] = {2,2,2,2,2,2,2,2,2,2};
+
+    SET_RETURN_SEQ(readCircBuf,fake_buffer_values,ADC_BUF_SIZE);
+
+    // Act
+    fake_avg = readADC();
+
+    // Assert
+    TEST_ASSERT_EQUAL(2, fake_avg);
+}
+
+void test_adc_averages_correctly_nonhomogenous(void)
+{
+    // Arrange
+    uint32_t fake_avg;
+    int32_t fake_buffer_values[ADC_BUF_SIZE] = {10,20,30,40,50,60,70,80,90,100};
+
+    SET_RETURN_SEQ(readCircBuf,fake_buffer_values,ADC_BUF_SIZE);
+    
+    // Act
+    fake_avg = readADC();
+
+    TEST_ASSERT_EQUAL(55,fake_avg);
+}
+
+void test_adc_averages_correctly_zeros(void)
+{
+    // Arrange
+    uint32_t fake_avg;
+    int32_t fake_buffer_values[ADC_BUF_SIZE] = {0,0,0,0,0,0,0,0,0,0};
+
+    SET_RETURN_SEQ(readCircBuf,fake_buffer_values,ADC_BUF_SIZE);
+
+    // Act
+    fake_avg = readADC();
+
+    TEST_ASSERT_EQUAL(0,fake_avg);
+}
