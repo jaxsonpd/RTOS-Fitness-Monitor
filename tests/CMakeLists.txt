@@ -2,6 +2,10 @@ set(SRC_DIR ../target/src)
 set(TIVAWARE_DIR ../target/libs/tivaware)
 set(MOCK_DIR mocks)
 
+set(SRC_DIR ../target/src)
+set(TIVAWARE_DIR ../target/libs/tivaware)
+set(MOCK_DIR mocks)
+
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 project(FitnessTrackerTests LANGUAGES C)
 
