@@ -8,9 +8,10 @@ Monitor project, to run on the
 
 This project uses a slightly custom c style guide which can be found [here](https://github.com/jaxsonpd/etc/blob/c9df38a3fe2fe28541c374cd260abd5af4f3bfc9/guides/C%20Style%20Guide.md).
 
-All documentation can be found in the `/docs` folder.
-
 ## Repository structure
+
+The entry point for the program is `main()` located in `./target/src/step_counter_main.c`.
+This is called by the `ResetISR()` located in `./target/startup.c`.
 
 The repository is structured as follows:
 
