@@ -1,6 +1,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 
 #include "unity.h"
 
@@ -50,7 +51,7 @@ void test_new_buffer_is_empty(void)
     int32_t value = CircBuf_read(&buff);
 
     // Assert: then 0 is returned
-    TEST_ASSERT_EQUAL(0, value);
+    TEST_ASSERT_EQUAL(BUF_EMPTY_VAL, value);
 }
 
 void test_single_element_in_single_element_out(void)
@@ -89,23 +90,17 @@ void test_write_and_read_indices_are_independent(void)
     }
 }
 
-// TODO
 void test_buffer_is_clean_after_full_buffer_cycle_completed(void)
-{ 
-    TEST_IGNORE(); // This test fails?
-    int32_t data_empty = CircBuf_read(&buff); 
-
+{
+    // Check that read index doesn't overtake the write index 
     // Arange: given buffer is fully written to and and then fully read from
     writeConsecutiveSequenceToBuffer(20, STANDARD_TEST_CAPACITY);
     for (uint32_t i = 0; i < STANDARD_TEST_CAPACITY; i++) {
         CircBuf_read(&buff);
     }
 
-    // Act: when buffer is read
-    int32_t data_full = CircBuf_read(&buff);
-
-    // Assert: same behaviour as when buffer was empty
-    TEST_ASSERT_EQUAL(data_empty, data_full);
+    // Assert: notify that buffer is empty
+    TEST_ASSERT_EQUAL(BUF_EMPTY_VAL, CircBuf_read(&buff));
 }
 
 void test_buffer_is_circular(void)
@@ -126,16 +121,17 @@ void test_buffer_is_circular(void)
     TEST_ASSERT_EQUAL(2, data);
 }
 
-// TODO
 void test_no_values_overwritten_after_full(void)
 {
-    TEST_IGNORE(); // Remove this when the test is written
-
     // Arrange: given buffer is filled to capacity
 
     // Given: when one more element is written to buffer
+    writeConsecutiveSequenceToBuffer(20, STANDARD_TEST_CAPACITY);
+    bool result = CircBuf_write(&buff, 10);
 
     // Assert: first element in, first element out, no overflow
+    TEST_ASSERT_EQUAL(false, result); // Enure notified of data loss
+    TEST_ASSERT_EQUAL(20, CircBuf_read(&buff));
 }
 
 void test_min_capacity_when_buffer_is_created_then_buffer_empty(void)
@@ -144,7 +140,7 @@ void test_min_capacity_when_buffer_is_created_then_buffer_empty(void)
     reconstructBufferWithSize(1);
 
     // Act/Assert
-    TEST_ASSERT_EQUAL(0, CircBuf_read(&buff));
+    TEST_ASSERT_EQUAL(BUF_EMPTY_VAL, CircBuf_read(&buff));
 }
 
 void test_min_capacity_when_single_element_written_to_buffer_then_same_value_is_read(void)
