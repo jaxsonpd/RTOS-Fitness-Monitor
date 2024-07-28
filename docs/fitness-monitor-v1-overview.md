@@ -70,9 +70,14 @@ firmwares modifiability and reduce the chance of un-noticed faults or bugs.
 
 ### Architecture Evaluation
 
-The version 1's architecture does allow tasks to run at different rates this
-means that slow low priotiy tasks can not interfer with the high speed
-calculatulation required to track the step counting. On top of this there is
+The version 1's architecture allows tasks to run at different rates this
+means that slow low priority tasks can not interfere with the high speed
+calculation required to track the step counting. On top of this there is
 overflow checking of the tick counters which ensures the code is robust.
 
-
+The main issue with this timer based scheduler is that it does not check for
+task execution time overrun. This means that high priority tasks can miss their
+deadlines due to a lower priority task taking longer than its frequency to
+run. Secondly much of the tasks execution is spread out across both the main file
+and the module. This means that it is difficult to split tasks into smaller
+pieces if this is required to ensure deadlines are met.
