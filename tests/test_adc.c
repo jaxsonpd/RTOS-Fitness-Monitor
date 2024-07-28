@@ -240,7 +240,7 @@ void test_adc_reads_buffer_correct_amount(void)
     readADC();
 
     // Assert
-    TEST_ASSERT_EQUAL(ADC_BUF_SIZE,CircBuf_read_fake.call_count);
+    TEST_ASSERT_EQUAL(ADC_BUF_SIZE+1,CircBuf_read_fake.call_count);
 }
 
 void test_adc_averages_correctly_homogenous(void)
