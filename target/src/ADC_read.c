@@ -111,10 +111,6 @@ uint32_t readADC() {
     // Read the current data from the buffer
     while ((value = CircBuf_read(&ADC_inBuffer)) != BUF_EMPTY_VAL && 
         i < ADC_BUF_SIZE) {
-
-        if (value == BUF_EMPTY_VAL) {
-            break;
-        }
         
         sum += value;
         i ++;
