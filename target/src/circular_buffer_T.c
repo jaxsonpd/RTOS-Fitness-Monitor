@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "stdlib.h"
 #include "circular_buffer_T.h"
@@ -36,9 +37,10 @@ int32_t *CircBuf_init (CircBuf_t *buffer, uint32_t size) {
 bool CircBuf_write (CircBuf_t *buffer, int32_t entry) {
 	if (buffer->data[buffer->windex] != BUF_EMPTY_VAL) {
 		// Don't over write buffer
+		printf("Write Failed\n");
 		return false;
 	}
-
+	printf("Write Successed\n");
 	if (entry == BUF_EMPTY_VAL) {
 		entry = entry + 1; 
 	}
@@ -57,6 +59,7 @@ int32_t CircBuf_read (CircBuf_t *buffer) {
 	
 	if (buffer->data[buffer->rindex] == BUF_EMPTY_VAL && buffer->rindex == buffer->windex) {
 		return BUF_EMPTY_VAL;
+		printf("Read Failed\n");
 	}
 
 	entry = buffer->data[buffer->rindex];
