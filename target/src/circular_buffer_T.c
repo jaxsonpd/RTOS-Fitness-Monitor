@@ -66,8 +66,8 @@ int32_t CircBuf_read (CircBuf_t *buffer) {
 	buffer->data[buffer->rindex] = BUF_EMPTY_VAL;
 	buffer->rindex++;
 	
-	// if (buffer->rindex >= buffer->size)
-	//    buffer->rindex = 0;
+	if (buffer->rindex >= buffer->size)
+	   buffer->rindex = 0;
     
 	return entry;
 }
