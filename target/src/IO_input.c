@@ -17,6 +17,7 @@
 #include "IO_input.h"
 
 #define NUM_MODES 5 ///< number of input modes
+#define DEBOUNCE_NUMBER 3 ///< number of times before state change
 
 
 typedef struct input_mode_info {
@@ -27,8 +28,10 @@ typedef struct input_mode_info {
     bool normal;
     input_mode_t name;
     bool state;
+    bool value;
     uint8_t count;
     bool flag;
+    uint8_t deb_limit;
 } input_mode_info_t;
 
 /// UP button on orbit board
@@ -104,17 +107,38 @@ bool input_init(void) {
     for (uint8_t i = 0; i < NUM_MODES; i++) {
         g_mode_arr[i].count = 0;
         g_mode_arr[i].flag = false;
-        g_mode_arr[i].state = g_mode_arr[i].normal;
+        g_mode_arr[i].value = g_mode_arr[i].normal;
+        g_mode_arr[i].state = false;
+        g_mode_arr[i].deb_limit = DEBOUNCE_NUMBER;
     }
 
     return true;
 }
 
-bool input_get(input_mode_t mode) {
+bool input_get(input_mode_t input) {
+    return g_mode_arr[input].state;
+}
 
-    return false;
+input_state_t input_check(input_mode_t input) {
+
+    return NO_CHANGE;
 }
 
 void input_update(void) {
+    for (uint8_t i = 0; i < NUM_MODES; i++) {
+        g_mode_arr[i].value = (GPIOPinRead(g_mode_arr[i].port_base, 
+            g_mode_arr[i].pin) == g_mode_arr[i].pin);
 
+        if (g_mode_arr[i].value != g_mode_arr[i].state) {
+            g_mode_arr[i].count++;
+            if (g_mode_arr[i].count >= g_mode_arr[i].deb_limit) {
+                g_mode_arr[i].state = g_mode_arr[i].value;
+                g_mode_arr[i].flag = true;
+                g_mode_arr[i].count = 0;
+            }
+        } else {
+            g_mode_arr[i].count = 0;
+        }
+    }
 }
+

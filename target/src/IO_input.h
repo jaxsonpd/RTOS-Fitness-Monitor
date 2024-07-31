@@ -18,11 +18,17 @@
 typedef enum input_mode {
     UP_BUTTON,
     DOWN_BUTTON,
-    RIGHT_BUTTON,
     LEFT_BUTTON,
+    RIGHT_BUTTON,
+    RIGHT_SWITCH,
     LEFT_SWITCH,
-    RIGHT_SWITCH
 } input_mode_t;
+
+typedef enum input_state {
+    PRESSED,
+    RELEASED,
+    NO_CHANGE
+} input_state_t;
 
 
 /** 
@@ -36,17 +42,28 @@ bool input_init(void);
 /**
  * @brief Get the state of an input
  * 
+ * This is mainly used for switches
  * @param input the input to get the state of
- * @return the state of the input
+ * @return true if the input is pressed or switched and false otherwise
  */
-bool input_get(input_mode_t mode);
+bool input_get(input_mode_t input);
 
 
 /**
- * @brief update the inputs
+ * @brief update the inputs states performing debouncing
  * 
  */
 void input_update(void);
 
+
+/**
+ * @brief check if the the button has been pressed or released
+ * 
+ * This differs from get in that it returns state changes not the actual 
+ * state of the button. This will not be as helpful for switches.
+ * @param input the input to get the flag of
+ * @return the state change of the button 
+ */
+input_state_t input_check(input_mode_t input);
 
 #endif // IO_INPUT_H

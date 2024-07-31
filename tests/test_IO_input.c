@@ -62,3 +62,40 @@ void test_IO_input_init_successful(void) {
     TEST_ASSERT_TRUE(input_init());
 }
 
+void test_IO_input_get_false_on_init(void) {
+    input_init();
+
+    TEST_ASSERT_FALSE(input_get(UP_BUTTON));
+    TEST_ASSERT_FALSE(input_get(DOWN_BUTTON));
+    TEST_ASSERT_FALSE(input_get(LEFT_BUTTON));
+    TEST_ASSERT_FALSE(input_get(RIGHT_BUTTON));
+    TEST_ASSERT_FALSE(input_get(RIGHT_SWITCH));
+}
+
+void test_IO_input_check_no_change_on_init(void) {
+    input_init();
+
+    TEST_ASSERT_EQUAL(NO_CHANGE, input_check(UP_BUTTON));
+    TEST_ASSERT_EQUAL(NO_CHANGE, input_check(DOWN_BUTTON));
+    TEST_ASSERT_EQUAL(NO_CHANGE, input_check(LEFT_BUTTON));
+    TEST_ASSERT_EQUAL(NO_CHANGE, input_check(RIGHT_BUTTON));
+    TEST_ASSERT_EQUAL(NO_CHANGE, input_check(RIGHT_SWITCH));
+}
+
+void test_IO_input_true_eventually(void) {
+    bool return_seq[1] = {true}; 
+
+    SET_RETURN_SEQ(GPIOPinRead, return_seq, 1);
+
+    input_init();
+
+    for (uint8_t i = 0; i < 100; i ++) {
+        input_update();
+    }
+
+    TEST_ASSERT_TRUE(input_get(UP_BUTTON));
+    TEST_ASSERT_TRUE(input_get(DOWN_BUTTON));
+    TEST_ASSERT_TRUE(input_get(LEFT_BUTTON));
+    TEST_ASSERT_TRUE(input_get(RIGHT_BUTTON));
+    TEST_ASSERT_TRUE(input_get(RIGHT_SWITCH));
+}
