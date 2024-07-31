@@ -43,18 +43,22 @@ void test_IO_input_pin_type_set_calls(void) {
     input_init();
 
     // assert
-    TEST_ASSERT_EQUAL(6, GPIOPinTypeGPIOInput_fake.call_count);
+    TEST_ASSERT_EQUAL(5, GPIOPinTypeGPIOInput_fake.call_count);
 }
 
 void test_IO_input_pad_config_set_calls(void) {
     input_init();
 
-    TEST_ASSERT_EQUAL(6, GPIOPadConfigSet_fake.call_count);
+    TEST_ASSERT_EQUAL(5, GPIOPadConfigSet_fake.call_count);
 }
 
 void test_IO_input_peripheral_enable_calls(void) {
     input_init();
 
-    TEST_ASSERT_EQUAL(6, SysCtlPeripheralEnable);
+    TEST_ASSERT_EQUAL(5, SysCtlPeripheralEnable_fake.call_count);
+}
+
+void test_IO_input_init_successful(void) {
+    TEST_ASSERT_TRUE(input_init());
 }
 
