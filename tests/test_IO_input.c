@@ -43,19 +43,19 @@ void test_IO_input_pin_type_set_calls(void) {
     input_init();
 
     // assert
-    TEST_ASSERT_EQUAL(5, GPIOPinTypeGPIOInput_fake.call_count);
+    TEST_ASSERT_EQUAL(NUM_INPUT_MODES, GPIOPinTypeGPIOInput_fake.call_count);
 }
 
 void test_IO_input_pad_config_set_calls(void) {
     input_init();
 
-    TEST_ASSERT_EQUAL(5, GPIOPadConfigSet_fake.call_count);
+    TEST_ASSERT_EQUAL(NUM_INPUT_MODES, GPIOPadConfigSet_fake.call_count);
 }
 
 void test_IO_input_peripheral_enable_calls(void) {
     input_init();
 
-    TEST_ASSERT_EQUAL(5, SysCtlPeripheralEnable_fake.call_count);
+    TEST_ASSERT_EQUAL(NUM_INPUT_MODES, SysCtlPeripheralEnable_fake.call_count);
 }
 
 void test_IO_input_init_successful(void) {
@@ -82,10 +82,10 @@ void test_IO_input_check_no_change_on_init(void) {
     TEST_ASSERT_EQUAL(NO_CHANGE, input_check(RIGHT_SWITCH));
 }
 
-void test_IO_input_true_eventually(void) {
-    bool return_seq[1] = {true}; 
+void test_IO_input_correct_eventually(void) {
+    bool return_seq[5] = {false, true, false, false, true}; 
 
-    SET_RETURN_SEQ(GPIOPinRead, return_seq, 1);
+    SET_RETURN_SEQ(GPIOPinRead, return_seq, 5);
 
     input_init();
 
@@ -98,4 +98,22 @@ void test_IO_input_true_eventually(void) {
     TEST_ASSERT_TRUE(input_get(LEFT_BUTTON));
     TEST_ASSERT_TRUE(input_get(RIGHT_BUTTON));
     TEST_ASSERT_TRUE(input_get(RIGHT_SWITCH));
+}
+
+void test_IO_input_debounce(void) {
+    bool return_seq[10] = {false, true, false, false, true, true, false, true, 
+        true, false}; 
+
+    SET_RETURN_SEQ(GPIOPinRead, return_seq, 10);
+
+    input_init();
+
+    input_update();
+    input_update();
+
+    TEST_ASSERT_FALSE(input_get(UP_BUTTON));
+    TEST_ASSERT_FALSE(input_get(DOWN_BUTTON));
+    TEST_ASSERT_FALSE(input_get(LEFT_BUTTON));
+    TEST_ASSERT_FALSE(input_get(RIGHT_BUTTON));
+    TEST_ASSERT_FALSE(input_get(RIGHT_SWITCH));
 }
