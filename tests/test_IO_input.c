@@ -20,6 +20,9 @@ DEFINE_FFF_GLOBALS;
 
 #include "IO_input.h"
 
+#define INPUTS_ON_LIST  0x00000000, 0x00000004, 0x00000000, 0x00000000, 0x00000080
+#define INPUTS_OFF_LIST 0x00000001, 0x00000000, 0x00000010, 0x00000001, 0x00000000
+
 void reset_fff(void)
 {
     FFF_GPIO_FAKES_LIST(RESET_FAKE);
@@ -83,7 +86,7 @@ void test_IO_input_check_no_change_on_init(void) {
 }
 
 void test_IO_input_correct_eventually(void) {
-    bool return_seq[5] = {false, true, false, false, true}; 
+    uint32_t return_seq[5] = {INPUTS_ON_LIST}; 
 
     SET_RETURN_SEQ(GPIOPinRead, return_seq, 5);
 
@@ -101,8 +104,7 @@ void test_IO_input_correct_eventually(void) {
 }
 
 void test_IO_input_debounce(void) {
-    bool return_seq[10] = {false, true, false, false, true, true, false, true, 
-        true, false}; 
+    uint32_t return_seq[10] = {INPUTS_ON_LIST, INPUTS_OFF_LIST}; 
 
     SET_RETURN_SEQ(GPIOPinRead, return_seq, 10);
 
