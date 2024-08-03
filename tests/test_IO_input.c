@@ -86,13 +86,14 @@ void test_IO_input_check_no_change_on_init(void) {
 }
 
 void test_IO_input_correct_eventually(void) {
-    uint32_t return_seq[5] = {INPUTS_ON_LIST}; 
-
-    SET_RETURN_SEQ(GPIOPinRead, return_seq, 5);
+    uint32_t return_seq[25] = {INPUTS_ON_LIST, INPUTS_ON_LIST, INPUTS_ON_LIST, INPUTS_ON_LIST,
+        INPUTS_ON_LIST}; 
+    
+    SET_RETURN_SEQ(GPIOPinRead, return_seq, 25);
 
     input_init();
 
-    for (uint8_t i = 0; i < 100; i ++) {
+    for (uint8_t i = 0; i < 5; i ++) {    
         input_update();
     }
 

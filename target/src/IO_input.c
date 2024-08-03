@@ -126,9 +126,8 @@ input_state_t input_check(input_mode_t input) {
 void input_update(void) {
     int32_t value = 0;
     for (uint8_t i = 0; i < NUM_INPUT_MODES; i++) {
-        value = (GPIOPinRead(g_mode_arr[i].port_base, 
-            g_mode_arr[i].pin) );
-        g_mode_arr[i].value = value == g_mode_arr[i].pin;
+        value = GPIOPinRead(g_mode_arr[i].port_base, g_mode_arr[i].pin);
+        g_mode_arr[i].value = (value == g_mode_arr[i].pin);
 
         if (g_mode_arr[i].value != g_mode_arr[i].state) {
             g_mode_arr[i].count++;
