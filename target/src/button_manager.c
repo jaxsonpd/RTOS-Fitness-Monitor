@@ -38,7 +38,7 @@ static bool allowLongPress = true;
 //********************************************************
 void btnInit(void)
 {
-    input_init();
+    input_init(true);
 }
 
 //********************************************************

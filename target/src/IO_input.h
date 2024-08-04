@@ -36,9 +36,11 @@ typedef enum input_state {
 /** 
  * @brief Initialise the input module
  * 
+ * @param override_portf true if the port f (right button) should work (this
+ * will fail on non tiva board systems)
  * @return true if successful
  */
-bool input_init(void);
+bool input_init(bool override_portf);
 
 
 /**

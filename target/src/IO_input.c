@@ -79,7 +79,7 @@ input_mode_info_t g_right_switch = {
 
 input_mode_info_t g_mode_arr[5] = {0};
 
-bool input_init(void)
+bool input_init(bool override_portf)
 {
     g_mode_arr[0] = g_up_button;
     g_mode_arr[1] = g_down_button;
@@ -91,7 +91,7 @@ bool input_init(void)
     for (uint8_t i = 0; i < NUM_INPUT_MODES; i++)
     {
         SysCtlPeripheralEnable(g_mode_arr[i].periph);
-        if (i == RIGHT_BUTTON)
+        if (i == RIGHT_BUTTON && override_portf)
         {
             // Unlock right button
             GPIO_PORTF_LOCK_R = GPIO_LOCK_KEY;
