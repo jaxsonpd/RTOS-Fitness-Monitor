@@ -68,21 +68,17 @@ void test_IO_input_init_successful(void) {
 void test_IO_input_get_false_on_init(void) {
     input_init();
 
-    TEST_ASSERT_FALSE(input_get(UP_BUTTON));
-    TEST_ASSERT_FALSE(input_get(DOWN_BUTTON));
-    TEST_ASSERT_FALSE(input_get(LEFT_BUTTON));
-    TEST_ASSERT_FALSE(input_get(RIGHT_BUTTON));
-    TEST_ASSERT_FALSE(input_get(RIGHT_SWITCH));
+    for (uint32_t i = 0; i < NUM_INPUT_MODES; i++) {
+        TEST_ASSERT_FALSE(input_get(i));
+    }
 }
 
 void test_IO_input_check_no_change_on_init(void) {
     input_init();
 
-    TEST_ASSERT_EQUAL(NO_CHANGE, input_check(UP_BUTTON));
-    TEST_ASSERT_EQUAL(NO_CHANGE, input_check(DOWN_BUTTON));
-    TEST_ASSERT_EQUAL(NO_CHANGE, input_check(LEFT_BUTTON));
-    TEST_ASSERT_EQUAL(NO_CHANGE, input_check(RIGHT_BUTTON));
-    TEST_ASSERT_EQUAL(NO_CHANGE, input_check(RIGHT_SWITCH));
+    for (uint32_t i = 0; i < NUM_INPUT_MODES; i++) {
+        TEST_ASSERT_EQUAL(NO_CHANGE, input_check(i));
+    }
 }
 
 void test_IO_input_correct_eventually(void) {
@@ -97,11 +93,9 @@ void test_IO_input_correct_eventually(void) {
         input_update();
     }
 
-    TEST_ASSERT_TRUE(input_get(UP_BUTTON));
-    TEST_ASSERT_TRUE(input_get(DOWN_BUTTON));
-    TEST_ASSERT_TRUE(input_get(LEFT_BUTTON));
-    TEST_ASSERT_TRUE(input_get(RIGHT_BUTTON));
-    TEST_ASSERT_TRUE(input_get(RIGHT_SWITCH));
+    for (uint32_t i = 0; i < NUM_INPUT_MODES; i++) {
+        TEST_ASSERT_TRUE(input_get(i));
+    }
 }
 
 void test_IO_input_debounce(void) {
@@ -114,9 +108,23 @@ void test_IO_input_debounce(void) {
     input_update();
     input_update();
 
-    TEST_ASSERT_FALSE(input_get(UP_BUTTON));
-    TEST_ASSERT_FALSE(input_get(DOWN_BUTTON));
-    TEST_ASSERT_FALSE(input_get(LEFT_BUTTON));
-    TEST_ASSERT_FALSE(input_get(RIGHT_BUTTON));
-    TEST_ASSERT_FALSE(input_get(RIGHT_SWITCH));
+    for (uint32_t i = 0; i < NUM_INPUT_MODES; i++) {
+        TEST_ASSERT_FALSE(input_get(i));
+    }
+}
+
+void test_IO_input_pushed_indicated(void) {
+    uint32_t return_seq[15] = {INPUTS_ON_LIST, INPUTS_ON_LIST, INPUTS_ON_LIST};
+    
+    SET_RETURN_SEQ(GPIOPinRead, return_seq, 15);
+
+    input_init();
+
+    input_update();
+    input_update();
+    input_update();
+
+    for (uint32_t i = 0; i < NUM_INPUT_MODES; i++) {
+        TEST_ASSERT_EQUAL(PUSHED, input_check(i));
+    }
 }

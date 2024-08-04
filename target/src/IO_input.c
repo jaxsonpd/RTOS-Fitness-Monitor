@@ -119,7 +119,15 @@ bool input_get(input_mode_t input) {
 }
 
 input_state_t input_check(input_mode_t input) {
+    if (g_mode_arr[input].flag) {
+        g_mode_arr[input].flag = false;
 
+        if (g_mode_arr[input].state == g_mode_arr[input].normal) {
+            return RELEASED;
+        } else {
+            return PUSHED;
+        }
+    }
     return NO_CHANGE;
 }
 

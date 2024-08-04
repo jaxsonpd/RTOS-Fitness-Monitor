@@ -27,7 +27,7 @@ typedef enum input_mode {
 } input_mode_t;
 
 typedef enum input_state {
-    PRESSED,
+    PUSHED,
     RELEASED,
     NO_CHANGE
 } input_state_t;
