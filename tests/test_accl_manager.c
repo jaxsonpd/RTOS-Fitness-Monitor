@@ -1,8 +1,8 @@
 #include <stdint.h>
-
-#include "unity.h"
 #include "circBufV.h"
 #include "accl_manager.h"
+
+#include "unity.h"
 
 #include "fff.h"
 DEFINE_FFF_GLOBALS;

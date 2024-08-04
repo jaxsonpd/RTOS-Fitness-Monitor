@@ -1,9 +1,8 @@
+#include "fff.h"
+
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "fff.h"
-#include "inc/hw_memmap.h"
-#include "driverlib/pin_map.h"
 #include "i2c_driver.h"
 
 #ifdef FFF_MOCK_IMPL
