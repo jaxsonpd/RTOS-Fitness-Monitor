@@ -11,16 +11,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <stdint.h>
-#include <stdbool.h>
-
-#include "inc/hw_memmap.h"
-#include "inc/hw_types.h"
-#include "driverlib/gpio.h"
-#include "driverlib/sysctl.h"
-#include "driverlib/debug.h"
-#include "inc/tm4c123gh6pm.h"
-
 #include "IO_input.h"
 
 #include "button_manager.h"
