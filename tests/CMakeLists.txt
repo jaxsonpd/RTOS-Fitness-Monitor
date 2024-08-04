@@ -2,20 +2,14 @@ set(SRC_DIR ../target/src)
 set(TIVAWARE_DIR ../target/libs/tivaware)
 set(MOCK_DIR mocks)
 
-set(SRC_DIR ../target/src)
-set(TIVAWARE_DIR ../target/libs/tivaware)
-set(MOCK_DIR mocks)
-
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 project(FitnessTrackerTests LANGUAGES C)
-
-set(SRC_DIR ../target/src)
 
 enable_testing()
 add_subdirectory(unity)
 
-# add_unity_test(test_example test_example.c)
-# add_unity_test(test_fff test_fff.c)
+set(TIVAWARE_MCU TM4C123GH6PM CACHE STRING "MCU part number")
+
 add_unity_test(test_circular_buffer test_circular_buffer.c ${SRC_DIR}/circular_buffer_T.c)
 add_unity_test(test_adc test_adc.c ${SRC_DIR}/ADC_read.c)
 add_unity_test(test_accl_manager test_accl_manager.c ${SRC_DIR}/accl_manager.c)
