@@ -25,10 +25,16 @@
 #define FFF_GPIO_FAKES_LIST(FUNC)           \
     FUNC(GPIOPinTypeGPIOInput)              \
     FUNC(GPIOPadConfigSet)                  \
-    FUNC(GPIOPinRead)                       
+    FUNC(GPIOPinRead)                       \
+    FUNC(GPIOPinTypeI2C)                    \
+    FUNC(GPIOPinTypeI2CSCL)                 \
+    FUNC(GPIOPinConfigure)                  \
 
 typedef void (*void_function_ptr_type)(void);
 
 VOID_FUNC(GPIOPinTypeGPIOInput, uint32_t, uint8_t);
 VOID_FUNC(GPIOPadConfigSet, uint32_t, uint8_t, uint32_t, uint32_t);
 VALUE_FUNC(int32_t, GPIOPinRead, uint32_t, uint8_t);
+VOID_FUNC(GPIOPinTypeI2C, uint32_t, uint8_t);
+VOID_FUNC(GPIOPinTypeI2CSCL, uint32_t, uint8_t);
+VOID_FUNC(GPIOPinConfigure, uint32_t);

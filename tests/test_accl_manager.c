@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "circBufV.h"
+#include "circular_buffer_T.h"
 #include "driverlib/pin_map.h"
 #include "accl_manager.h"
 
@@ -11,6 +12,8 @@ DEFINE_FFF_GLOBALS;
 #define FFF_MOCK_IMPL // Includes mock implementations
 
 #include "tiva_mocks/sysctl_mock.h"
+#include "tiva_mocks/gpio_mock.h"
+#include "tiva_mocks/i2c_mock.h"
 #include "i2c_driver_mock.h"
 
 /* Helper functions */ 

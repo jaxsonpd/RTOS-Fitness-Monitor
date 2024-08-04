@@ -16,7 +16,8 @@
 
 #include "acc.h"
 #include "i2c_driver.h"
-#include "circBufV.h"
+// #include "circBufV.h"
+#include "circular_buffer_T.h"
 
 
 #include "accl_manager.h"
@@ -27,15 +28,16 @@
 // Constants and static vars
 //********************************************************
 #define BUF_SIZE 20 // WARNING: If this is set too high, we run out of heap space and the z-buffer gets garbled data
-static circBufVec_t acclBuffer;
-
-
+// static circBufVec_t acclBuffer;
+static CircBuf_t acclXBuffer;
+static CircBuf_t acclYBuffer;
+static CircBuf_t acclZBuffer;
 
 /*******************************************
  *      Local prototypes
  *******************************************/
 void initAcclChip(void);
-vector3_t getAcclData(void);
+int16_t* getAcclData(void);
 
 
 
@@ -47,7 +49,9 @@ void acclInit(void)
 {
     initAcclChip(); // Init the chip over I2C
 
-    initVecCircBuf(&acclBuffer, BUF_SIZE);
+    CircBuf_init(&acclXBuffer, BUF_SIZE);
+    CircBuf_init(&acclYBuffer, BUF_SIZE);
+    CircBuf_init(&acclZBuffer, BUF_SIZE);
 }
 
 
@@ -153,18 +157,18 @@ void initAcclChip(void)
 
 
 // Read the accl chip
-vector3_t getAcclData(void)
+int16_t getAcclData(void)
 {
     char    fromAccl[] = {0, 0, 0, 0, 0, 0, 0}; // starting address, placeholders for data to be read.
-    vector3_t acceleration;
+    int16_t acceleration[3] = {0};
     uint8_t bytesToRead = 6;
 
     fromAccl[0] = ACCL_DATA_X0;
     I2CGenTransmit(fromAccl, bytesToRead, READ, ACCL_ADDR);
 
-    acceleration.x = (fromAccl[2] << 8) | fromAccl[1]; // Return 16-bit acceleration readings.
-    acceleration.y = (fromAccl[4] << 8) | fromAccl[3];
-    acceleration.z = (fromAccl[6] << 8) | fromAccl[5];
+    acceleration[0] = (fromAccl[2] << 8) | fromAccl[1]; // Return 16-bit acceleration readings.
+    acceleration[1] = (fromAccl[4] << 8) | fromAccl[3];
+    acceleration[2] = (fromAccl[6] << 8) | fromAccl[5];
 
     return acceleration;
 }
