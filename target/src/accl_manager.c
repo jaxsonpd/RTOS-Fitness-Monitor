@@ -16,7 +16,6 @@
 
 #include "acc.h"
 #include "i2c_driver.h"
-// #include "circBufV.h"
 #include "circular_buffer_T.h"
 
 
@@ -37,7 +36,7 @@ static CircBuf_t acclZBuffer;
  *      Local prototypes
  *******************************************/
 void initAcclChip(void);
-int16_t* getAcclData(void);
+vector3_t getAcclData(void);
 
 
 
@@ -60,7 +59,9 @@ void acclInit(void)
 void acclProcess(void)
 {
     vector3_t acceleration = getAcclData();
-    writeVecCircBuf(&acclBuffer, acceleration);
+    CircBuf_write(&acclXBuffer, acceleration.x);
+    CircBuf_write(&acclYBuffer, acceleration.y);
+    CircBuf_write(&acclZBuffer, acceleration.z);
 }
 
 
@@ -75,10 +76,9 @@ vector3_t acclMean(void)
 
     uint8_t i = 0;
     for (i = 0; i < BUF_SIZE; i++) {
-        vector3_t nextVector = readVecCircBuf(&acclBuffer);
-        result_x = result_x + nextVector.x;
-        result_y = result_y + nextVector.y;
-        result_z = result_z + nextVector.z;
+        result_x = result_x + CircBuf_read(&acclXBuffer);
+        result_y = result_y + CircBuf_read(&acclYBuffer);
+        result_z = result_z + CircBuf_read(&acclZBuffer);
     }
 
     vector3_t result = {0};
@@ -157,18 +157,18 @@ void initAcclChip(void)
 
 
 // Read the accl chip
-int16_t getAcclData(void)
+vector3_t getAcclData(void)
 {
     char    fromAccl[] = {0, 0, 0, 0, 0, 0, 0}; // starting address, placeholders for data to be read.
-    int16_t acceleration[3] = {0};
+    vector3_t acceleration = {0};
     uint8_t bytesToRead = 6;
 
     fromAccl[0] = ACCL_DATA_X0;
     I2CGenTransmit(fromAccl, bytesToRead, READ, ACCL_ADDR);
 
-    acceleration[0] = (fromAccl[2] << 8) | fromAccl[1]; // Return 16-bit acceleration readings.
-    acceleration[1] = (fromAccl[4] << 8) | fromAccl[3];
-    acceleration[2] = (fromAccl[6] << 8) | fromAccl[5];
+    acceleration.x = (fromAccl[2] << 8) | fromAccl[1]; // Return 16-bit acceleration readings.
+    acceleration.y = (fromAccl[4] << 8) | fromAccl[3];
+    acceleration.z = (fromAccl[6] << 8) | fromAccl[5];
 
     return acceleration;
 }

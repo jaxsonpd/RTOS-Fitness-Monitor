@@ -30,7 +30,6 @@
 #include "utils/ustdlib.h"
 #include "acc.h"
 #include "math.h"
-#include "circBufV.h"
 #include "ADC_read.h"
 
 #ifdef SERIAL_PLOTTING_ENABLED

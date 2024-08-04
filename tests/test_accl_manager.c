@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include <stdbool.h>
-#include "circBufV.h"
 #include "circular_buffer_T.h"
 #include "driverlib/pin_map.h"
 #include "accl_manager.h"
@@ -15,6 +14,7 @@ DEFINE_FFF_GLOBALS;
 #include "tiva_mocks/gpio_mock.h"
 #include "tiva_mocks/i2c_mock.h"
 #include "i2c_driver_mock.h"
+#include "circular_buffer_T_mock.h"
 
 /* Helper functions */ 
 void reset_fff(void)
@@ -48,8 +48,8 @@ void test_accl_init_initialises_peripherals(void)
     // Arrange
 
     // Act
-    // acclInit();
+    acclInit();
 
     // Assert
-    // TEST_ASSERT_EQUAL(1,SysCtlPeripheralEnable_fake.call_count);
+    TEST_ASSERT_EQUAL(1,SysCtlPeripheralEnable_fake.call_count);
 }
