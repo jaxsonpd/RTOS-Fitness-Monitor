@@ -15,3 +15,5 @@ add_unity_test(test_accl_manager test_accl_manager.c ${SRC_DIR}/accl_manager.c)
 target_include_directories(test_circular_buffer PRIVATE ${SRC_DIR})
 target_include_directories(test_adc PRIVATE ${SRC_DIR} ${TIVAWARE_DIR} ${MOCK_DIR})
 target_include_directories(test_accl_manager PRIVATE ${SRC_DIR} ${TIVAWARE_DIR} ${MOCK_DIR})
+
+target_compile_definitions(test_accl_manager PRIVATE PART_TM4C123GH6PM)

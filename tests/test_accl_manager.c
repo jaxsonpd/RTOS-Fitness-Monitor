@@ -1,5 +1,7 @@
 #include <stdint.h>
+#include <stdbool.h>
 #include "circBufV.h"
+#include "driverlib/pin_map.h"
 #include "accl_manager.h"
 
 #include "unity.h"
