@@ -10,6 +10,7 @@ add_tiva_executable(fitness-tracker
     serial_sender.c
     step_counter_main.c
     switches.c
+    IO_input.c
 )
 target_compile_options(fitness-tracker PRIVATE -Wall)
 target_link_libraries(fitness-tracker PRIVATE tivaware OrbitOLED m)
