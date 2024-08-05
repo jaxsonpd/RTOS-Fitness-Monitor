@@ -73,9 +73,6 @@
 void SysTickIntHandler (void);
 void initClock (void);
 void initDisplay (void);
-void initAccl (void);
-vector3_t getAcclData (void);
-
 
 /*******************************************
  *      Globals

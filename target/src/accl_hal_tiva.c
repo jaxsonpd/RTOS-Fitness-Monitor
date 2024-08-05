@@ -2,7 +2,7 @@
  * @file accl_hal_tiva.c
  * @author Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
- * @brief Hardware Abstraction Layer implementation for TIVA
+ * @brief Hardware Abstraction Layer implementation for an I2C Accelerometer on TIVA
  */
 
 #include <stdbool.h>
@@ -20,7 +20,7 @@
 #include "accl_hal.h"
 
 // Init the accl chip via I2C
-void initAcclChip(void)
+void accl_chip_init(void)
 {
     char    toAccl[] = {0, 0};  // parameter, value
 
@@ -80,7 +80,7 @@ void initAcclChip(void)
 }
 
 // Read the accl chip
-void getAcclData(int16_t* acceleration)
+void accl_data_get(int16_t* acceleration)
 {
     char    fromAccl[] = {0, 0, 0, 0, 0, 0, 0}; // starting address, placeholders for data to be read.
     uint8_t bytesToRead = 6;
@@ -92,5 +92,3 @@ void getAcclData(int16_t* acceleration)
     acceleration[1] = (fromAccl[4] << 8) | fromAccl[3];
     acceleration[2] = (fromAccl[6] << 8) | fromAccl[5];
 }
-
-

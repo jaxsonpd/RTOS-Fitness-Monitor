@@ -30,7 +30,7 @@ static CircBuf_t acclZBuffer;
 // Init the library
 void acclInit(void)
 {
-    initAcclChip(); // Init the chip over I2C
+    accl_chip_init(); // Init the chip over I2C
 
     CircBuf_init(&acclXBuffer, BUF_SIZE);
     CircBuf_init(&acclYBuffer, BUF_SIZE);
@@ -41,7 +41,7 @@ void acclInit(void)
 void acclProcess(void)
 {
     int16_t acceleration[3];
-    getAcclData(acceleration);
+    accl_data_get(acceleration);
     CircBuf_write(&acclXBuffer, acceleration[0]);
     CircBuf_write(&acclYBuffer, acceleration[1]);
     CircBuf_write(&acclZBuffer, acceleration[2]);
