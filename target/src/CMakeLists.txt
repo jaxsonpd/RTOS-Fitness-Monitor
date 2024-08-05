@@ -10,5 +10,5 @@ add_tiva_executable(fitness-tracker
     IO_input.c
 )
 target_compile_options(fitness-tracker PRIVATE -Wall)
-target_link_libraries(fitness-tracker PRIVATE tivaware OrbitOLED m)
+target_link_libraries(fitness-tracker PRIVATE tivaware OrbitOLED freertos::heap-4 m)
 add_program_target(fitness-tracker PROGRAM_TARGET program DEBUG_TARGET debug)
