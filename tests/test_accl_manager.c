@@ -51,5 +51,17 @@ void test_accl_init_initialises_peripherals(void)
     acclInit();
 
     // Assert
-    TEST_ASSERT_EQUAL(1,SysCtlPeripheralEnable_fake.call_count);
+    TEST_ASSERT_EQUAL(3,SysCtlPeripheralEnable_fake.call_count);
+    TEST_ASSERT_EQUAL(1,SysCtlPeripheralReset_fake.call_count);
+}
+
+void test_accl_init_configures_i2c(void)
+{
+    // Arange
+
+    // Act
+    acclInit();
+
+    // Assert
+    assert_func_called_with_args(GPIOPinTypeI2C_fake,I2CSDAPort,I2CSDA_PIN);
 }

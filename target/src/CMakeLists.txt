@@ -3,7 +3,6 @@ add_tiva_executable(fitness-tracker
     ADC_read.c
     button_manager.c
     circular_buffer_T.c
-    circBufV.c
     display_manager.c
     i2c_driver.c
     serial_sender.c

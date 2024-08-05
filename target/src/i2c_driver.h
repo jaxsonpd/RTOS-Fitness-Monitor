@@ -14,6 +14,10 @@
 /*
  * I2C Control
  */
+
+#include "driverlib/pin_map.h"
+#include "inc/hw_memmap.h"
+
 #define I2CPort         GPIO_PORTB_BASE
 #define I2CSDAPort      GPIO_PORTB_BASE
 #define I2CSCLPort      GPIO_PORTB_BASE
