@@ -62,8 +62,7 @@ void assert_f1_called_before_f2(void *f1, void *f2)
 
 
 /* Custom fakes */
-int32_t ADCSequenceDataGet_fake_adc_value(uint32_t arg0, uint32_t arg1,
-                                          uint32_t *arg2)
+int32_t ADCSequenceDataGet_fake_adc_value(uint32_t arg0, uint32_t arg1, uint32_t *arg2)
 {
     (void)arg0;
     (void)arg1;
