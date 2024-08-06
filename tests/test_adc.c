@@ -5,7 +5,7 @@
 DEFINE_FFF_GLOBALS;
 #define FFF_MOCK_IMPL // Includes mock implementations
 
-#include "circBufT_mock.h"
+#include "circular_buffer_T_mock.h"
 #include "tiva_mocks/adc_mock.h"
 #include "tiva_mocks/sysctl_mock.h"
 
@@ -62,8 +62,7 @@ void assert_f1_called_before_f2(void *f1, void *f2)
 
 
 /* Custom fakes */
-int32_t ADCSequenceDataGet_fake_adc_value(uint32_t arg0, uint32_t arg1,
-                                          uint32_t *arg2)
+int32_t ADCSequenceDataGet_fake_adc_value(uint32_t arg0, uint32_t arg1, uint32_t *arg2)
 {
     (void)arg0;
     (void)arg1;

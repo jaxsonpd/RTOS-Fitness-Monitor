@@ -12,7 +12,11 @@
 
 #define FFF_SYSCTL_FAKES_LIST(FUNC)     \
     FUNC(SysCtlPeripheralEnable)        \
-    FUNC(SysCtlPeripheralReady)    
+    FUNC(SysCtlClockGet)                \
+    FUNC(SysCtlPeripheralReset)         \
+    FUNC(SysCtlPeripheralReady)         \
 
 VOID_FUNC(SysCtlPeripheralEnable, uint32_t);
+VALUE_FUNC(uint32_t, SysCtlClockGet);
+VOID_FUNC(SysCtlPeripheralReset, uint32_t);
 VALUE_FUNC(bool, SysCtlPeripheralReady, uint32_t);

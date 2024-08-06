@@ -30,7 +30,6 @@
 #include "utils/ustdlib.h"
 #include "acc.h"
 #include "math.h"
-#include "circBufV.h"
 #include "ADC_read.h"
 
 #include "FreeRTOS.h"
@@ -74,9 +73,6 @@
 void SysTickIntHandler (void);
 void initClock (void);
 void initDisplay (void);
-void initAccl (void);
-vector3_t getAcclData (void);
-
 
 /*******************************************
  *      Globals
