@@ -113,7 +113,7 @@ void btnUpdateState(deviceStateInfo_t *deviceStateInfo)
             if (longPressCount >= LONG_PRESS_CYCLES)
             {
                 deviceStateInfo->stepsTaken = 0;
-                flashMessage("Reset!");
+                // flashMessage("Reset!");
             }
         }
         else
