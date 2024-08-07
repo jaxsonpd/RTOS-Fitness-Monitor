@@ -18,6 +18,6 @@ target_include_directories(test_circular_buffer PRIVATE ${SRC_DIR})
 target_include_directories(test_IO_input PRIVATE ${SRC_DIR} ${TIVAWARE_DIR} ${MOCK_DIR})
 target_include_directories(test_adc PRIVATE ${SRC_DIR} ${TIVAWARE_DIR} ${MOCK_DIR})
 target_include_directories(test_accl_manager PRIVATE ${SRC_DIR} ${TIVAWARE_DIR} ${MOCK_DIR})
-target_include_directories(test_input_manager PRIVATE ${SRC_DIR} ${MOCK_DIR})
-
 target_compile_definitions(test_accl_manager PRIVATE PART_TM4C123GH6PM)
+
+target_include_directories(test_input_manager PRIVATE ${SRC_DIR} ${MOCK_DIR})

@@ -33,11 +33,13 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "queue.h"
 
 #ifdef SERIAL_PLOTTING_ENABLED
 #include "serial_sender.h"
 #endif // SERIAL_PLOTTING_ENABLED
 
+#include "queue_info.h"
 #include "accl_manager.h"
 #include "display_manager.h"
 #include "input_manager.h"
@@ -76,6 +78,7 @@ void initDisplay(void);
  *      Globals
  *******************************************/
 deviceStateInfo_t deviceState; // Stored as one global so it can be accessed by other helper libs within this main module
+QueueHandle_t input_display_queue;
 
 /***********************************************************
  * Initialisation functions
@@ -138,7 +141,6 @@ void superloop(void *args)
     vector3_t mean;
 
     displayInit();
-    btnInit();
     acclInit();
     initADC();
 
@@ -146,13 +148,11 @@ void superloop(void *args)
     {
         unsigned long currentTick = readCurrentTick();
 
-        // Poll the buttons and potentiometer
+        // Poll the potentiometer
         if (lastIoProcess + RATE_SYSTICK_HZ / RATE_IO_HZ < currentTick)
         {
             lastIoProcess = currentTick;
 
-            //            updateSwitch();
-            btnUpdateState(&deviceState);
             pollADC();
 
             deviceState.newGoal = readADC() * POT_SCALE_COEFF;                                     // Set the new goal value, scaling to give the desired range
@@ -207,6 +207,21 @@ void superloop(void *args)
                 deviceState.flashTicksLeft--;
             }
 
+            uint32_t num_items = 0;
+            BaseType_t xStatus;
+            while (uxQueueMessagesWaiting(input_display_queue) != 0 && num_items < 5)
+            {
+                in_dis_queue_info_t message;
+                xStatus = xQueueReceive(input_display_queue, &message, 0);
+                if (xStatus == pdTRUE)
+                {
+                    if (message == MOVE_SCREEN_LEFT)
+                    {
+                        deviceState.displayMode = (deviceState.displayMode + 1) % DISPLAY_NUM_STATES; // flicker when pressing button
+                    }
+                }
+            }
+
             uint16_t secondsElapsed = (currentTick - deviceState.workoutStartTick) / RATE_SYSTICK_HZ;
             displayUpdate(deviceState, secondsElapsed);
         }
@@ -245,7 +260,8 @@ void superloop(void *args)
         {
             lastSerialProcess = 0;
         }
-#endif // SERIAL_PLOTTING_ENABLED
+#endif // SERIAL_PLOTTING_ENABLE
+        vTaskDelay(10);
     }
 }
 
@@ -268,7 +284,17 @@ int main(void)
 #ifdef SERIAL_PLOTTING_ENABLED
     SerialInit();
 #endif // SERIAL_PLOTTING_ENABLED
+
+    input_display_queue = xQueueCreate(5, sizeof(in_dis_queue_info_t));
+
     xTaskCreate(&superloop, "superloop", 512, NULL, 1, NULL);
+    xTaskCreate(&input_manager_thread,
+                "input manager thread",
+                512,
+                (void *)input_display_queue,
+                1,
+                NULL);
+
     vTaskStartScheduler();
     return 0;
 }

@@ -10,7 +10,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "FreeRTOS.h"
+#include "queue.h"
+
 #include "IO_input.h"
+#include "queue_info.h"
 
 #include "step_counter_main.h"
 #include "input_manager.h"
@@ -135,8 +139,30 @@ void btnUpdateState(deviceStateInfo_t *deviceStateInfo)
     }
 }
 
-void ;
+void input_manager_thread(void *p_display_queue_void)
+{
+    QueueHandle_t *p_display_queue = (QueueHandle_t *)p_display_queue_void;
+    BaseType_t xStatus;
 
-void input_manager_thread(void *input_msg_queue) {
+    input_init(true);
 
+    for (;;)
+    {
+        input_update();
+
+        // Change screens
+        if (input_check(LEFT_BUTTON) == PUSHED)
+        {
+            xStatus = xQueueSendToBack(*p_display_queue, MOVE_SCREEN_LEFT, 0);
+        }
+        else if (input_check(RIGHT_BUTTON) == PUSHED)
+        {
+            xStatus = xQueueSendToBack(*p_display_queue, MOVE_SCREEN_RIGHT, 0);
+        }
+
+        // Up down buttons
+
+        // Switch
+        vTaskDelay(100);
+    }
 }
