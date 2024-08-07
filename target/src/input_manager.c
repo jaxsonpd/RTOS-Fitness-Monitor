@@ -1,9 +1,8 @@
 /**
- * @file button_manager.c
+ * @file input_manager.c
  * @author Jack Duignan (Jdu80@uclive.ac.nz)
  * @date 2024-08-04
- * @brief Modifies the device's state according to the user's button and
- * switch input
+ * @brief Contains the thread that handles input from various IO
  *
  * @cite Daniel Rabbidge
  */
@@ -13,7 +12,8 @@
 
 #include "IO_input.h"
 
-#include "button_manager.h"
+#include "step_counter_main.h"
+#include "input_manager.h"
 
 //********************************************************
 // Constants and static vars
@@ -133,4 +133,10 @@ void btnUpdateState(deviceStateInfo_t *deviceStateInfo)
             allowLongPress = true;
         }
     }
+}
+
+void ;
+
+void input_manager_thread(void *input_msg_queue) {
+
 }
