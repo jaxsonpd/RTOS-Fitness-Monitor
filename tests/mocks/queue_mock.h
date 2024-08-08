@@ -1,4 +1,5 @@
 #include "fff.h"
+#include "FreeRTOS.h"
 #include "queue.h"
 
 #ifdef FFF_MOCK_IMPL
@@ -9,9 +10,12 @@
 #define VALUE_FUNC DECLARE_FAKE_VALUE_FUNC
 #endif
 
-#define FFF_CIRCBUFT_FAKES_LIST(FUNC) \
+#define FFF_QUEUE_FAKES_LIST(FUNC) \
     FUNC(xQueueCreate)                \
-    FUNC(xQueueSendToBack)
+    FUNC(xQueueSendToBack)            \
+    FUNC(xQueueReceive)               \
 
-VALUE_FUNC(QueueHandle_t, xQueueCreate, BaseType_t, BaseType_t);
-VALUE_FUNC(BaseType_t, xQueueSendToBack, QueueHandle_t, const void *, TickType_t);
+
+VALUE_FUNC(BaseType_t, xQueueReceive, QueueHandle_t, void* const, TickType_t);
+VALUE_FUNC(QueueHandle_t, xQueueGenericCreate, const UBaseType_t, const UBaseType_t, const uint8_t);
+VALUE_FUNC(BaseType_t, xQueueGenericSend, QueueHandle_t, const void* const, TickType_t, const BaseType_t);

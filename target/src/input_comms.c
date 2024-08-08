@@ -8,3 +8,36 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+
+#include "FreeRTOS.h"
+#include "queue.h"
+
+#include "input_comms.h"
+
+QueueHandle_t g_input_display_manager_queue;
+
+bool input_comms_init(void) {
+    g_input_display_manager_queue = xQueueCreate(5, sizeof(inputCommMsg_t));
+
+    return g_input_display_manager_queue != NULL;
+}
+
+
+bool input_comms_send(inputCommMsg_t msg) {
+    BaseType_t xStatus = xQueueSendToBack(g_input_display_manager_queue,
+        (const void* const)msg, 0);
+
+    return xStatus == pdTRUE;
+}
+
+inputCommMsg_t input_comms_receive(void) {
+    void *const value;
+    BaseType_t xStatus = xQueueReceive(g_input_display_manager_queue, 
+        value, 0);
+
+    if (xStatus != pdTRUE) {
+        return NO_MESSAGES;
+    }
+
+    return (inputCommMsg_t)value;
+}

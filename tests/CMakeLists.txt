@@ -1,7 +1,9 @@
 set(SRC_DIR ../target/src)
 set(TIVAWARE_DIR ../target/libs/tivaware)
 set(MOCK_DIR mocks)
-set(RTOS_DIR ../target/libs/freertos)
+set(RTOS_DIR_INCLUDE ../target/libs/freertos/include)
+set(RTOS_DIR ../target/libs/freertos/portable/GCC/ARM_CM4F)
+set(RTOS_CONFIG_DIR ../target)
 
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 project(FitnessTrackerTests LANGUAGES C)
@@ -22,5 +24,7 @@ target_include_directories(test_adc PRIVATE ${SRC_DIR} ${TIVAWARE_DIR} ${MOCK_DI
 target_include_directories(test_accl_manager PRIVATE ${SRC_DIR} ${TIVAWARE_DIR} ${MOCK_DIR})
 target_compile_definitions(test_accl_manager PRIVATE PART_TM4C123GH6PM)
 
-target_include_directories(test_input_manager PRIVATE ${SRC_DIR} ${MOCK_DIR})
-target_include_directories(test_input_comms PRIVATE ${SRC_DIR} ${RTOS_DIR} ${MOCK_DIR})
+target_include_directories(test_input_manager PRIVATE ${SRC_DIR} ${MOCK_DIR} ${RTOS_DIR} 
+                            ${RTOS_DIR_INCLUDE} ${RTOS_CONFIG_DIR})
+target_include_directories(test_input_comms PRIVATE ${SRC_DIR} ${RTOS_DIR} 
+                            ${RTOS_DIR_INCLUDE} ${MOCK_DIR} ${RTOS_CONFIG_DIR})
