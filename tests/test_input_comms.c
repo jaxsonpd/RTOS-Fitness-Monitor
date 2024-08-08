@@ -27,6 +27,28 @@ void tearDown(void)
 }
 
 // ========================== Tests ========================
+void test_input_comms_init_succesful(void)
+{
+    TEST_ASSERT_TRUE(input_comms_init());
+}
+
 void test_input_comms_init_creates_queue(void)
 {
+    input_comms_init();
+
+    TEST_ASSERT_EQUAL(1, xQueueCreate_fake.call_count);
+}
+
+void test_input_comms_init_correct_length(void)
+{
+    input_comms_init();
+
+    TEST_ASSERT_EQUAL(5, xQueueCreate_fake.arg0_val);
+}
+
+void test_input_comms_init_correct_size(void)
+{
+    input_comms_init();
+
+    TEST_ASSERT_EQUAL(sizeof(inputCommMsg_t), xQueueCreate_fake.arg1_val);
 }

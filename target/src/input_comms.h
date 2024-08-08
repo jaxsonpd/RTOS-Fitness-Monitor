@@ -15,7 +15,7 @@
 #include <stdbool.h>
 
 enum inputCommMsg_e {
-
+    NO_MESSAGES = 0
 };
 
 typedef enum inputCommMsg_e inputCommMsg_t;
