@@ -21,4 +21,6 @@ void adc_hal_isr(void);
 
 void adc_hal_register(uint8_t, callback_t);
 
+void adc_hal_conversion(uint8_t);
+
 #endif // ADC_HAL_

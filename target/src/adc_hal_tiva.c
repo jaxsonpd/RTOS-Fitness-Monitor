@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #include "inc/hw_memmap.h"
 #include "driverlib/adc.h"
@@ -25,18 +26,38 @@ typedef struct {
 } adc_config_t;
 
 static adc_config_t adc_configurations[MAX_ADC_IDS] = {
-    {SYSCTL_PERIPH_ADC0, ADC0_BASE, 3, 0, ADC_CTL_CH0 | ADC_CTL_IE | ADC_CTL_END, 0,},
+    {SYSCTL_PERIPH_ADC0, ADC0_BASE, 3, 0, ADC_CTL_CH0 | ADC_CTL_IE | ADC_CTL_END, 0, NULL},
 };
 
 void adc_hal_isr(void)
 {
+    adc_config_t config;
 
+    for (uint8_t id = 0; id < MAX_ADC_IDS; id++)
+    {
+        uint32_t ulValue;
+        config = adc_configurations[id];
+        
+        if (config.configuration == NULL) {
+            continue;
+        }
+        if (ADCIntStatus(config.baseAddress, config.sequenceNumber, false)) {
+            ADCSequenceDataGet(config.baseAddress, config.sequenceNumber, &ulValue);
+            config.callback(ulValue);
+            ADCIntClear(config.baseAddress, config.sequenceNumber);
+        }
+    }
 }
 
 void adc_hal_register(uint8_t id, callback_t callback)
 {
     // Catch invalid id
     if (id >= MAX_ADC_IDS) {
+        return;
+    }
+
+    // Catch null callback
+    if (callback == NULL) {
         return;
     }
 
@@ -53,4 +74,15 @@ void adc_hal_register(uint8_t id, callback_t callback)
     ADCIntEnable(config->baseAddress, config->sequenceNumber);
 
     config->callback = callback;
+}
+
+void adc_hal_conversion(uint8_t id)
+{
+    adc_config_t config = adc_configurations[id];
+
+    // Catch unregistered adc
+    if (config.callback == NULL) {
+        return;
+    }
+    ADCProcessorTrigger(config.baseAddress, config.sequenceNumber);
 }
