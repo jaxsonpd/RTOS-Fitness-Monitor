@@ -18,4 +18,4 @@
 
 VALUE_FUNC(BaseType_t, xQueueReceive, QueueHandle_t, void* const, TickType_t);
 VALUE_FUNC(QueueHandle_t, xQueueGenericCreate, const UBaseType_t, const UBaseType_t, const uint8_t);
-VALUE_FUNC(BaseType_t, xQueueGenericSend, QueueHandle_t, const void* const, TickType_t, const BaseType_t);
+VALUE_FUNC(BaseType_t, xQueueGenericSend, QueueHandle_t, const void*, TickType_t, const BaseType_t);

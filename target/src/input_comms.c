@@ -31,13 +31,13 @@ bool input_comms_send(inputCommMsg_t msg) {
 }
 
 inputCommMsg_t input_comms_receive(void) {
-    void *const value;
-    BaseType_t xStatus = xQueueReceive(g_input_display_manager_queue, 
-        value, 0);
+    inputCommMsg_t value;
+    BaseType_t xStatus = xQueueReceive(g_input_display_manager_queue,
+        &value, 0);
 
     if (xStatus != pdTRUE) {
         return NO_MESSAGES;
     }
 
-    return (inputCommMsg_t)value;
+    return value;
 }

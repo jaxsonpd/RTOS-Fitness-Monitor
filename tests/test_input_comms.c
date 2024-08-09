@@ -92,3 +92,11 @@ void test_input_comms_receive_non_blocking(void) {
 
     TEST_ASSERT_EQUAL(0, xQueueReceive_fake.arg2_val);
 }
+
+void test_input_comms_receive_returns_no_messages(void) {
+    BaseType_t return_seq[1] = { pdFALSE };
+
+    SET_RETURN_SEQ(xQueueReceive, return_seq, 1)
+
+        TEST_ASSERT_EQUAL(NO_MESSAGES, input_comms_receive());
+}
