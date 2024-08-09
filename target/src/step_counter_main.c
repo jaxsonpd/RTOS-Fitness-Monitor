@@ -39,7 +39,6 @@
 #include "serial_sender.h"
 #endif // SERIAL_PLOTTING_ENABLED
 
-#include "queue_info.h"
 #include "accl_manager.h"
 #include "display_manager.h"
 #include "input_manager.h"
@@ -78,7 +77,7 @@ void initDisplay(void);
  *      Globals
  *******************************************/
 deviceStateInfo_t deviceState; // Stored as one global so it can be accessed by other helper libs within this main module
-QueueHandle_t input_display_queue;
+
 
 /***********************************************************
  * Initialisation functions
@@ -207,21 +206,6 @@ void superloop(void *args)
                 deviceState.flashTicksLeft--;
             }
 
-            uint32_t num_items = 0;
-            BaseType_t xStatus;
-            while (uxQueueMessagesWaiting(input_display_queue) != 0 && num_items < 5)
-            {
-                in_dis_queue_info_t message;
-                xStatus = xQueueReceive(input_display_queue, &message, 0);
-                if (xStatus == pdTRUE)
-                {
-                    if (message == MOVE_SCREEN_LEFT)
-                    {
-                        deviceState.displayMode = (deviceState.displayMode + 1) % DISPLAY_NUM_STATES; // flicker when pressing button
-                    }
-                }
-            }
-
             uint16_t secondsElapsed = (currentTick - deviceState.workoutStartTick) / RATE_SYSTICK_HZ;
             displayUpdate(deviceState, secondsElapsed);
         }
@@ -285,13 +269,11 @@ int main(void)
     SerialInit();
 #endif // SERIAL_PLOTTING_ENABLED
 
-    input_display_queue = xQueueCreate(5, sizeof(in_dis_queue_info_t));
-
     xTaskCreate(&superloop, "superloop", 512, NULL, 1, NULL);
     xTaskCreate(&input_manager_thread,
                 "input manager thread",
                 512,
-                (void *)input_display_queue,
+                NULL,
                 1,
                 NULL);
 

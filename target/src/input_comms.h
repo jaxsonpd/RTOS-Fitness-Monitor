@@ -16,8 +16,8 @@
 
 enum inputCommMsg_e {
     NO_MESSAGES = 0,
-    SCREEN_LEFT,
-    SCREEN_RIGHT
+    MSG_SCREEN_LEFT,
+    MSG_SCREEN_RIGHT
 };
 
 typedef enum inputCommMsg_e inputCommMsg_t;

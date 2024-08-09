@@ -52,19 +52,19 @@ void test_input_comms_init_correct_size(void) {
 
 void test_input_comms_send_calls_queue_send(void) {
 
-    input_comms_send(SCREEN_LEFT);
+    input_comms_send(MSG_SCREEN_LEFT);
 
     TEST_ASSERT_EQUAL(1, xQueueGenericSend_fake.call_count);
 }
 
 void test_input_comms_send_sends_correct_value(void) {
-    input_comms_send(SCREEN_LEFT);
+    input_comms_send(MSG_SCREEN_LEFT);
 
-    TEST_ASSERT_EQUAL(SCREEN_LEFT, xQueueGenericSend_fake.arg1_val);
+    TEST_ASSERT_EQUAL(MSG_SCREEN_LEFT, xQueueGenericSend_fake.arg1_val);
 }
 
 void test_input_comms_send_sends_without_delay(void) {
-    input_comms_send(SCREEN_LEFT);
+    input_comms_send(MSG_SCREEN_LEFT);
 
     TEST_ASSERT_EQUAL(0, xQueueGenericSend_fake.arg2_val);
 }
@@ -74,7 +74,7 @@ void test_input_comms_send_successful(void) {
 
     SET_RETURN_SEQ(xQueueGenericSend, return_seq, 1);
 
-    TEST_ASSERT_TRUE(input_comms_send(SCREEN_LEFT));
+    TEST_ASSERT_TRUE(input_comms_send(MSG_SCREEN_LEFT));
 }
 
 void test_input_comms_receive_call_queue_receive(void) {

@@ -16,11 +16,13 @@
 
 /**
  * @brief The entry to the input manager thread
- * @param input_msg_queue a pointer to the input_msg_queue for communicating
- * with display manager
  *
  */
-void input_manager_thread(void* input_msg_queue);
+void input_manager_thread(void);
 
+
+#ifdef UNIT_TESTING
+bool input_manager_init(void);
+#endif // UNIT_TESTING
 
 #endif // INPUT_MANAGER_H

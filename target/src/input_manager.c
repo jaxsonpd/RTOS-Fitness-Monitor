@@ -15,7 +15,7 @@
 #include "queue.h"
 
 #include "IO_input.h"
-#include "queue_info.h"
+#include "input_comms.h"
 
 #include "step_counter_main.h"
 #include "input_manager.h"
@@ -111,22 +111,37 @@ void btnUpdateState(deviceStateInfo_t* deviceStateInfo) {
     }
 }
 
-void input_manager_thread(void* p_display_queue_void) {
-    QueueHandle_t* p_display_queue = (QueueHandle_t*)p_display_queue_void;
+/**
+ * @brief Initialise the input manager thread
+ *
+ * @return true if successful
+ */
+bool input_manager_init(void) {
+    bool result = true;
+    result = input_init(true);
+    result = input_comms_init();
+
+    return result;
+}
+
+void input_manager_thread(void) {
     BaseType_t xStatus;
 
-    input_init(true);
+    input_manager_init();
 
     for (;;) {
         input_update();
 
         // Change screens
         if (input_check(LEFT_BUTTON) == PUSHED) {
+            input_comms_send(MSG_SCREEN_LEFT);
         } else if (input_check(RIGHT_BUTTON) == PUSHED) {
+            input_comms_send(MSG_SCREEN_RIGHT);
         }
-
         // Up down buttons
-
+        
         // Switch
+
+        vTaskDelay(100);
     }
 }
