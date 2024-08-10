@@ -27,7 +27,9 @@
 #include "OrbitOLED/OrbitOLEDInterface.h"
 #include "utils/ustdlib.h"
 
+#include "input_comms.h"
 #include "serial_sender.h"
+
 #include "display_manager.h"
 
 
@@ -52,23 +54,41 @@ static void displayTime(char* prefix, uint16_t time, uint8_t row, textAlignment_
  *      Global functions
  *******************************************/
 // Init the screen library
-void displayInit(void)
-{
+void displayInit(void) {
     OLEDInitialise();
+}
+
+
+void display_update_state(inputCommMsg_t msg, deviceStateInfo_t* deviceStateInfo) {
+    switch (msg) {
+    case (MSG_SCREEN_LEFT):
+        deviceStateInfo->displayMode = (deviceStateInfo->displayMode + 1) % DISPLAY_NUM_STATES; // flicker when pressing button
+        break;
+    case (MSG_SCREEN_RIGHT):
+        if (deviceStateInfo->displayMode > 0) {
+            deviceStateInfo->displayMode--;
+        } else {
+            deviceStateInfo->displayMode = DISPLAY_NUM_STATES - 1;
+        }
+        break;
+
+    default:
+
+        break;
+    }
 }
 
 
 
 // Update the display, called on a loop
-void displayUpdate(deviceStateInfo_t deviceState, uint16_t secondsElapsed)
-{
+void displayUpdate(deviceStateInfo_t deviceState, uint16_t secondsElapsed) {
     // Check for flash message override
     if (deviceState.flashTicksLeft != 0) {
         char* emptyLine = "                ";
-        OLEDStringDraw (emptyLine, 0, 0);
+        OLEDStringDraw(emptyLine, 0, 0);
         displayLine(deviceState.flashMessage, 1, ALIGN_CENTRE);
-        OLEDStringDraw (emptyLine, 0, 2);
-        OLEDStringDraw (emptyLine, 0, 3);
+        OLEDStringDraw(emptyLine, 0, 2);
+        OLEDStringDraw(emptyLine, 0, 3);
         return;
     }
 
@@ -111,15 +131,15 @@ void displayUpdate(deviceStateInfo_t deviceState, uint16_t secondsElapsed)
         displayValue("Current:", "", deviceState.currentGoal, 2, ALIGN_CENTRE, false);
 
         // Display the step/distance preview
-        char toDraw[DISPLAY_WIDTH+1]; // Must be one character longer to account for EOFs
+        char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
         uint16_t distance = deviceState.newGoal * M_PER_STEP;
         if (deviceState.displayUnits != UNITS_SI) {
             distance = distance * KM_TO_MILES;
         }
 
         // if <10 km/miles, use a decimal point. Otherwise display whole units (to save space)
-        if (distance < 10*1000) {
-            usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d.%01d%s", deviceState.newGoal, distance / 1000, (distance % 1000)/100, deviceState.displayUnits == UNITS_SI ? "km" : "mi");
+        if (distance < 10 * 1000) {
+            usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d.%01d%s", deviceState.newGoal, distance / 1000, (distance % 1000) / 100, deviceState.displayUnits == UNITS_SI ? "km" : "mi");
         } else {
             usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d%s", deviceState.newGoal, distance / 1000, deviceState.displayUnits == UNITS_SI ? "km" : "mi");
         }
@@ -135,8 +155,7 @@ void displayUpdate(deviceStateInfo_t deviceState, uint16_t secondsElapsed)
  *      Local Functions
  *******************************************/
 // Draw a line to the OLED screen, with the specified alignment
-static void displayLine(char* inStr, uint8_t row, textAlignment_t alignment)
-{
+static void displayLine(char* inStr, uint8_t row, textAlignment_t alignment) {
     // Get the length of the string, but prevent it from being more than 16 chars long
     uint8_t inStrLength = 0;
     while (inStr[inStrLength] != '\0' && inStrLength < DISPLAY_WIDTH) {
@@ -145,7 +164,7 @@ static void displayLine(char* inStr, uint8_t row, textAlignment_t alignment)
 
     // Create a 16-char long array to write to
     uint8_t i = 0;
-    char toDraw[DISPLAY_WIDTH+1]; // Must be one character longer to account for EOFs
+    char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
     for (i = 0; i < DISPLAY_WIDTH; i++) {
         toDraw[i] = ' ';
     }
@@ -158,7 +177,7 @@ static void displayLine(char* inStr, uint8_t row, textAlignment_t alignment)
         startPos = 0;
         break;
     case ALIGN_CENTRE:
-        startPos = (DISPLAY_WIDTH - inStrLength) /  2;
+        startPos = (DISPLAY_WIDTH - inStrLength) / 2;
         break;
     case ALIGN_RIGHT:
         startPos = (DISPLAY_WIDTH - inStrLength);
@@ -170,21 +189,20 @@ static void displayLine(char* inStr, uint8_t row, textAlignment_t alignment)
         toDraw[i + startPos] = inStr[i];
     }
 
-    OLEDStringDraw (toDraw, 0, row);
+    OLEDStringDraw(toDraw, 0, row);
 }
 
 
 
 // Display a value, with a prefix and suffix
 // Can optionally divide the value by 1000, to mimic floats without actually having to use them
-static void displayValue(char* prefix, char* suffix, int32_t value, uint8_t row, textAlignment_t alignment, bool thousandsFormatting)
-{
-    char toDraw[DISPLAY_WIDTH+1]; // Must be one character longer to account for EOFs
+static void displayValue(char* prefix, char* suffix, int32_t value, uint8_t row, textAlignment_t alignment, bool thousandsFormatting) {
+    char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
 
     if (thousandsFormatting) {
         // Print a number/1000 to 3dp, with decimal point and sign
         // Use a mega cool ternary operator to decide whether to use a minus sign
-        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s%c%d.%03d %s", prefix, value<0? '-':' ', abs(value / 1000), abs(value) % 1000, suffix);
+        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s%c%d.%03d %s", prefix, value < 0 ? '-' : ' ', abs(value / 1000), abs(value) % 1000, suffix);
     } else {
         usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s %d %s", prefix, value, suffix); // Can use %4d if we want uniform spacing
     }
@@ -195,12 +213,11 @@ static void displayValue(char* prefix, char* suffix, int32_t value, uint8_t row,
 
 
 // Display a given number of seconds, formatted as mm:ss or hh:mm:ss
-static void displayTime(char* prefix, uint16_t time, uint8_t row, textAlignment_t alignment)
-{
-    char toDraw[DISPLAY_WIDTH+1]; // Must be one character longer to account for EOFs
+static void displayTime(char* prefix, uint16_t time, uint8_t row, textAlignment_t alignment) {
+    char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
     uint16_t minutes = (time / TIME_UNIT_SCALE) % TIME_UNIT_SCALE;
     uint16_t seconds = time % TIME_UNIT_SCALE;
-    uint16_t hours =   time / (TIME_UNIT_SCALE * TIME_UNIT_SCALE);
+    uint16_t hours = time / (TIME_UNIT_SCALE * TIME_UNIT_SCALE);
 
     if (hours == 0) {
         usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s %01d:%02d", prefix, minutes, seconds);

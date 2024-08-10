@@ -124,7 +124,7 @@ bool input_manager_init(void) {
     return result;
 }
 
-void input_manager_thread(void) {
+void input_manager_thread(void*) {
     BaseType_t xStatus;
 
     input_manager_init();
@@ -135,13 +135,19 @@ void input_manager_thread(void) {
         // Change screens
         if (input_check(LEFT_BUTTON) == PUSHED) {
             input_comms_send(MSG_SCREEN_LEFT);
-        } else if (input_check(RIGHT_BUTTON) == PUSHED) {
+        } 
+        
+        if (input_check(RIGHT_BUTTON) == PUSHED) {
             input_comms_send(MSG_SCREEN_RIGHT);
         }
+
         // Up down buttons
-        
+        if (input_check(UP_BUTTON) == PUSHED) {
+            
+        }
+
         // Switch
 
-        vTaskDelay(100);
+        vTaskDelay(10);
     }
 }

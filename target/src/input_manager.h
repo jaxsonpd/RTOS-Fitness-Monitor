@@ -18,7 +18,7 @@
  * @brief The entry to the input manager thread
  *
  */
-void input_manager_thread(void);
+void input_manager_thread(void*);
 
 
 #ifdef UNIT_TESTING

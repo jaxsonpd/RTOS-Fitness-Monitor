@@ -44,6 +44,13 @@ bool input_comms_send(inputCommMsg_t msg);
  */
 inputCommMsg_t input_comms_receive(void);
 
+/**
+ * @brief Return the number of messages waiting
+ *
+ * @return the number of messages waiting in the comms channel
+ */
+uint8_t input_comms_num_msgs(void);
+
 
 
 #endif // INPUT_COMMS_H

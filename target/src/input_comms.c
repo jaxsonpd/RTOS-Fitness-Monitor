@@ -25,7 +25,7 @@ bool input_comms_init(void) {
 
 bool input_comms_send(inputCommMsg_t msg) {
     BaseType_t xStatus = xQueueSendToBack(g_input_display_manager_queue,
-        (const void* const)msg, 0);
+        &msg, 0);
 
     return xStatus == pdTRUE;
 }
@@ -40,4 +40,8 @@ inputCommMsg_t input_comms_receive(void) {
     }
 
     return value;
+}
+
+uint8_t input_comms_num_msgs(void) {
+    return (uint8_t)uxQueueMessagesWaiting(g_input_display_manager_queue);
 }
