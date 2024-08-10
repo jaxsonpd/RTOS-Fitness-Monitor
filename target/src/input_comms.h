@@ -17,7 +17,14 @@
 enum inputCommMsg_e {
     NO_MESSAGES = 0,
     MSG_SCREEN_LEFT,
-    MSG_SCREEN_RIGHT
+    MSG_SCREEN_RIGHT,
+    MSG_UP_BUTTON_P,
+    MSG_UP_BUTTON_R,
+    MSG_DOWN_BUTTON_P,
+    MSG_DOWN_BUTTON_R,
+    MSG_RIGHT_SWITCH_ON,
+    MSG_RIGHT_SWITCH_OFF,
+    MSG_LEFT_SWITCH
 };
 
 typedef enum inputCommMsg_e inputCommMsg_t;

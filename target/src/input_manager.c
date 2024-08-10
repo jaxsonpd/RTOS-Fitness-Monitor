@@ -126,8 +126,13 @@ bool input_manager_init(void) {
 
 void input_manager_thread(void*) {
     BaseType_t xStatus;
+    input_state_t input_state;
 
     input_manager_init();
+
+    if (input_get(RIGHT_SWITCH)) { // Make sure that can have debug enabled on startup
+        input_comms_send(MSG_RIGHT_SWITCH_ON);
+    }
 
     for (;;) {
         input_update();
@@ -135,18 +140,34 @@ void input_manager_thread(void*) {
         // Change screens
         if (input_check(LEFT_BUTTON) == PUSHED) {
             input_comms_send(MSG_SCREEN_LEFT);
-        } 
-        
+        }
+
         if (input_check(RIGHT_BUTTON) == PUSHED) {
             input_comms_send(MSG_SCREEN_RIGHT);
         }
 
         // Up down buttons
-        if (input_check(UP_BUTTON) == PUSHED) {
-            
+        input_state = input_check(UP_BUTTON);
+        if (input_state == PUSHED) {
+            input_comms_send(MSG_UP_BUTTON_P);
+        } else if (input_state == RELEASED) {
+            input_comms_send(MSG_UP_BUTTON_R);
+        }
+
+        input_state = input_check(DOWN_BUTTON);
+        if (input_state == PUSHED) {
+            input_comms_send(MSG_DOWN_BUTTON_P);
+        } else if (input_state == RELEASED) {
+            input_comms_send(MSG_DOWN_BUTTON_R);
         }
 
         // Switch
+        input_state = input_check(RIGHT_SWITCH);
+        if (input_state == PUSHED) {
+            input_comms_send(MSG_RIGHT_SWITCH_ON);
+        } else if (input_state == RELEASED) {
+            input_comms_send(MSG_RIGHT_SWITCH_OFF);
+        }
 
         vTaskDelay(10);
     }

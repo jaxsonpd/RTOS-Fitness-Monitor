@@ -59,11 +59,17 @@ void displayInit(void) {
 }
 
 
+#define LONG_PRESS_CYCLES 20
 void display_update_state(inputCommMsg_t msg, deviceStateInfo_t* deviceStateInfo) {
+    displayMode_t currentDisplayMode = deviceStateInfo->displayMode;
+    static bool allowLongPress = true;
+    static uint16_t longPressCount = 0;
+
     switch (msg) {
     case (MSG_SCREEN_LEFT):
         deviceStateInfo->displayMode = (deviceStateInfo->displayMode + 1) % DISPLAY_NUM_STATES; // flicker when pressing button
         break;
+
     case (MSG_SCREEN_RIGHT):
         if (deviceStateInfo->displayMode > 0) {
             deviceStateInfo->displayMode--;
@@ -72,10 +78,63 @@ void display_update_state(inputCommMsg_t msg, deviceStateInfo_t* deviceStateInfo
         }
         break;
 
+    case (MSG_RIGHT_SWITCH_ON):
+        deviceStateInfo->debugMode = true;
+        break;
+
+    case (MSG_RIGHT_SWITCH_OFF):
+        deviceStateInfo->debugMode = false;
+        break;
+
+    case (MSG_UP_BUTTON_P):
+        if (deviceStateInfo->debugMode) {
+            deviceStateInfo->stepsTaken = deviceStateInfo->stepsTaken + DEBUG_STEP_INCREMENT;
+        } else {
+            if (deviceStateInfo->displayUnits == UNITS_SI) {
+                deviceStateInfo->displayUnits = UNITS_ALTERNATE;
+            } else {
+                deviceStateInfo->displayUnits = UNITS_SI;
+            }
+        }
+        break;
+
+    case (MSG_DOWN_BUTTON_P):
+        if (deviceStateInfo->debugMode) {
+            if (deviceStateInfo->stepsTaken >= DEBUG_STEP_DECREMENT) {
+                deviceStateInfo->stepsTaken = deviceStateInfo->stepsTaken - DEBUG_STEP_DECREMENT;
+            } else {
+                deviceStateInfo->stepsTaken = 0;
+            }
+        } else {
+            if ((currentDisplayMode != DISPLAY_SET_GOAL) && (allowLongPress)) {
+                longPressCount++;
+                if (longPressCount >= LONG_PRESS_CYCLES) {
+                    deviceStateInfo->stepsTaken = 0;
+                    // flashMessage("Reset!");
+                }
+            } else {
+                if ((currentDisplayMode == DISPLAY_SET_GOAL)) {
+                    deviceStateInfo->currentGoal = deviceStateInfo->newGoal;
+                    deviceStateInfo->displayMode = DISPLAY_STEPS;
+
+                    allowLongPress = false; // Hacky solution: Protection against double-registering as a short press then a long press
+                }
+                longPressCount = 0;
+            }
+
+        }
+        break;
+
+    case (MSG_DOWN_BUTTON_R):
+        allowLongPress = true;
+        break;
+
     default:
 
         break;
     }
+
+
 }
 
 
