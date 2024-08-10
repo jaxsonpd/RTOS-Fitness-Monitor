@@ -10,7 +10,7 @@ DEFINE_FFF_GLOBALS;
 #include "circular_buffer_T_mock.h"
 #include "accl_hal_mock.h"
 
-#define BUF_SIZE 5
+#define BUF_SIZE 20
 #define FAKE_ACCL_X 10
 #define FAKE_ACCL_Y 20
 #define FAKE_ACCL_Z 30
@@ -123,14 +123,18 @@ void test_accl_mean_homogenous(void)
 
 void test_accl_mean_nonhomogenous(void) {
     // Arrange
-    int32_t return_values[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+    int32_t return_values[BUF_SIZE * 3];
+    for (size_t i = 0; i < BUF_SIZE*3; i++) {
+        return_values[i] = i+1;
+    }
+
     SET_RETURN_SEQ(CircBuf_read, return_values, 3*BUF_SIZE);
 
     // Act
     vector3_t result = acclMean();
 
     // Assert
-    TEST_ASSERT_EQUAL(7, result.x); // (1 + 4 + 7 + 10 + 13) / 5 = 7
-    TEST_ASSERT_EQUAL(8, result.y); // (2 + 5 + 8 + 11 + 14) / 5 = 8
-    TEST_ASSERT_EQUAL(9, result.z); // (3 + 6 + 9 + 12 + 15) / 5 = 9
+    TEST_ASSERT_EQUAL(29, result.x);
+    TEST_ASSERT_EQUAL(30, result.y);
+    TEST_ASSERT_EQUAL(31, result.z);
 }
