@@ -10,9 +10,7 @@
 #include <stdbool.h>
 
 #include "circular_buffer_T.h"
-
 #include "accl_hal.h"
-
 #include "accl_manager.h"
 
 //********************************************************
@@ -24,21 +22,23 @@ static CircBuf_t acclXBuffer;
 static CircBuf_t acclYBuffer;
 static CircBuf_t acclZBuffer;
 
+
 /*******************************************
  *      Global functions
  *******************************************/
 // Init the library
-void acclInit(void)
+bool acclInit(void)
 {
     accl_chip_init(); // Init the chip over I2C
 
     CircBuf_init(&acclXBuffer, BUF_SIZE);
     CircBuf_init(&acclYBuffer, BUF_SIZE);
     CircBuf_init(&acclZBuffer, BUF_SIZE);
+    return true;
 }
 
 // Run periodically to store acceleration to the circular buffer
-void acclProcess(void)
+void acclPoll(void)
 {
     int16_t acceleration[3];
     accl_data_get(acceleration);

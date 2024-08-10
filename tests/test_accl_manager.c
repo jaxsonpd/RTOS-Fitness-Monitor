@@ -78,7 +78,7 @@ void test_accl_process_gets_acceleration(void)
     accl_data_get_fake.custom_fake = accl_data_get_fake_acceleration_value;
 
     // Act
-    acclProcess();
+    acclPoll();
     
     // Assert
     TEST_ASSERT_EQUAL(3, CircBuf_write_fake.call_count);
