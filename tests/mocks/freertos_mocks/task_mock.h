@@ -1,7 +1,6 @@
 #include "fff.h"
-#include <stdbool.h>
-#include <stdint.h>
-#include "driverlib/i2c.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 #ifdef FFF_MOCK_IMPL
 #define VOID_FUNC FAKE_VOID_FUNC
@@ -11,7 +10,8 @@
 #define VALUE_FUNC DECLARE_FAKE_VALUE_FUNC
 #endif
 
-#define FFF_I2C_FAKES_LIST(FUNC) \
-    FUNC(I2CMasterInitExpClk)
+#define FFF_TASK_FAKES_LIST(FUNC) \
+    FUNC(vTaskDelay)
 
-VOID_FUNC(I2CMasterInitExpClk, uint32_t, uint32_t, bool);
+
+VOID_FUNC(vTaskDelay, const TickType_t);
