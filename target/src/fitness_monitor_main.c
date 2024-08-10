@@ -6,7 +6,7 @@
  */
 
 // Comment this out to disable serial plotting
-#define SERIAL_PLOTTING_ENABLED
+// #define SERIAL_PLOTTING_ENABLED
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -37,9 +37,10 @@
 #include "step_counter.h"
 #include "step_counter_comms.h"
 
-#include "display_manager.h"
 #include "input_manager.h"
 #include "input_comms.h"
+
+#include "display_manager.h"
 
 #include "fitness_monitor_main.h"
 
@@ -131,7 +132,6 @@ void superloop(void* args) {
     uint32_t stepsAccumulated = 0;
 
     displayInit();
-    btnInit();
     initADC();
 
     while (1) {
@@ -250,14 +250,8 @@ int main(void) {
     #endif // SERIAL_PLOTTING_ENABLED
     
     xTaskCreate(&superloop, "superloop", 512, NULL, 1, NULL);
-    xTaskCreate(&step_counter_thread, "step counter thread", 1024, NULL, 1, NULL);
-    xTaskCreate(&input_manager_thread,
-        "input manager thread",
-        128,
-        NULL,
-        1,
-        NULL);
-
+    xTaskCreate(&step_counter_thread, "step counter thread", 512, NULL, 1, NULL);
+    xTaskCreate(&input_manager_thread, "input manager thread", 128, NULL, 1, NULL);
     vTaskStartScheduler();
     return 0;
 }

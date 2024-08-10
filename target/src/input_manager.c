@@ -17,7 +17,7 @@
 #include "IO_input.h"
 #include "input_comms.h"
 
-#include "step_counter_main.h"
+#include "fitness_monitor_main.h"
 #include "input_manager.h"
 
  //********************************************************

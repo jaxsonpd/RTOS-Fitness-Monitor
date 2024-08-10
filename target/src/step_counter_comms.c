@@ -20,7 +20,7 @@ static bool mutex_enabled = false;
 
 bool step_counter_comms_init(void) {
     g_step_count_mutex = xSemaphoreCreateMutex();
-    mutex_enabled = g_step_count != NULL;
+    mutex_enabled = g_step_count_mutex != NULL;
     g_step_count = 0;
 
     return mutex_enabled;
@@ -43,6 +43,7 @@ uint32_t step_counter_get(void) {
     }
     xSemaphoreTake(g_step_count_mutex, portMAX_DELAY);
     step_count = g_step_count;
+    g_step_count = 0;
     xSemaphoreGive(g_step_count_mutex);
     return step_count;
 }

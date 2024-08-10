@@ -8,21 +8,34 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#define STEP_THRESHOLD_HIGH 270
-#define STEP_THRESHOLD_LOW 235
+#define STEP_THRESHOLD_HIGH 300
+#define STEP_THRESHOLD_LOW 250
+#define STEP_DELAY_MS 1000       // 1 second in milliseconds
+
+static TickType_t lastStepTime = 0; // Timestamp of the last step registration
 static bool stepping = false;
 
-bool detect_step(vector3_t acceleration, uint32_t *stepsAccumulated)
+bool detect_step(vector3_t acceleration, uint32_t *stepsAccumulated) 
 {
     bool stepRegistered = false;
-    uint16_t magnitude = sqrt(acceleration.x*acceleration.x + acceleration.y*acceleration.y + acceleration.z*acceleration.z);
+    TickType_t currentTime = xTaskGetTickCount();
+    uint16_t magnitude = (uint16_t)sqrt(acceleration.x * acceleration.x + acceleration.y * acceleration.y + acceleration.z * acceleration.z);
+    
+    // Convert delay to ticks
+    TickType_t stepDelayTicks = pdMS_TO_TICKS(STEP_DELAY_MS);
+    
     if (stepping == false && magnitude >= STEP_THRESHOLD_HIGH) {
-        stepping = true;
-        (*stepsAccumulated)++;
-        stepRegistered = true;
+        if ((currentTime - lastStepTime) >= stepDelayTicks) {
+            // It's been more than 1 second since the last step was registered
+            stepping = true;
+            (*stepsAccumulated)++;
+            lastStepTime = currentTime;
+            stepRegistered = true;
+        }
     } else if (magnitude <= STEP_THRESHOLD_LOW) {
         stepping = false;
     }
+    
     return stepRegistered;
 }
 
