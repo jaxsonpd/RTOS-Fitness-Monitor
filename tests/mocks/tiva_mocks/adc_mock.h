@@ -19,7 +19,8 @@
     FUNC(ADCSequenceConfigure)          \
     FUNC(ADCSequenceEnable)             \
     FUNC(ADCIntRegister)                \
-    FUNC(ADCIntEnable)                  
+    FUNC(ADCIntEnable)                  \
+    FUNC(ADCIntStatus)                  \
 
 typedef void (*void_function_ptr_type)(void);
 
@@ -31,3 +32,4 @@ VOID_FUNC(ADCSequenceConfigure, uint32_t, uint32_t, uint32_t, uint32_t);
 VOID_FUNC(ADCSequenceEnable, uint32_t, uint32_t);
 VOID_FUNC(ADCIntRegister, uint32_t, uint32_t, void_function_ptr_type);
 VOID_FUNC(ADCIntEnable, uint32_t, uint32_t);
+VALUE_FUNC(uint32_t, ADCIntStatus, uint32_t, uint32_t, bool);

@@ -147,8 +147,12 @@ void superloop(void* args) {
 
             pollADC();
 
-            deviceState.newGoal = readADC() * POT_SCALE_COEFF;                                     // Set the new goal value, scaling to give the desired range
-            deviceState.newGoal = (deviceState.newGoal / STEP_GOAL_ROUNDING) * STEP_GOAL_ROUNDING; // Round to the nearest 100 steps
+            int32_t adc_reading = readADC();
+            if (adc_reading != 0) {
+                deviceState.newGoal = adc_reading * POT_SCALE_COEFF; // Set the new goal value, scaling to give the desired range
+                deviceState.newGoal = (deviceState.newGoal / STEP_GOAL_ROUNDING) * STEP_GOAL_ROUNDING; // Round to the nearest 100 steps
+            }
+            
             if (deviceState.newGoal == 0) { // Prevent a goal of zero, instead setting to the minimum goal (this also makes it easier to test the goal-reaching code on a small but non-zero target)
                 deviceState.newGoal = STEP_GOAL_ROUNDING;
             }
