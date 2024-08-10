@@ -124,7 +124,7 @@ bool input_manager_init(void) {
     return result;
 }
 
-void input_manager_thread(void*) {
+void input_manager_thread(void *rtos_param) {
     BaseType_t xStatus;
     input_state_t input_state;
 
