@@ -12,7 +12,6 @@ enable_testing()
 add_subdirectory(unity)
 
 add_unity_test(test_circular_buffer test_circular_buffer.c ${SRC_DIR}/circular_buffer_T.c)
-add_unity_test(test_IO_input test_IO_input.c ${SRC_DIR}/IO_input.c)
 add_unity_test(test_adc test_adc.c ${SRC_DIR}/ADC_read.c)
 add_unity_test(test_accl_manager test_accl_manager.c ${SRC_DIR}/accl_manager.c)
 add_unity_test(test_IO_input test_IO_input.c ${SRC_DIR}/IO_input.c)
@@ -33,5 +32,4 @@ target_compile_definitions(test_input_manager PRIVATE UNIT_TESTING)
 target_include_directories(test_input_comms PRIVATE ${SRC_DIR} ${RTOS_ARM} 
                             ${RTOS_DIR_INCLUDE} ${MOCK_DIR} ${RTOS_CONFIG_DIR})
 target_include_directories(test_adc_hal PRIVATE ${SRC_DIR} ${TIVAWARE_DIR} ${MOCK_DIR})
-
 target_compile_definitions(test_adc_hal PRIVATE PART_TM4C123GH6PM)
