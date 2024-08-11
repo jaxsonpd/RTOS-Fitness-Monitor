@@ -17,6 +17,9 @@
 #define ADC_BUF_SIZE 10
 #define ADC_ID ADC_ID_0
 
+#define STEP_GOAL_ROUNDING 100
+#define POT_SCALE_COEFF 20000 / 4095
+
 
 //*****************************************************************************
 // Global variables
@@ -58,3 +61,17 @@ uint32_t readADC()
 
     return sum / i;
 }
+
+// void updateNewGoal(void) {
+//     deviceStateInfo_t* deviceState = getDeviceState();
+
+//     int32_t adc_reading = readADC();
+//     if (adc_reading != 0) {
+//         deviceState->newGoal = adc_reading * POT_SCALE_COEFF;
+//         deviceState->newGoal = (deviceState->stateGoal / STEP_GOAL_ROUNDING) * STEP_GOAL_ROUNDING;
+//     }
+
+//     if (deviceState->newGoal == 0) {
+//         deviceState->newGoal = STEP_GOAL_ROUNDING;
+//     }
+// }

@@ -24,7 +24,6 @@
 #include "stdlib.h"
 #include "utils/ustdlib.h"
 #include "math.h"
-#include "ADC_read.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -39,6 +38,9 @@
 
 #include "input_manager.h"
 #include "input_comms.h"
+
+#include "ADC_read.h"
+#include "potentiometer_comms.h"
 
 #include "display_manager.h"
 
@@ -252,6 +254,7 @@ int main(void) {
     xTaskCreate(&superloop, "superloop", 512, NULL, 1, NULL);
     xTaskCreate(&step_counter_thread, "step counter thread", 512, NULL, 1, NULL);
     xTaskCreate(&input_manager_thread, "input manager thread", 128, NULL, 1, NULL);
+    xTaskCreate(&potentiometer_thread, "potentiometer thread", 128, NULL, 1, NULL);
     vTaskStartScheduler();
     return 0;
 }
