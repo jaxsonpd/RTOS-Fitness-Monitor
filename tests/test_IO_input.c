@@ -24,6 +24,14 @@ DEFINE_FFF_GLOBALS;
 #define INPUTS_ON_LIST 0x00000000, 0x00000004, 0x00000000, 0x00000000, 0x00000080
 #define INPUTS_OFF_LIST 0x00000001, 0x00000000, 0x00000010, 0x00000001, 0x00000000
 
+bool auto_input_init(void) {
+    bool return_seq[1] = {true};
+
+    SET_RETURN_SEQ(SysCtlPeripheralReady, return_seq, 1);
+
+    return input_init();
+}
+
 void reset_fff(void) {
     FFF_GPIO_FAKES_LIST(RESET_FAKE);
     FFF_SYSCTL_FAKES_LIST(RESET_FAKE);
@@ -42,30 +50,30 @@ void test_IO_input_pin_type_set_calls(void) {
     // arrange
 
     // act
-    input_init();
+    auto_input_init();
 
     // assert
     TEST_ASSERT_EQUAL(NUM_INPUT_MODES, GPIOPinTypeGPIOInput_fake.call_count);
 }
 
 void test_IO_input_pad_config_set_calls(void) {
-    input_init();
+    auto_input_init();
 
     TEST_ASSERT_EQUAL(NUM_INPUT_MODES, GPIOPadConfigSet_fake.call_count);
 }
 
 void test_IO_input_peripheral_enable_calls(void) {
-    input_init();
+    auto_input_init();
 
     TEST_ASSERT_EQUAL(NUM_INPUT_MODES, SysCtlPeripheralEnable_fake.call_count);
 }
 
 void test_IO_input_init_successful(void) {
-    TEST_ASSERT_TRUE(input_init());
+    TEST_ASSERT_TRUE(auto_input_init());
 }
 
 void test_IO_input_get_false_on_init(void) {
-    input_init();
+    auto_input_init();
 
     for (uint32_t i = 0; i < NUM_INPUT_MODES; i++) {
         TEST_ASSERT_FALSE(input_get(i));
@@ -73,7 +81,7 @@ void test_IO_input_get_false_on_init(void) {
 }
 
 void test_IO_input_check_no_change_on_init(void) {
-    input_init();
+    auto_input_init();
 
     for (uint32_t i = 0; i < NUM_INPUT_MODES; i++) {
         TEST_ASSERT_EQUAL(NO_CHANGE, input_check(i));
@@ -86,7 +94,7 @@ void test_IO_input_correct_eventually(void) {
 
     SET_RETURN_SEQ(GPIOPinRead, return_seq, 25);
 
-    input_init();
+    auto_input_init();
 
     for (uint8_t i = 0; i < 5; i++) {
         input_update();
@@ -102,7 +110,7 @@ void test_IO_input_debounce(void) {
 
     SET_RETURN_SEQ(GPIOPinRead, return_seq, 15);
 
-    input_init();
+    auto_input_init();
 
     for (uint8_t i = 0; i < 3; i++) {
         input_update();
@@ -118,7 +126,7 @@ void test_IO_input_pushed_indicated(void) {
 
     SET_RETURN_SEQ(GPIOPinRead, return_seq, 15);
 
-    input_init();
+    auto_input_init();
 
     for (uint8_t i = 0; i < 3; i++) {
         input_update();
@@ -135,7 +143,7 @@ void test_IO_input_released_indicated(void) {
 
     SET_RETURN_SEQ(GPIOPinRead, return_seq, 30);
 
-    input_init();
+    auto_input_init();
 
     for (uint8_t i = 0; i < 6; i++) {
         input_update();
