@@ -29,16 +29,12 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "step_counter_comms.h"
 #include "input_comms.h"
 #include "serial_sender.h"
 
 #include "fitness_monitor_main.h"
 #include "display_manager.h"
-
-
-//********************************************************
-// Constants and static vars
-//********************************************************
 
 #define KM_TO_MILES 62/100 // Multiply by 0.6215 to convert, this should be good enough
 #define MS_TO_KMH 36/10
@@ -59,17 +55,20 @@ typedef struct {
     displayMode_t displayMode;
 } stepsInfo_t;
 
-/*******************************************
- *      Local prototypes
- *******************************************/
 static void display_line(char* inStr, uint8_t row, textAlignment_t alignment);
 static void display_value(char* prefix, char* suffix, int32_t value, uint8_t row, textAlignment_t alignment, bool thousandsFormatting);
 static void display_time(char* prefix, uint16_t time, uint8_t row, textAlignment_t alignment);
+static void display_update_state(inputCommMsg_t msg);
+static void display_update(uint16_t secondsElapsed);
+void display_manager_init(void);
 
+displayMode_t displayMode = DISPLAY_STEPS;
+uint32_t currentGoal = 1000;
+bool debugMode = false;
+displayUnits_t displayUnits = UNITS_SI;
+uint32_t stepsTaken = 0;
+uint32_t newGoal = 3000;
 
-/*******************************************
- *      Global functions
- *******************************************/
 void display_manager_thread(void* rtos_param) {
     display_manager_init();
     uint32_t seconds_elapsed = 0;
@@ -79,13 +78,14 @@ void display_manager_thread(void* rtos_param) {
         while (input_comms_num_msgs() > 0 && num_tries < 5) {
             inputCommMsg_t msg = input_comms_receive();
 
-            display_update_state(msg, &deviceState);
+            display_update_state(msg);
 
             num_tries++;
         }
-
+        stepsTaken += step_counter_get();
         seconds_elapsed = xTaskGetTickCount() / 1000;
-        display_update(deviceState, seconds_elapsed);
+        display_update(seconds_elapsed);
+        vTaskDelay(1000/5);
     }
 }
 
@@ -103,64 +103,63 @@ void display_manager_init(void) {
  * @param msg the comms message
  * @param deviceStateInfo the device state struct pointer
  */
-void display_update_state(inputCommMsg_t msg, deviceStateInfo_t* deviceStateInfo) {
-    displayMode_t currentDisplayMode = deviceStateInfo->displayMode;
+static void display_update_state(inputCommMsg_t msg) {
+    displayMode_t currentDisplayMode = displayMode;
     static bool allowLongPress = true;
     static uint16_t longPressCount = 0;
 
     switch (msg) {
     case (MSG_SCREEN_LEFT):
-        deviceStateInfo->displayMode = (deviceStateInfo->displayMode + 1) % DISPLAY_NUM_STATES; // flicker when pressing button
+        displayMode = (displayMode + 1) % DISPLAY_NUM_STATES; // flicker when pressing button
         break;
 
     case (MSG_SCREEN_RIGHT):
-        if (deviceStateInfo->displayMode > 0) {
-            deviceStateInfo->displayMode--;
+        if (displayMode > 0) {
+            displayMode--;
         } else {
-            deviceStateInfo->displayMode = DISPLAY_NUM_STATES - 1;
+            displayMode = DISPLAY_NUM_STATES - 1;
         }
         break;
 
     case (MSG_LEFT_SWITCH_ON):
     case (MSG_RIGHT_SWITCH_ON):
-        deviceStateInfo->debugMode = true;
+        debugMode = true;
         break;
 
     case (MSG_LEFT_SWITCH_OFF):
     case (MSG_RIGHT_SWITCH_OFF):
-        deviceStateInfo->debugMode = false;
+        debugMode = false;
         break;
 
     case (MSG_UP_BUTTON_P):
-        if (deviceStateInfo->debugMode) {
-            deviceStateInfo->stepsTaken = deviceStateInfo->stepsTaken + DEBUG_STEP_INCREMENT;
+        if (debugMode) {
+            stepsTaken = stepsTaken + DEBUG_STEP_INCREMENT;
         } else {
-            if (deviceStateInfo->displayUnits == UNITS_SI) {
-                deviceStateInfo->displayUnits = UNITS_ALTERNATE;
+            if (displayUnits == UNITS_SI) {
+                displayUnits = UNITS_ALTERNATE;
             } else {
-                deviceStateInfo->displayUnits = UNITS_SI;
+                displayUnits = UNITS_SI;
             }
         }
         break;
 
     case (MSG_DOWN_BUTTON_P):
-        if (deviceStateInfo->debugMode) {
-            if (deviceStateInfo->stepsTaken >= DEBUG_STEP_DECREMENT) {
-                deviceStateInfo->stepsTaken = deviceStateInfo->stepsTaken - DEBUG_STEP_DECREMENT;
+        if (debugMode) {
+            if (stepsTaken >= DEBUG_STEP_DECREMENT) {
+                stepsTaken = stepsTaken - DEBUG_STEP_DECREMENT;
             } else {
-                deviceStateInfo->stepsTaken = 0;
+                stepsTaken = 0;
             }
         } else {
             if ((currentDisplayMode != DISPLAY_SET_GOAL) && (allowLongPress)) {
                 longPressCount++;
                 if (longPressCount >= LONG_PRESS_CYCLES) {
-                    deviceStateInfo->stepsTaken = 0;
-                    // flashMessage("Reset!");
+                    stepsTaken = 0;
                 }
             } else {
                 if ((currentDisplayMode == DISPLAY_SET_GOAL)) {
-                    deviceStateInfo->currentGoal = deviceStateInfo->newGoal;
-                    deviceStateInfo->displayMode = DISPLAY_STEPS;
+                    currentGoal = newGoal;
+                    displayMode = DISPLAY_STEPS;
 
                     allowLongPress = false; // Hacky solution: Protection against double-registering as a short press then a long press
                 }
@@ -183,35 +182,39 @@ void display_update_state(inputCommMsg_t msg, deviceStateInfo_t* deviceStateInfo
 }
 
 
-
-// Update the display, called on a loop
-void display_update(deviceStateInfo_t deviceState, uint16_t secondsElapsed) {
+/** 
+ * @brief Update the display
+ * @param secondsElapsed the number of seconds elapsed since the last
+ * call
+ * 
+ */
+static void display_update(uint16_t secondsElapsed) {
     // Check for flash message override
-    if (deviceState.flashTicksLeft != 0) {
-        char* emptyLine = "                ";
-        OLEDStringDraw(emptyLine, 0, 0);
-        display_line(deviceState.flashMessage, 1, ALIGN_CENTRE);
-        OLEDStringDraw(emptyLine, 0, 2);
-        OLEDStringDraw(emptyLine, 0, 3);
-        return;
-    }
+    // if (deviceState.flashTicksLeft != 0) {
+    //     char* emptyLine = "                ";
+    //     OLEDStringDraw(emptyLine, 0, 0);
+    //     display_line(deviceState.flashMessage, 1, ALIGN_CENTRE);
+    //     OLEDStringDraw(emptyLine, 0, 2);
+    //     OLEDStringDraw(emptyLine, 0, 3);
+    //     return;
+    // }
 
 
     uint32_t mTravelled = 0; // TODO: If I put this inside the case statement it won't compile. Work out why!
 
-    switch (deviceState.displayMode) {
+    switch (displayMode) {
     case DISPLAY_STEPS:
         display_line("", 0, ALIGN_CENTRE); // Clear the top line
-        if (deviceState.displayUnits == UNITS_SI) {
-            display_value("", "steps", deviceState.stepsTaken, 1, ALIGN_CENTRE, false);
+        if (displayUnits == UNITS_SI) {
+            display_value("", "steps", stepsTaken, 1, ALIGN_CENTRE, false);
         } else {
-            display_value("", "% of goal", deviceState.stepsTaken * 100 / deviceState.currentGoal, 1, ALIGN_CENTRE, false);
+            display_value("", "% of goal", stepsTaken * 100 / currentGoal, 1, ALIGN_CENTRE, false);
         }
         display_time("Time:", secondsElapsed, 2, ALIGN_CENTRE);
         break;
     case DISPLAY_DISTANCE:
         display_time("Time:", secondsElapsed, 1, ALIGN_CENTRE);
-        mTravelled = deviceState.stepsTaken * M_PER_STEP;
+        mTravelled = stepsTaken * M_PER_STEP;
 
         // Protection against division by zero
         uint16_t speed;
@@ -221,7 +224,7 @@ void display_update(deviceStateInfo_t deviceState, uint16_t secondsElapsed) {
             speed = mTravelled * MS_TO_KMH; // if zero seconds elapsed, act as if it's at least one
         }
 
-        if (deviceState.displayUnits == UNITS_SI) {
+        if (displayUnits == UNITS_SI) {
             display_value("Dist:", "km", mTravelled, 0, ALIGN_CENTRE, true);
             display_value("Speed", "kph", speed, 2, ALIGN_CENTRE, false);
         } else {
@@ -232,20 +235,20 @@ void display_update(deviceStateInfo_t deviceState, uint16_t secondsElapsed) {
         break;
     case DISPLAY_SET_GOAL:
         display_line("Set goal:", 0, ALIGN_CENTRE);
-        display_value("Current:", "", deviceState.currentGoal, 2, ALIGN_CENTRE, false);
+        display_value("Current:", "", currentGoal, 2, ALIGN_CENTRE, false);
 
         // Display the step/distance preview
         char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
-        uint16_t distance = deviceState.newGoal * M_PER_STEP;
-        if (deviceState.displayUnits != UNITS_SI) {
+        uint16_t distance = newGoal * M_PER_STEP; // ===== NEEDS to be updated to new goal
+        if (displayUnits != UNITS_SI) {
             distance = distance * KM_TO_MILES;
         }
 
         // if <10 km/miles, use a decimal point. Otherwise display whole units (to save space)
         if (distance < 10 * 1000) {
-            usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d.%01d%s", deviceState.newGoal, distance / 1000, (distance % 1000) / 100, deviceState.displayUnits == UNITS_SI ? "km" : "mi");
+            usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d.%01d%s", newGoal, distance / 1000, (distance % 1000) / 100, displayUnits == UNITS_SI ? "km" : "mi");
         } else {
-            usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d%s", deviceState.newGoal, distance / 1000, deviceState.displayUnits == UNITS_SI ? "km" : "mi");
+            usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d%s", newGoal, distance / 1000, displayUnits == UNITS_SI ? "km" : "mi");
         }
 
         display_line(toDraw, 1, ALIGN_CENTRE);
