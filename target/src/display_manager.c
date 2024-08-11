@@ -1,18 +1,17 @@
-/*
- * display_manager.c
- *
- * Handles drawing to the device's screen, given its current state
- *
- *  Created on: 23/03/2022
- *      Author: Matthew Suter
- *
- *  FitnessThur9-1
+/** 
+ * @file display_manager.c
+ * @author Jack Duignan (Jdu80@uclive.ac.nz)
+ * @date 2024-08-11
+ * @brief Definitions for the display manager thread which write information to 
+ * the OLED screen.
  */
+
 
 
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
 #include "inc/hw_ints.h"
@@ -27,9 +26,13 @@
 #include "OrbitOLED/OrbitOLEDInterface.h"
 #include "utils/ustdlib.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "input_comms.h"
 #include "serial_sender.h"
 
+#include "fitness_monitor_main.h"
 #include "display_manager.h"
 
 
@@ -40,26 +43,66 @@
 #define KM_TO_MILES 62/100 // Multiply by 0.6215 to convert, this should be good enough
 #define MS_TO_KMH 36/10
 #define TIME_UNIT_SCALE 60
+#define DISPLAY_WIDTH 16
 
+typedef enum {
+    ALIGN_LEFT = 0,
+    ALIGN_CENTRE,
+    ALIGN_RIGHT,
+} textAlignment_t;
+
+typedef struct {
+    uint32_t stepsTaken;
+    uint32_t currentGoal;
+    uint32_t newGoal;
+    uint16_t secondsElapsed;
+    displayMode_t displayMode;
+} stepsInfo_t;
 
 /*******************************************
  *      Local prototypes
  *******************************************/
-static void displayLine(char* inStr, uint8_t row, textAlignment_t alignment);
-static void displayValue(char* prefix, char* suffix, int32_t value, uint8_t row, textAlignment_t alignment, bool thousandsFormatting);
-static void displayTime(char* prefix, uint16_t time, uint8_t row, textAlignment_t alignment);
+static void display_line(char* inStr, uint8_t row, textAlignment_t alignment);
+static void display_value(char* prefix, char* suffix, int32_t value, uint8_t row, textAlignment_t alignment, bool thousandsFormatting);
+static void display_time(char* prefix, uint16_t time, uint8_t row, textAlignment_t alignment);
 
 
 /*******************************************
  *      Global functions
  *******************************************/
+void display_manager_thread(void* rtos_param) {
+    display_manager_init();
+    uint32_t seconds_elapsed = 0;
+
+    for (;;) {
+        uint8_t num_tries = 0;
+        while (input_comms_num_msgs() > 0 && num_tries < 5) {
+            inputCommMsg_t msg = input_comms_receive();
+
+            display_update_state(msg, &deviceState);
+
+            num_tries++;
+        }
+
+        seconds_elapsed = xTaskGetTickCount() / 1000;
+        display_update(deviceState, seconds_elapsed);
+    }
+}
+
 // Init the screen library
-void displayInit(void) {
+void display_manager_init(void) {
     OLEDInitialise();
 }
 
 
 #define LONG_PRESS_CYCLES 20
+/**
+ * @brief Update the device state based on the message
+ * this function will be converted to work on the interal static device state
+ * that will be implemented in display_manager.c in the future.
+ * @param msg the comms message
+ * @param deviceStateInfo the device state struct pointer
+ */
 void display_update_state(inputCommMsg_t msg, deviceStateInfo_t* deviceStateInfo) {
     displayMode_t currentDisplayMode = deviceStateInfo->displayMode;
     static bool allowLongPress = true;
@@ -142,12 +185,12 @@ void display_update_state(inputCommMsg_t msg, deviceStateInfo_t* deviceStateInfo
 
 
 // Update the display, called on a loop
-void displayUpdate(deviceStateInfo_t deviceState, uint16_t secondsElapsed) {
+void display_update(deviceStateInfo_t deviceState, uint16_t secondsElapsed) {
     // Check for flash message override
     if (deviceState.flashTicksLeft != 0) {
         char* emptyLine = "                ";
         OLEDStringDraw(emptyLine, 0, 0);
-        displayLine(deviceState.flashMessage, 1, ALIGN_CENTRE);
+        display_line(deviceState.flashMessage, 1, ALIGN_CENTRE);
         OLEDStringDraw(emptyLine, 0, 2);
         OLEDStringDraw(emptyLine, 0, 3);
         return;
@@ -158,16 +201,16 @@ void displayUpdate(deviceStateInfo_t deviceState, uint16_t secondsElapsed) {
 
     switch (deviceState.displayMode) {
     case DISPLAY_STEPS:
-        displayLine("", 0, ALIGN_CENTRE); // Clear the top line
+        display_line("", 0, ALIGN_CENTRE); // Clear the top line
         if (deviceState.displayUnits == UNITS_SI) {
-            displayValue("", "steps", deviceState.stepsTaken, 1, ALIGN_CENTRE, false);
+            display_value("", "steps", deviceState.stepsTaken, 1, ALIGN_CENTRE, false);
         } else {
-            displayValue("", "% of goal", deviceState.stepsTaken * 100 / deviceState.currentGoal, 1, ALIGN_CENTRE, false);
+            display_value("", "% of goal", deviceState.stepsTaken * 100 / deviceState.currentGoal, 1, ALIGN_CENTRE, false);
         }
-        displayTime("Time:", secondsElapsed, 2, ALIGN_CENTRE);
+        display_time("Time:", secondsElapsed, 2, ALIGN_CENTRE);
         break;
     case DISPLAY_DISTANCE:
-        displayTime("Time:", secondsElapsed, 1, ALIGN_CENTRE);
+        display_time("Time:", secondsElapsed, 1, ALIGN_CENTRE);
         mTravelled = deviceState.stepsTaken * M_PER_STEP;
 
         // Protection against division by zero
@@ -179,17 +222,17 @@ void displayUpdate(deviceStateInfo_t deviceState, uint16_t secondsElapsed) {
         }
 
         if (deviceState.displayUnits == UNITS_SI) {
-            displayValue("Dist:", "km", mTravelled, 0, ALIGN_CENTRE, true);
-            displayValue("Speed", "kph", speed, 2, ALIGN_CENTRE, false);
+            display_value("Dist:", "km", mTravelled, 0, ALIGN_CENTRE, true);
+            display_value("Speed", "kph", speed, 2, ALIGN_CENTRE, false);
         } else {
-            displayValue("Dist:", "mi", mTravelled * KM_TO_MILES, 0, ALIGN_CENTRE, true);
-            displayValue("Speed", "mph", speed * KM_TO_MILES, 2, ALIGN_CENTRE, false);
+            display_value("Dist:", "mi", mTravelled * KM_TO_MILES, 0, ALIGN_CENTRE, true);
+            display_value("Speed", "mph", speed * KM_TO_MILES, 2, ALIGN_CENTRE, false);
         }
 
         break;
     case DISPLAY_SET_GOAL:
-        displayLine("Set goal:", 0, ALIGN_CENTRE);
-        displayValue("Current:", "", deviceState.currentGoal, 2, ALIGN_CENTRE, false);
+        display_line("Set goal:", 0, ALIGN_CENTRE);
+        display_value("Current:", "", deviceState.currentGoal, 2, ALIGN_CENTRE, false);
 
         // Display the step/distance preview
         char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
@@ -205,18 +248,21 @@ void displayUpdate(deviceStateInfo_t deviceState, uint16_t secondsElapsed) {
             usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d%s", deviceState.newGoal, distance / 1000, deviceState.displayUnits == UNITS_SI ? "km" : "mi");
         }
 
-        displayLine(toDraw, 1, ALIGN_CENTRE);
+        display_line(toDraw, 1, ALIGN_CENTRE);
 
         break;
     }
 }
 
 
-/*******************************************
- *      Local Functions
- *******************************************/
-// Draw a line to the OLED screen, with the specified alignment
-static void displayLine(char* inStr, uint8_t row, textAlignment_t alignment) {
+/** 
+ * @brief Draw a line to the OLED display
+ * @param inStr the string to display
+ * @param row the row to display on
+ * @param alignment the alignment of the text
+ * 
+ */
+static void display_line(char* inStr, uint8_t row, textAlignment_t alignment) {
     // Get the length of the string, but prevent it from being more than 16 chars long
     uint8_t inStrLength = 0;
     while (inStr[inStrLength] != '\0' && inStrLength < DISPLAY_WIDTH) {
@@ -255,9 +301,17 @@ static void displayLine(char* inStr, uint8_t row, textAlignment_t alignment) {
 
 
 
-// Display a value, with a prefix and suffix
-// Can optionally divide the value by 1000, to mimic floats without actually having to use them
-static void displayValue(char* prefix, char* suffix, int32_t value, uint8_t row, textAlignment_t alignment, bool thousandsFormatting) {
+/** 
+ * @brief Display a value with a prefix and a suffix with the ability to 
+ * display 1000s floats
+ * @param prefix text to place before value
+ * @param suffix test to place after the value
+ * @param row the row to place the text on
+ * @param alignment the alignment of the text
+ * @param formateThousands wether to display as a float
+ * 
+ */
+static void display_value(char* prefix, char* suffix, int32_t value, uint8_t row, textAlignment_t alignment, bool thousandsFormatting) {
     char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
 
     if (thousandsFormatting) {
@@ -268,13 +322,18 @@ static void displayValue(char* prefix, char* suffix, int32_t value, uint8_t row,
         usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s %d %s", prefix, value, suffix); // Can use %4d if we want uniform spacing
     }
 
-    displayLine(toDraw, row, alignment);
+    display_line(toDraw, row, alignment);
 }
 
-
-
-// Display a given number of seconds, formatted as mm:ss or hh:mm:ss
-static void displayTime(char* prefix, uint16_t time, uint8_t row, textAlignment_t alignment) {
+/** 
+ * @brief Display a given number of seconds as ether mm:ss or hh:mm:ss
+ * @param prefix Text to display before the time
+ * @param time The time to display in seconds
+ * @param row The row to display on
+ * @param alignment how to align the text
+ * 
+ */
+static void display_time(char* prefix, uint16_t time, uint8_t row, textAlignment_t alignment) {
     char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
     uint16_t minutes = (time / TIME_UNIT_SCALE) % TIME_UNIT_SCALE;
     uint16_t seconds = time % TIME_UNIT_SCALE;
@@ -286,6 +345,6 @@ static void displayTime(char* prefix, uint16_t time, uint8_t row, textAlignment_
         usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s %01d:%02d:%02d", prefix, hours, minutes, seconds);
     }
 
-    displayLine(toDraw, row, alignment);
+    display_line(toDraw, row, alignment);
 }
 

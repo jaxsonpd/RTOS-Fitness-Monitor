@@ -131,7 +131,7 @@ void superloop(void* args) {
 
     uint32_t stepsAccumulated = 0;
 
-    displayInit();
+    // display_manager_init();
     initADC();
 
     while (1) {
@@ -171,28 +171,28 @@ void superloop(void* args) {
             }
         }
 
-        // Write to the display
-        if (lastDisplayProcess + RATE_SYSTICK_HZ / RATE_DISPLAY_UPDATE_HZ < currentTick) {
-            lastDisplayProcess = currentTick;
+        // // Write to the display
+        // if (lastDisplayProcess + RATE_SYSTICK_HZ / RATE_DISPLAY_UPDATE_HZ < currentTick) {
+        //     lastDisplayProcess = currentTick;
 
-            if (deviceState.flashTicksLeft > 0) {
-                deviceState.flashTicksLeft--;
-            }
+        //     if (deviceState.flashTicksLeft > 0) {
+        //         deviceState.flashTicksLeft--;
+        //     }
 
-            uint16_t secondsElapsed = (currentTick - deviceState.workoutStartTick) / RATE_SYSTICK_HZ;
+        //     uint16_t secondsElapsed = (currentTick - deviceState.workoutStartTick) / RATE_SYSTICK_HZ;
 
-            uint8_t num_tries = 0;
-            while (input_comms_num_msgs() > 0 && num_tries < 5) {
-                inputCommMsg_t msg = input_comms_receive();
+        //     uint8_t num_tries = 0;
+        //     while (input_comms_num_msgs() > 0 && num_tries < 5) {
+        //         inputCommMsg_t msg = input_comms_receive();
 
-                display_update_state(msg, &deviceState);
+        //         display_update_state(msg, &deviceState);
 
-                num_tries++;
-            }
+        //         num_tries++;
+        //     }
 
 
-            displayUpdate(deviceState, secondsElapsed);
-        }
+        //     display_update(deviceState, secondsElapsed);
+        // }
 
         // Send to USB via serial
         #ifdef SERIAL_PLOTTING_ENABLED
@@ -252,6 +252,7 @@ int main(void) {
     xTaskCreate(&superloop, "superloop", 512, NULL, 1, NULL);
     xTaskCreate(&step_counter_thread, "step counter thread", 512, NULL, 1, NULL);
     xTaskCreate(&input_manager_thread, "input manager thread", 128, NULL, 1, NULL);
+    xTaskCreate(&display_manager_thread, "display manager thread", 128, NULL, 1, NULL);
     vTaskStartScheduler();
     return 0;
 }
