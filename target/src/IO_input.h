@@ -40,7 +40,7 @@ typedef enum input_state_e {
  * will fail on non tiva board systems)
  * @return true if successful
  */
-bool input_init(bool override_portf);
+bool input_init(void);
 
 
 /**

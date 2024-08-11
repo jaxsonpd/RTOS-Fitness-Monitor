@@ -32,7 +32,7 @@ static bool allowLongPress = true;
 // Init buttons and switch I/O handlers
 //********************************************************
 void btnInit(void) {
-    input_init(true);
+    input_init();
 }
 
 //********************************************************
@@ -118,7 +118,7 @@ void btnUpdateState(deviceStateInfo_t* deviceStateInfo) {
  */
 bool input_manager_init(void) {
     bool result = true;
-    result = input_init(true);
+    result = input_init();
     result = input_comms_init();
 
     return result;
