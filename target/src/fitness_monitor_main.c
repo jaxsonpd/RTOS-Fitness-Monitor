@@ -122,16 +122,11 @@ void flashMessage(char* toShow) {
  ***********************************************************/
 void superloop(void* args) {
     unsigned long lastIoProcess = 0;
-    unsigned long lastAcclProcess = 0;
-    unsigned long lastDisplayProcess = 0;
 
 #ifdef SERIAL_PLOTTING_ENABLED
     unsigned long lastSerialProcess = 0;
 #endif // SERIAL_PLOTTING_ENABLED
 
-    uint32_t stepsAccumulated = 0;
-
-    // display_manager_init();
     initADC();
 
     while (1) {
@@ -154,46 +149,6 @@ void superloop(void* args) {
             }
         }
 
-        // Read and process the accelerometer
-        if (lastAcclProcess + RATE_SYSTICK_HZ / RATE_ACCL_HZ < currentTick) {
-            lastAcclProcess = currentTick;
-            stepsAccumulated = step_counter_get();
-            deviceState.stepsTaken = deviceState.stepsTaken + stepsAccumulated;
-
-            // flash a message if the user has reached their goal
-            if (deviceState.stepsTaken == deviceState.currentGoal && deviceState.flashTicksLeft == 0) {
-                flashMessage("Goal reached!");
-            }
-
-            // Don't start the workout until the user begins walking
-            if (deviceState.stepsTaken == 0) {
-                deviceState.workoutStartTick = currentTick;
-            }
-        }
-
-        // // Write to the display
-        // if (lastDisplayProcess + RATE_SYSTICK_HZ / RATE_DISPLAY_UPDATE_HZ < currentTick) {
-        //     lastDisplayProcess = currentTick;
-
-        //     if (deviceState.flashTicksLeft > 0) {
-        //         deviceState.flashTicksLeft--;
-        //     }
-
-        //     uint16_t secondsElapsed = (currentTick - deviceState.workoutStartTick) / RATE_SYSTICK_HZ;
-
-        //     uint8_t num_tries = 0;
-        //     while (input_comms_num_msgs() > 0 && num_tries < 5) {
-        //         inputCommMsg_t msg = input_comms_receive();
-
-        //         display_update_state(msg, &deviceState);
-
-        //         num_tries++;
-        //     }
-
-
-        //     display_update(deviceState, secondsElapsed);
-        // }
-
         // Send to USB via serial
         #ifdef SERIAL_PLOTTING_ENABLED
         // if (lastSerialProcess + RATE_SYSTICK_HZ/RATE_SERIAL_PLOT_HZ < currentTick) {
@@ -211,14 +166,6 @@ void superloop(void* args) {
         // This would take ~49 days, but is not impossible if the user forgets to turn it off before they put it away (assuming th battery lasts that long)
         if (currentTick < lastIoProcess) {
             lastIoProcess = 0;
-        }
-
-        if (currentTick < lastAcclProcess) {
-            lastAcclProcess = 0;
-        }
-
-        if (currentTick < lastDisplayProcess) {
-            lastDisplayProcess = 0;
         }
 
 #ifdef SERIAL_PLOTTING_ENABLED

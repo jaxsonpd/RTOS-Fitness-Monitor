@@ -33,27 +33,38 @@
 #include "input_comms.h"
 #include "serial_sender.h"
 
-#include "fitness_monitor_main.h"
 #include "display_manager.h"
 
 #define KM_TO_MILES 62/100 // Multiply by 0.6215 to convert, this should be good enough
 #define MS_TO_KMH 36/10
 #define TIME_UNIT_SCALE 60
 #define DISPLAY_WIDTH 16
+#define M_PER_STEP 9 / 10
+#define MAX_STR_LEN 16
+
+#define DEBUG_STEP_INCREMENT 100
+#define DEBUG_STEP_DECREMENT 500
+
+typedef enum
+{
+    DISPLAY_STEPS = 0,
+    DISPLAY_DISTANCE,
+    DISPLAY_SET_GOAL,
+    DISPLAY_NUM_STATES, // Automatically enumerates to the number of display states there can be
+} displayMode_t;
+
+typedef enum
+{
+    UNITS_SI = 0,    // Steps  /km
+    UNITS_ALTERNATE, // Percent/miles
+    UNITS_NUM_TYPES,
+} displayUnits_t;
 
 typedef enum {
     ALIGN_LEFT = 0,
     ALIGN_CENTRE,
     ALIGN_RIGHT,
 } textAlignment_t;
-
-typedef struct {
-    uint32_t stepsTaken;
-    uint32_t currentGoal;
-    uint32_t newGoal;
-    uint16_t secondsElapsed;
-    displayMode_t displayMode;
-} stepsInfo_t;
 
 static void display_line(char* inStr, uint8_t row, textAlignment_t alignment);
 static void display_value(char* prefix, char* suffix, int32_t value, uint8_t row, textAlignment_t alignment, bool thousandsFormatting);
