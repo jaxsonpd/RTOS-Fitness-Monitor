@@ -90,7 +90,8 @@ bool input_init(void) {
 
     // GPIO enable
     for (uint8_t i = 0; i < NUM_INPUT_MODES; i++) {
-        SysCtlPeripheralEnable(g_mode_arr[i].periph);
+        SysCtlPeripheralEnable(g_mode_arr[i].periph);\
+        while (!SysCtlPeripheralReady(g_mode_arr[i].periph));
         if (i == RIGHT_BUTTON) {
             // Unlock right button
             GPIO_PORTF_LOCK_R = GPIO_LOCK_KEY;
