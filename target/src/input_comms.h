@@ -24,7 +24,8 @@ enum inputCommMsg_e {
     MSG_DOWN_BUTTON_R,
     MSG_RIGHT_SWITCH_ON,
     MSG_RIGHT_SWITCH_OFF,
-    MSG_LEFT_SWITCH
+    MSG_LEFT_SWITCH_ON,
+    MSG_LEFT_SWITCH_OFF
 };
 
 typedef enum inputCommMsg_e inputCommMsg_t;

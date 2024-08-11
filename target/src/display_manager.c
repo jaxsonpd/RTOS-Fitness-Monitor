@@ -78,10 +78,12 @@ void display_update_state(inputCommMsg_t msg, deviceStateInfo_t* deviceStateInfo
         }
         break;
 
+    case (MSG_LEFT_SWITCH_ON):
     case (MSG_RIGHT_SWITCH_ON):
         deviceStateInfo->debugMode = true;
         break;
 
+    case (MSG_LEFT_SWITCH_OFF):
     case (MSG_RIGHT_SWITCH_OFF):
         deviceStateInfo->debugMode = false;
         break;
