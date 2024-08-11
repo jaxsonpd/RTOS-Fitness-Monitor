@@ -10,9 +10,9 @@
 
 #define STEP_THRESHOLD_HIGH 300
 #define STEP_THRESHOLD_LOW 250
-#define STEP_DELAY_MS 1000       // 1 second in milliseconds
+#define STEP_DELAY_MS 1000
 
-static TickType_t lastStepTime = 0; // Timestamp of the last step registration
+static TickType_t lastStepTime = 0;
 static bool stepping = false;
 
 bool detect_step(vector3_t acceleration, uint32_t *stepsAccumulated) 
@@ -26,7 +26,6 @@ bool detect_step(vector3_t acceleration, uint32_t *stepsAccumulated)
     
     if (stepping == false && magnitude >= STEP_THRESHOLD_HIGH) {
         if ((currentTime - lastStepTime) >= stepDelayTicks) {
-            // It's been more than 1 second since the last step was registered
             stepping = true;
             (*stepsAccumulated)++;
             lastStepTime = currentTime;
