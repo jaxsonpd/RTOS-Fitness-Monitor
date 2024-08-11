@@ -11,25 +11,33 @@
 #include "inc/hw_memmap.h"
 #include "driverlib/gpio.h"
 #include "driverlib/sysctl.h"
+
 #ifndef UNIT_TESTING
 #include "inc/tm4c123gh6pm.h" // Board specific defines (for PF0)
 #else
 #include "tiva_mocks/tm4c123gh6pm_mock.h"
 #endif // UNIT_TESTING
+
 #include "IO_input.h"
 
+
+/**
+ * @struct input_mode_info_t
+ *  A structure to store information about a input mode (button or switch)
+ * 
+ */
 typedef struct input_mode_info {
-    uint32_t periph;
-    uint32_t port_base;
-    uint8_t pin;
-    uint32_t type;
-    bool normal;
-    input_mode_t name;
-    bool state;
-    bool value;
-    uint8_t count;
-    bool flag;
-    uint8_t deb_limit;
+    uint32_t periph;            ///< Gpio peripheral for the device
+    uint32_t port_base;         ///< Gpio base port
+    uint8_t pin;                ///< Gpio pin
+    uint32_t type;              ///< Gpio type pull down etc.
+    bool normal;                ///< Normal state of the device (off state)
+    input_mode_t name;          ///< Corrsponding name of the device
+    bool state;                 ///< Current state after debouncing
+    bool value;                 ///< Raw value of the device
+    uint8_t count;              ///< Number of times at the given value
+    bool flag;                  ///< Wether the input has changed
+    uint8_t deb_limit;          ///< Number of counts before state change
 } input_mode_info_t;
 
 /// UP button on orbit board
