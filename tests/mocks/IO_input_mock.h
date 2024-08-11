@@ -28,7 +28,7 @@
 
 typedef void (*void_function_ptr_type)(void);
 
-VALUE_FUNC(bool, input_init, bool);
+VALUE_FUNC(bool, input_init);
 VALUE_FUNC(bool, input_get, input_mode_t);
 VALUE_FUNC(input_state_t, input_check, input_mode_t);
 VOID_FUNC(input_update);
