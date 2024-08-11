@@ -45,8 +45,10 @@ typedef enum
     UNITS_NUM_TYPES,
 } displayUnits_t;
 
+inputCommMsg_t input_flags[NUM_MSGS] = {0};
 
-void display_update_state(inputCommMsg_t msg);
+
+void display_update_inputs(inputCommMsg_t msg);
 void display_update(uint16_t secondsElapsed);
 bool display_manager_init(void);
 
@@ -66,13 +68,21 @@ void display_manager_thread(void* rtos_param) {
         while (input_comms_num_msgs() > 0 && num_tries < 5) {
             inputCommMsg_t msg = input_comms_receive();
 
-            display_update_state(msg);
+            input_flags[msg] = 1;
+            display_update_inputs(msg);
 
             num_tries++;
         }
+
         stepsTaken += step_counter_get();
         seconds_elapsed = xTaskGetTickCount() / 1000;
+        
         display_update(seconds_elapsed);
+
+        for (uint8_t i = 0; i < NUM_MSGS; i++) {
+            input_flags[i] = 0;
+        }
+
         vTaskDelay(1000/5);
     }
 }
@@ -94,10 +104,8 @@ bool display_manager_init(void) {
  * @param msg the comms message
  * @param deviceStateInfo the device state struct pointer
  */
-void display_update_state(inputCommMsg_t msg) {
+void display_update_inputs(inputCommMsg_t msg) {
     displayMode_t currentDisplayMode = displayMode;
-    static bool allowLongPress = true;
-    static uint16_t longPressCount = 0;
 
     switch (msg) {
     case (MSG_SCREEN_LEFT):
@@ -141,27 +149,7 @@ void display_update_state(inputCommMsg_t msg) {
             } else {
                 stepsTaken = 0;
             }
-        } else {
-            if ((currentDisplayMode != DISPLAY_SET_GOAL) && (allowLongPress)) {
-                longPressCount++;
-                if (longPressCount >= LONG_PRESS_CYCLES) {
-                    stepsTaken = 0;
-                }
-            } else {
-                if ((currentDisplayMode == DISPLAY_SET_GOAL)) {
-                    currentGoal = newGoal;
-                    displayMode = DISPLAY_STEPS;
-
-                    allowLongPress = false; // Hacky solution: Protection against double-registering as a short press then a long press
-                }
-                longPressCount = 0;
-            }
-
-        }
-        break;
-
-    case (MSG_DOWN_BUTTON_R):
-        allowLongPress = true;
+        } 
         break;
 
     default:
@@ -172,11 +160,88 @@ void display_update_state(inputCommMsg_t msg) {
 
 }
 
+/** 
+ * @brief Display the screen showing the steps count
+ * @param secondsElapsed the number of seconds elapsed since
+ * the start of the workout
+ * 
+ */
+void display_steps(uint16_t secondsElapsed) {
+    display_line("", 0, ALIGN_CENTRE); // Clear the top line
+    if (displayUnits == UNITS_SI) {
+        display_value("", "steps", stepsTaken, 1, ALIGN_CENTRE, false);
+    } else {
+        display_value("", "% of goal", stepsTaken * 100 / currentGoal, 1, ALIGN_CENTRE, false);
+    }
+    display_time("Time:", secondsElapsed, 2, ALIGN_CENTRE);
+}
+
+/** 
+ * @brief Display the screen showing the distance traveled
+ * @param secondsElapsed the number of seconds elapsed since
+ * the start of the workout
+ * 
+ */
+void display_distance(uint16_t secondsElapsed) {
+    uint32_t mTravelled = 0;
+
+    display_time("Time:", secondsElapsed, 1, ALIGN_CENTRE);
+    mTravelled = stepsTaken * M_PER_STEP;
+
+    // Protection against division by zero
+    uint16_t speed;
+    if (secondsElapsed != 0) {
+        speed = (mTravelled / secondsElapsed) * MS_TO_KMH; // in km/h
+    } else {
+        speed = mTravelled * MS_TO_KMH; // if zero seconds elapsed, act as if it's at least one
+    }
+
+    if (displayUnits == UNITS_SI) {
+        display_value("Dist:", "km", mTravelled, 0, ALIGN_CENTRE, true);
+        display_value("Speed", "kph", speed, 2, ALIGN_CENTRE, false);
+    } else {
+        display_value("Dist:", "mi", mTravelled * KM_TO_MILES, 0, ALIGN_CENTRE, true);
+        display_value("Speed", "mph", speed * KM_TO_MILES, 2, ALIGN_CENTRE, false);
+    }
+}
+
+
+/**
+ * @brief display the set goal screen
+ * @param secondsElapsed the number of seconds elapsed since
+ * the start of the workout
+ */
+void display_set_goal(uint16_t secondsElapsed) {
+    if (input_flags[MSG_DOWN_BUTTON_P] && !debugMode) {
+        currentGoal = newGoal;
+        displayMode = DISPLAY_STEPS;
+    }
+                    
+    display_line("Set goal:", 0, ALIGN_CENTRE);
+    display_value("Current:", "", currentGoal, 2, ALIGN_CENTRE, false);
+
+    // Display the step/distance preview
+    char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
+    uint16_t distance = newGoal * M_PER_STEP; // ===== NEEDS to be updated to new goal
+    if (displayUnits != UNITS_SI) {
+        distance = distance * KM_TO_MILES;
+    }
+
+    // if <10 km/miles, use a decimal point. Otherwise display whole units (to save space)
+    if (distance < 10 * 1000) {
+        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d.%01d%s", newGoal, distance / 1000, (distance % 1000) / 100, displayUnits == UNITS_SI ? "km" : "mi");
+    } else {
+        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d%s", newGoal, distance / 1000, displayUnits == UNITS_SI ? "km" : "mi");
+    }
+
+    display_line(toDraw, 1, ALIGN_CENTRE);
+}
+
 
 /** 
  * @brief Update the display
- * @param secondsElapsed the number of seconds elapsed since the last
- * call
+ * @param secondsElapsed the number of seconds elapsed since
+ * the start of the workout
  * 
  */
 void display_update(uint16_t secondsElapsed) {
@@ -191,58 +256,18 @@ void display_update(uint16_t secondsElapsed) {
     // }
 
 
-    uint32_t mTravelled = 0; // TODO: If I put this inside the case statement it won't compile. Work out why!
+    // uint32_t mTravelled = 0; // TODO: If I put this inside the case statement it won't compile. Work out why!
 
     switch (displayMode) {
     case DISPLAY_STEPS:
-        display_line("", 0, ALIGN_CENTRE); // Clear the top line
-        if (displayUnits == UNITS_SI) {
-            display_value("", "steps", stepsTaken, 1, ALIGN_CENTRE, false);
-        } else {
-            display_value("", "% of goal", stepsTaken * 100 / currentGoal, 1, ALIGN_CENTRE, false);
-        }
-        display_time("Time:", secondsElapsed, 2, ALIGN_CENTRE);
+        display_steps(secondsElapsed);
         break;
     case DISPLAY_DISTANCE:
-        display_time("Time:", secondsElapsed, 1, ALIGN_CENTRE);
-        mTravelled = stepsTaken * M_PER_STEP;
-
-        // Protection against division by zero
-        uint16_t speed;
-        if (secondsElapsed != 0) {
-            speed = (mTravelled / secondsElapsed) * MS_TO_KMH; // in km/h
-        } else {
-            speed = mTravelled * MS_TO_KMH; // if zero seconds elapsed, act as if it's at least one
-        }
-
-        if (displayUnits == UNITS_SI) {
-            display_value("Dist:", "km", mTravelled, 0, ALIGN_CENTRE, true);
-            display_value("Speed", "kph", speed, 2, ALIGN_CENTRE, false);
-        } else {
-            display_value("Dist:", "mi", mTravelled * KM_TO_MILES, 0, ALIGN_CENTRE, true);
-            display_value("Speed", "mph", speed * KM_TO_MILES, 2, ALIGN_CENTRE, false);
-        }
+        display_distance(secondsElapsed);        
 
         break;
     case DISPLAY_SET_GOAL:
-        display_line("Set goal:", 0, ALIGN_CENTRE);
-        display_value("Current:", "", currentGoal, 2, ALIGN_CENTRE, false);
-
-        // Display the step/distance preview
-        char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
-        uint16_t distance = newGoal * M_PER_STEP; // ===== NEEDS to be updated to new goal
-        if (displayUnits != UNITS_SI) {
-            distance = distance * KM_TO_MILES;
-        }
-
-        // if <10 km/miles, use a decimal point. Otherwise display whole units (to save space)
-        if (distance < 10 * 1000) {
-            usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d.%01d%s", newGoal, distance / 1000, (distance % 1000) / 100, displayUnits == UNITS_SI ? "km" : "mi");
-        } else {
-            usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d%s", newGoal, distance / 1000, displayUnits == UNITS_SI ? "km" : "mi");
-        }
-
-        display_line(toDraw, 1, ALIGN_CENTRE);
+        display_set_goal(secondsElapsed);
 
         break;
     }
