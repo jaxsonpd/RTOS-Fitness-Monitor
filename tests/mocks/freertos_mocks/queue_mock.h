@@ -11,8 +11,8 @@
 #endif
 
 #define FFF_QUEUE_FAKES_LIST(FUNC) \
-    FUNC(xQueueCreate)                \
-    FUNC(xQueueSendToBack)            \
+    FUNC(xQueueGenericCreate)                \
+    FUNC(xQueueGenericSend)            \
     FUNC(xQueueReceive)               \
     FUNC(uxQueueMessagesWaiting)
 
