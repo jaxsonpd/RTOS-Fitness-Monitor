@@ -13,8 +13,7 @@
 #define DISPLAY_MANAGER_H_
 
 #include "input_comms.h"
-
-#include "step_counter_main.h"
+#include "fitness_monitor_main.h"
 
 typedef enum {
     ALIGN_LEFT = 0,

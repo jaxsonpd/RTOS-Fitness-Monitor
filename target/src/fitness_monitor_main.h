@@ -1,10 +1,8 @@
-/*
- * display_manager.h
- *
- *  Created on: 10/04/2022
- *      Author: Matthew Suter, Tim Preston-Marshall, Daniel Rabbidge
- *
- *  FitnessThur9-1
+/**
+ * @file fitness_monitor_main.h
+ * @author Isaac Cone, Jack Duignan, Daniel Hawes
+ * @brief ENCE464 fitness monitor project based on 
+ * ENCE361 step counter.
  */
 
 #ifndef STEP_COUNTER_MAIN_H_

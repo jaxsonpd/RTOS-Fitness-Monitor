@@ -7,8 +7,8 @@
  */
 
 
-#ifndef INPUT_COMMS_H
-#define INPUT_COMMS_H
+#ifndef INPUT_COMMS_H_
+#define INPUT_COMMS_H_
 
 
 #include <stdint.h>
@@ -61,4 +61,4 @@ uint8_t input_comms_num_msgs(void);
 
 
 
-#endif // INPUT_COMMS_H
+#endif // INPUT_COMMS_H_

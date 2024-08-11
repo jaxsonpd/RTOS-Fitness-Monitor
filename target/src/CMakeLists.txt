@@ -8,9 +8,11 @@ add_tiva_executable(fitness-tracker
     display_manager.c
     i2c_driver.c
     serial_sender.c
-    step_counter_main.c
+    fitness_monitor_main.c
     IO_input.c
     input_comms.c
+    step_counter.c
+    step_counter_comms.c
 )
 target_compile_options(fitness-tracker PRIVATE -Wall)
 target_link_libraries(fitness-tracker PRIVATE tivaware OrbitOLED freertos::heap-4 m)

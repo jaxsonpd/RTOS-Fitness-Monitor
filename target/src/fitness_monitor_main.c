@@ -1,12 +1,8 @@
-/*
- * Step_Counter_Main.c
- *
- *  Created on: 23/03/2022
- *      Authors: Matthew Suter, Daniel Rabbidge, Timothy Preston-Marshall
- *
- *  Main code for the ENCE361 step counter project
- *
- *  FitnessThur9-1
+/**
+ * @file fitness_monitor_main.c
+ * @author Isaac Cone, Jack Duignan, Daniel Hawes
+ * @brief ENCE464 fitness monitor project based on 
+ * ENCE361 step counter.
  */
 
 // Comment this out to disable serial plotting
@@ -27,7 +23,6 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "utils/ustdlib.h"
-#include "acc.h"
 #include "math.h"
 #include "ADC_read.h"
 
@@ -39,12 +34,15 @@
 #include "serial_sender.h"
 #endif // SERIAL_PLOTTING_ENABLED
 
-#include "accl_manager.h"
-#include "display_manager.h"
+#include "step_counter.h"
+#include "step_counter_comms.h"
+
 #include "input_manager.h"
 #include "input_comms.h"
 
-#include "step_counter_main.h"
+#include "display_manager.h"
+
+#include "fitness_monitor_main.h"
 
 /**********************************************************
  * Constants and types
@@ -131,11 +129,9 @@ void superloop(void* args) {
     unsigned long lastSerialProcess = 0;
 #endif // SERIAL_PLOTTING_ENABLED
 
-    uint8_t stepHigh = false;
-    vector3_t mean;
+    uint32_t stepsAccumulated = 0;
 
     displayInit();
-    acclInit();
     initADC();
 
     while (1) {
@@ -161,23 +157,12 @@ void superloop(void* args) {
         // Read and process the accelerometer
         if (lastAcclProcess + RATE_SYSTICK_HZ / RATE_ACCL_HZ < currentTick) {
             lastAcclProcess = currentTick;
+            stepsAccumulated = step_counter_get();
+            deviceState.stepsTaken = deviceState.stepsTaken + stepsAccumulated;
 
-            acclProcess();
-
-            mean = acclMean();
-
-            uint16_t combined = sqrt(mean.x * mean.x + mean.y * mean.y + mean.z * mean.z);
-
-            if (combined >= STEP_THRESHOLD_HIGH && stepHigh == false) {
-                stepHigh = true;
-                deviceState.stepsTaken++;
-
-                // flash a message if the user has reached their goal
-                if (deviceState.stepsTaken == deviceState.currentGoal && deviceState.flashTicksLeft == 0) {
-                    flashMessage("Goal reached!");
-                }
-            } else if (combined <= STEP_THRESHOLD_LOW) {
-                stepHigh = false;
+            // flash a message if the user has reached their goal
+            if (deviceState.stepsTaken == deviceState.currentGoal && deviceState.flashTicksLeft == 0) {
+                flashMessage("Goal reached!");
             }
 
             // Don't start the workout until the user begins walking
@@ -209,14 +194,16 @@ void superloop(void* args) {
             displayUpdate(deviceState, secondsElapsed);
         }
 
-// Send to USB via serial
-#ifdef SERIAL_PLOTTING_ENABLED
-        if (lastSerialProcess + RATE_SYSTICK_HZ / RATE_SERIAL_PLOT_HZ < currentTick) {
-            lastSerialProcess = currentTick;
+        // Send to USB via serial
+        #ifdef SERIAL_PLOTTING_ENABLED
+        // if (lastSerialProcess + RATE_SYSTICK_HZ/RATE_SERIAL_PLOT_HZ < currentTick) {
+        //     lastSerialProcess = currentTick;
 
-            SerialPlot(deviceState.stepsTaken, mean.x, mean.y, mean.z);
-        }
-#endif // SERIAL_PLOTTING_ENABLED
+        //     SerialPlot(deviceState.stepsTaken);
+        // }
+        #endif // SERIAL_PLOTTING_ENABLED
+
+
 
         // Protection in the unlikely case the device is left running for long enough for the system tick counter to overflow
         // This prevents the last process ticks from being 'in the future', which would prevent the update functions from being called,
@@ -238,8 +225,8 @@ void superloop(void* args) {
         if (currentTick < lastSerialProcess) {
             lastSerialProcess = 0;
         }
-#endif // SERIAL_PLOTTING_ENABLE
-        vTaskDelay(10);
+        #endif // SERIAL_PLOTTING_ENABLED
+        vTaskDelay(5);
     }
 }
 
@@ -257,19 +244,14 @@ int main(void) {
 
     // Init libs
     initClock();
-
-#ifdef SERIAL_PLOTTING_ENABLED
-    SerialInit();
-#endif // SERIAL_PLOTTING_ENABLED
-
+    
+    #ifdef SERIAL_PLOTTING_ENABLED
+    SerialInit ();
+    #endif // SERIAL_PLOTTING_ENABLED
+    
     xTaskCreate(&superloop, "superloop", 512, NULL, 1, NULL);
-    xTaskCreate(&input_manager_thread,
-        "input manager thread",
-        128,
-        NULL,
-        1,
-        NULL);
-
+    xTaskCreate(&step_counter_thread, "step counter thread", 512, NULL, 1, NULL);
+    xTaskCreate(&input_manager_thread, "input manager thread", 128, NULL, 1, NULL);
     vTaskStartScheduler();
     return 0;
 }
