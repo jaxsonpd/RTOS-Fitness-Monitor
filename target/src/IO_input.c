@@ -18,8 +18,6 @@
 #endif // UNIT_TESTING
 #include "IO_input.h"
 
-#define DEBOUNCE_NUMBER 3 ///< number of times before state change
-
 typedef struct input_mode_info {
     uint32_t periph;
     uint32_t port_base;
@@ -79,7 +77,16 @@ input_mode_info_t g_right_switch = {
     .normal = false,
     .name = RIGHT_SWITCH };
 
-input_mode_info_t g_mode_arr[5] = { 0 };
+input_mode_info_t g_left_switch = {
+    .periph = SYSCTL_PERIPH_GPIOA,
+    .port_base = GPIO_PORTA_BASE,
+    .pin = GPIO_PIN_6,
+    .type = GPIO_PIN_TYPE_STD_WPD,
+    .normal = false,
+    .name = LEFT_SWITCH
+};
+
+input_mode_info_t g_mode_arr[6] = { 0 };
 
 bool input_init(void) {
     g_mode_arr[0] = g_up_button;
@@ -87,11 +94,12 @@ bool input_init(void) {
     g_mode_arr[2] = g_left_button;
     g_mode_arr[3] = g_right_button;
     g_mode_arr[4] = g_right_switch;
+    g_mode_arr[5] = g_left_switch;
 
     // GPIO enable
     for (uint8_t i = 0; i < NUM_INPUT_MODES; i++) {
         SysCtlPeripheralEnable(g_mode_arr[i].periph);\
-        while (!SysCtlPeripheralReady(g_mode_arr[i].periph));
+            while (!SysCtlPeripheralReady(g_mode_arr[i].periph));
         if (i == RIGHT_BUTTON) {
             // Unlock right button
             GPIO_PORTF_LOCK_R = GPIO_LOCK_KEY;

@@ -124,14 +124,23 @@ bool input_manager_init(void) {
     return result;
 }
 
-void input_manager_thread(void *rtos_param) {
+void input_manager_thread(void* rtos_param) {
     BaseType_t xStatus;
     input_state_t input_state;
 
     input_manager_init();
 
+    // Setup inital states
+    for (uint8_t i = 0; i < DEBOUNCE_NUMBER; i++) {
+        input_update();
+    }
+
     if (input_get(RIGHT_SWITCH)) { // Make sure that can have debug enabled on startup
         input_comms_send(MSG_RIGHT_SWITCH_ON);
+    }
+
+    if (input_get(LEFT_SWITCH)) { // Make sure that can have debug enabled on startup
+        input_comms_send(MSG_LEFT_SWITCH_ON);
     }
 
     for (;;) {
@@ -167,6 +176,13 @@ void input_manager_thread(void *rtos_param) {
             input_comms_send(MSG_RIGHT_SWITCH_ON);
         } else if (input_state == RELEASED) {
             input_comms_send(MSG_RIGHT_SWITCH_OFF);
+        }
+
+        input_state = input_check(LEFT_SWITCH);
+        if (input_state == PUSHED) {
+            input_comms_send(MSG_LEFT_SWITCH_ON);
+        } else if (input_state == RELEASED) {
+            input_comms_send(MSG_LEFT_SWITCH_OFF);
         }
 
         vTaskDelay(10);
