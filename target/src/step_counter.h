@@ -6,4 +6,8 @@
 
 void step_counter_thread(void* args);
 
+#ifdef UNIT_TESTING
+bool step_counter_init(void);
+#endif // UNIT_TESTING
+
 #endif // STEP_COUNTER_H_

@@ -11,7 +11,7 @@
 #endif
 
 #define FFF_TASK_FAKES_LIST(FUNC) \
-    FUNC(vTaskDelay)
+    FUNC(vTaskDelay)              \
 
 
-VOID_FUNC(vTaskDelay, const TickType_t);
+VOID_FUNC(vTaskDelay, const TickType_t)
