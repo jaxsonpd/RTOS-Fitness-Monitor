@@ -10,21 +10,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdlib.h>
-
-#include "inc/hw_memmap.h"
-#include "inc/hw_types.h"
-#include "inc/hw_ints.h"
-#include "driverlib/gpio.h"
-#include "driverlib/sysctl.h"
-#include "driverlib/systick.h"
-#include "driverlib/debug.h"
-#include "driverlib/pin_map.h"
-#include "utils/ustdlib.h"
-#include "stdio.h"
-#include "stdlib.h"
-#include "OrbitOLED/OrbitOLEDInterface.h"
-#include "utils/ustdlib.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -32,18 +17,18 @@
 #include "step_counter_comms.h"
 #include "input_comms.h"
 #include "serial_sender.h"
+#include "display.h"
 
 #include "display_manager.h"
 
+#define LONG_PRESS_CYCLES 20
+
 #define KM_TO_MILES 62/100 // Multiply by 0.6215 to convert, this should be good enough
 #define MS_TO_KMH 36/10
-#define TIME_UNIT_SCALE 60
-#define DISPLAY_WIDTH 16
 #define M_PER_STEP 9 / 10
-#define MAX_STR_LEN 16
 
 #define DEBUG_STEP_INCREMENT 100
-#define DEBUG_STEP_DECREMENT 500
+#define DEBUG_STEP_DECREMENT 100
 
 typedef enum
 {
@@ -60,18 +45,10 @@ typedef enum
     UNITS_NUM_TYPES,
 } displayUnits_t;
 
-typedef enum {
-    ALIGN_LEFT = 0,
-    ALIGN_CENTRE,
-    ALIGN_RIGHT,
-} textAlignment_t;
 
-static void display_line(char* inStr, uint8_t row, textAlignment_t alignment);
-static void display_value(char* prefix, char* suffix, int32_t value, uint8_t row, textAlignment_t alignment, bool thousandsFormatting);
-static void display_time(char* prefix, uint16_t time, uint8_t row, textAlignment_t alignment);
-static void display_update_state(inputCommMsg_t msg);
-static void display_update(uint16_t secondsElapsed);
-void display_manager_init(void);
+void display_update_state(inputCommMsg_t msg);
+void display_update(uint16_t secondsElapsed);
+bool display_manager_init(void);
 
 displayMode_t displayMode = DISPLAY_STEPS;
 uint32_t currentGoal = 1000;
@@ -100,13 +77,16 @@ void display_manager_thread(void* rtos_param) {
     }
 }
 
-// Init the screen library
-void display_manager_init(void) {
-    OLEDInitialise();
+/**
+ * @brief Initialise the display manager thread
+ * 
+ * @return true if successful 
+ */
+bool display_manager_init(void) {
+    return display_init();
 }
 
 
-#define LONG_PRESS_CYCLES 20
 /**
  * @brief Update the device state based on the message
  * this function will be converted to work on the interal static device state
@@ -114,7 +94,7 @@ void display_manager_init(void) {
  * @param msg the comms message
  * @param deviceStateInfo the device state struct pointer
  */
-static void display_update_state(inputCommMsg_t msg) {
+void display_update_state(inputCommMsg_t msg) {
     displayMode_t currentDisplayMode = displayMode;
     static bool allowLongPress = true;
     static uint16_t longPressCount = 0;
@@ -199,7 +179,7 @@ static void display_update_state(inputCommMsg_t msg) {
  * call
  * 
  */
-static void display_update(uint16_t secondsElapsed) {
+void display_update(uint16_t secondsElapsed) {
     // Check for flash message override
     // if (deviceState.flashTicksLeft != 0) {
     //     char* emptyLine = "                ";
@@ -267,98 +247,3 @@ static void display_update(uint16_t secondsElapsed) {
         break;
     }
 }
-
-
-/** 
- * @brief Draw a line to the OLED display
- * @param inStr the string to display
- * @param row the row to display on
- * @param alignment the alignment of the text
- * 
- */
-static void display_line(char* inStr, uint8_t row, textAlignment_t alignment) {
-    // Get the length of the string, but prevent it from being more than 16 chars long
-    uint8_t inStrLength = 0;
-    while (inStr[inStrLength] != '\0' && inStrLength < DISPLAY_WIDTH) {
-        inStrLength++;
-    }
-
-    // Create a 16-char long array to write to
-    uint8_t i = 0;
-    char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
-    for (i = 0; i < DISPLAY_WIDTH; i++) {
-        toDraw[i] = ' ';
-    }
-    toDraw[DISPLAY_WIDTH] = '\0'; // Set the last character to EOF
-
-    // Set the starting position based on the alignment specified
-    uint8_t startPos = 0;
-    switch (alignment) {
-    case ALIGN_LEFT:
-        startPos = 0;
-        break;
-    case ALIGN_CENTRE:
-        startPos = (DISPLAY_WIDTH - inStrLength) / 2;
-        break;
-    case ALIGN_RIGHT:
-        startPos = (DISPLAY_WIDTH - inStrLength);
-        break;
-    }
-
-    // Copy the string we were given onto the 16-char row
-    for (i = 0; i < inStrLength; i++) {
-        toDraw[i + startPos] = inStr[i];
-    }
-
-    OLEDStringDraw(toDraw, 0, row);
-}
-
-
-
-/** 
- * @brief Display a value with a prefix and a suffix with the ability to 
- * display 1000s floats
- * @param prefix text to place before value
- * @param suffix test to place after the value
- * @param row the row to place the text on
- * @param alignment the alignment of the text
- * @param formateThousands wether to display as a float
- * 
- */
-static void display_value(char* prefix, char* suffix, int32_t value, uint8_t row, textAlignment_t alignment, bool thousandsFormatting) {
-    char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
-
-    if (thousandsFormatting) {
-        // Print a number/1000 to 3dp, with decimal point and sign
-        // Use a mega cool ternary operator to decide whether to use a minus sign
-        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s%c%d.%03d %s", prefix, value < 0 ? '-' : ' ', abs(value / 1000), abs(value) % 1000, suffix);
-    } else {
-        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s %d %s", prefix, value, suffix); // Can use %4d if we want uniform spacing
-    }
-
-    display_line(toDraw, row, alignment);
-}
-
-/** 
- * @brief Display a given number of seconds as ether mm:ss or hh:mm:ss
- * @param prefix Text to display before the time
- * @param time The time to display in seconds
- * @param row The row to display on
- * @param alignment how to align the text
- * 
- */
-static void display_time(char* prefix, uint16_t time, uint8_t row, textAlignment_t alignment) {
-    char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
-    uint16_t minutes = (time / TIME_UNIT_SCALE) % TIME_UNIT_SCALE;
-    uint16_t seconds = time % TIME_UNIT_SCALE;
-    uint16_t hours = time / (TIME_UNIT_SCALE * TIME_UNIT_SCALE);
-
-    if (hours == 0) {
-        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s %01d:%02d", prefix, minutes, seconds);
-    } else {
-        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s %01d:%02d:%02d", prefix, hours, minutes, seconds);
-    }
-
-    display_line(toDraw, row, alignment);
-}
-
