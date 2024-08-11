@@ -18,7 +18,7 @@
  * @brief The entry to the input manager thread
  *
  */
-void input_manager_thread(void *rtos_param);
+void input_manager_thread(void* rtos_param);
 
 
 #ifdef UNIT_TESTING

@@ -13,8 +13,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define NUM_INPUT_MODES 5 ///< number of input modes
-
+#define NUM_INPUT_MODES 6 ///< number of input modes
+#define DEBOUNCE_NUMBER 3 ///< number of times before state change
 
 /// The different input button and switches that can be polled.
 typedef enum input_mode_e {
