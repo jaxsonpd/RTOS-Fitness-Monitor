@@ -41,7 +41,7 @@ typedef enum
 
 displayMode_t g_display_mode = DISPLAY_STEPS;
 
-void display_update_inputs(inputCommMsg_t msg);
+void display_update_state(inputCommMsg_t msg);
 void display_update(uint16_t secondsElapsed);
 bool display_manager_init(void);
 
@@ -54,7 +54,7 @@ void display_manager_thread(void* rtos_param) {
             inputCommMsg_t msg = input_comms_receive();
 
             display_info_set_input_flag(msg, 1);
-            display_update_inputs(msg);
+            display_update_state(msg);
 
             num_tries++;
         }
@@ -86,13 +86,12 @@ bool display_manager_init(void) {
 
 
 /**
- * @brief Update the device state based on the message
- * this function will be converted to work on the interal static device state
- * that will be implemented in display_manager.c in the future.
+ * @brief Update the global device state based on the message
+ * per screen functions are handled in the respective screen module
+ * itself 
  * @param msg the comms message
- * @param deviceStateInfo the device state struct pointer
  */
-void display_update_inputs(inputCommMsg_t msg) {
+void display_update_state(inputCommMsg_t msg) {
     displayMode_t currentDisplayMode = g_display_mode;
 
     switch (msg) {
