@@ -34,7 +34,7 @@
 #include "serial_sender.h"
 #endif // SERIAL_PLOTTING_ENABLED
 
-#include "step_counter.h"
+#include "step_counter_manager.h"
 #include "step_counter_comms.h"
 
 #include "input_manager.h"

@@ -12,6 +12,7 @@ add_tiva_executable(fitness-tracker
     IO_input.c
     input_comms.c
     step_counter.c
+    step_counter_manager.c
     step_counter_comms.c
 )
 target_compile_options(fitness-tracker PRIVATE -Wall)
