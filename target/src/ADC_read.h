@@ -9,7 +9,7 @@
 // Writes to the circular buffer.
 //
 //*****************************************************************************
-void callbackADC(void);
+void callbackADC(uint32_t adc_value);
 
 void pollADC(void);         // Called periodically at high frequency
 void initADC (void);

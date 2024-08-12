@@ -3,6 +3,7 @@
 #include "semphr.h"
 
 #include <stdbool.h>
+#include <stdint.h>
 
 static uint32_t g_adc_value;
 SemaphoreHandle_t g_adc_mutex;

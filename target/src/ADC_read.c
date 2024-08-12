@@ -10,9 +10,11 @@
 
 #include "adc_hal.h"
 #include "circular_buffer_T.h"
-#include "adc_comms.h"
+#include "ADC_read.h"
 #include "FreeRTOS.h"
 #include "task.h"
+
+#include "adc_comms.h"
 
 //*****************************************************************************
 // Constants
@@ -70,8 +72,8 @@ bool adc_read_init(void)
 {
     // Initialize the ADC hardware or API
     bool result = true;
-    // result = result && initADC();
-    result = result && adc_comms_init(); // Initialize ADC communication mechanism
+    initADC();
+    result = adc_comms_init() && result; // Initialize ADC communication mechanism
     return result;
 }
 

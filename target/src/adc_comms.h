@@ -1,5 +1,5 @@
 /**
- * @file adc_comms.c
+ * @file adc_comms.h
  * @author Daniel Hawes (dha144@uclive.ac.nz)
  * @date 2024-08-12
  * @brief Interface to handle communication of the step
@@ -12,7 +12,7 @@
 #include <stdbool.h>
 
 bool adc_comms_init(void);
-bool adc_set(uint32_t adcRead);
+bool adc_set(uint32_t adc_value);
 uint32_t adc_get(void);
 
 
