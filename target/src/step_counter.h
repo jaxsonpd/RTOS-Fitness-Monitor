@@ -1,13 +1,15 @@
 #ifndef STEP_COUNTER_H_
-#define STEP_COUNTER_H
+#define STEP_COUNTER_H_
 
 #include <stdint.h>
 #include <stdbool.h>
 
-void step_counter_thread(void* args);
+#include "accl_manager.h"
 
-#ifdef UNIT_TESTING
-bool step_counter_init(void);
-#endif // UNIT_TESTING
+#define STEP_THRESHOLD_HIGH 300
+#define STEP_THRESHOLD_LOW 250
+#define STEP_DELAY_MS 1000
+
+bool detect_step(vector3_t acceleration, uint32_t *stepsAccumulated);
 
 #endif // STEP_COUNTER_H_
