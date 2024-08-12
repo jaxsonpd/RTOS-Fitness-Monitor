@@ -10,6 +10,9 @@
 
 #include "adc_hal.h"
 #include "circular_buffer_T.h"
+#include "adc_comms.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 //*****************************************************************************
 // Constants
@@ -17,8 +20,9 @@
 #define ADC_BUF_SIZE 10
 #define ADC_ID ADC_ID_0
 
+
 #define STEP_GOAL_ROUNDING 100
-#define POT_SCALE_COEFF 20000 / 4095
+#define POT_SCALE_COEFF 20000 / 4095 
 
 
 //*****************************************************************************
@@ -62,16 +66,30 @@ uint32_t readADC()
     return sum / i;
 }
 
-// void updateNewGoal(void) {
-//     deviceStateInfo_t* deviceState = getDeviceState();
+bool adc_read_init(void) 
+{
+    // Initialize the ADC hardware or API
+    bool result = true;
+    // result = result && initADC();
+    result = result && adc_comms_init(); // Initialize ADC communication mechanism
+    return result;
+}
 
-//     int32_t adc_reading = readADC();
-//     if (adc_reading != 0) {
-//         deviceState->newGoal = adc_reading * POT_SCALE_COEFF;
-//         deviceState->newGoal = (deviceState->stateGoal / STEP_GOAL_ROUNDING) * STEP_GOAL_ROUNDING;
-//     }
+void adc_read_thread(void* args) 
+{
+    if(adc_read_init() == false) {
+        while(1);
+    }
 
-//     if (deviceState->newGoal == 0) {
-//         deviceState->newGoal = STEP_GOAL_ROUNDING;
-//     }
-// }
+    uint32_t adc_value = 0;
+    for (;;) {
+        pollADC(); // Poll the ADC hardware or API
+        adc_value = readADC(); // Read the ADC value
+
+        if(adc_value != 0) {
+            adc_set(adc_value); // Store the ADC value using comms
+        }
+
+        vTaskDelay(5); // Poll at specified rate
+    }
+}
