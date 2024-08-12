@@ -14,6 +14,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "utils/ustdlib.h"
+
 #include "step_counter_comms.h"
 #include "input_comms.h"
 #include "serial_sender.h"
@@ -39,14 +41,15 @@ typedef enum
     DISPLAY_NUM_STATES, // Automatically enumerates to the number of display states there can be
 } displayMode_t;
 
-displayMode_t g_display_mode = DISPLAY_STEPS;
-
-void display_update_state(inputCommMsg_t msg);
-void display_update(uint16_t secondsElapsed);
+void display_update_state(displayMode_t *display_mode, inputCommMsg_t msg);
+void display_update(displayMode_t display_mode);
 bool display_manager_init(void);
 
 void display_manager_thread(void* rtos_param) {
+    displayMode_t display_mode = DISPLAY_STEPS;
+
     display_manager_init();
+    
 
     for (;;) {
         uint8_t num_tries = 0;
@@ -54,18 +57,20 @@ void display_manager_thread(void* rtos_param) {
             inputCommMsg_t msg = input_comms_receive();
 
             display_info_set_input_flag(msg, 1);
-            display_update_state(msg);
+            display_update_state(&display_mode, msg);
 
             num_tries++;
         }
 
         uint32_t steps = display_info_get_steps();
-        steps += step_counter_get();
-        display_info_set_steps(steps);
+        uint32_t new_steps = step_counter_get();
+        if (display_info_get_start() == 0 && new_steps > steps) {
+            display_info_set_start(display_info_get_ticks());
+        }
 
-        uint32_t seconds_elapsed = xTaskGetTickCount() / 1000;
+        display_info_set_steps(steps + new_steps);
         
-        display_update(seconds_elapsed);
+        display_update(display_mode);
 
         for (uint8_t i = 0; i < NUM_MSGS; i++) {
             display_info_set_input_flag(i, 0);
@@ -91,19 +96,17 @@ bool display_manager_init(void) {
  * itself 
  * @param msg the comms message
  */
-void display_update_state(inputCommMsg_t msg) {
-    displayMode_t currentDisplayMode = g_display_mode;
-
+void display_update_state(displayMode_t *display_mode, inputCommMsg_t msg) {
     switch (msg) {
     case (MSG_SCREEN_LEFT):
-        g_display_mode = (g_display_mode + 1) % DISPLAY_NUM_STATES; // flicker when pressing button
+        *display_mode = (*display_mode + 1) % DISPLAY_NUM_STATES; // flicker when pressing button
         break;
 
     case (MSG_SCREEN_RIGHT):
-        if (g_display_mode > 0) {
-            g_display_mode--;
+        if (*display_mode > 0) {
+            *display_mode -= 1;
         } else {
-            g_display_mode = DISPLAY_NUM_STATES - 1;
+            *display_mode = DISPLAY_NUM_STATES - 1;
         }
         break;
 
@@ -149,34 +152,42 @@ void display_update_state(inputCommMsg_t msg) {
 
 /** 
  * @brief Display the screen showing the steps count
- * @param secondsElapsed the number of seconds elapsed since
- * the start of the workout
  * 
  */
-void display_steps(uint16_t secondsElapsed) {
+void display_steps(void) {
     display_line("", 0, ALIGN_CENTRE); // Clear the top line
     if (display_info_get_units() == UNITS_SI) {
         display_value("", "steps", display_info_get_steps(), 1, ALIGN_CENTRE, false);
     } else {
         display_value("", "% of goal", display_info_get_steps() * 100 / display_info_get_goal(), 1, ALIGN_CENTRE, false);
     }
-    display_time("Time:", secondsElapsed, 2, ALIGN_CENTRE);
+    uint32_t workout_time = 0;
+    uint32_t workout_start_time = display_info_get_start();
+    if (workout_start_time != 0) {
+        workout_time = display_info_get_ticks() - workout_start_time;
+    }
+
+    display_time("Time:", workout_time, 2, ALIGN_CENTRE);
 }
 
 /** 
  * @brief Display the screen showing the distance traveled
- * @param secondsElapsed the number of seconds elapsed since
- * the start of the workout
  * 
  */
-void display_distance(uint16_t secondsElapsed) {
-    display_time("Time:", secondsElapsed, 1, ALIGN_CENTRE);
+void display_distance(void) {
+    uint32_t workout_time = 0;
+    uint32_t workout_start_time = display_info_get_start();
+    if (workout_start_time != 0) {
+        workout_time = display_info_get_ticks() - workout_start_time;
+    }
+
+    display_time("Time:", workout_time, 1, ALIGN_CENTRE);
     uint32_t mTravelled = display_info_get_steps() * M_PER_STEP;
 
     // Protection against division by zero
     uint16_t speed;
-    if (secondsElapsed != 0) {
-        speed = (mTravelled / secondsElapsed) * MS_TO_KMH; // in km/h
+    if (workout_time != 0) {
+        speed = (mTravelled / workout_time) * MS_TO_KMH; // in km/h
     } else {
         speed = mTravelled * MS_TO_KMH; // if zero seconds elapsed, act as if it's at least one
     }
@@ -193,15 +204,13 @@ void display_distance(uint16_t secondsElapsed) {
 
 /**
  * @brief display the set goal screen
- * @param secondsElapsed the number of seconds elapsed since
- * the start of the workout
  */
-void display_set_goal(uint16_t secondsElapsed) {
+void display_set_goal(void) {
     uint32_t new_goal = 3000;
 
     if (display_info_get_input_flag(MSG_DOWN_BUTTON_P) && !display_info_get_debug()) {
         display_info_set_goal(new_goal);
-        g_display_mode = DISPLAY_STEPS;
+        // g_display_mode = DISPLAY_STEPS;
     }
                     
     display_line("Set goal:", 0, ALIGN_CENTRE);
@@ -227,11 +236,9 @@ void display_set_goal(uint16_t secondsElapsed) {
 
 /** 
  * @brief Update the display
- * @param secondsElapsed the number of seconds elapsed since
- * the start of the workout
  * 
  */
-void display_update(uint16_t secondsElapsed) {
+void display_update(displayMode_t display_mode) {
     // Check for flash message override
     // if (deviceState.flashTicksLeft != 0) {
     //     char* emptyLine = "                ";
@@ -245,17 +252,15 @@ void display_update(uint16_t secondsElapsed) {
 
     // uint32_t mTravelled = 0; // TODO: If I put this inside the case statement it won't compile. Work out why!
 
-    switch (g_display_mode) {
+    switch (display_mode) {
     case DISPLAY_STEPS:
-        display_steps(secondsElapsed);
+        display_steps();
         break;
     case DISPLAY_DISTANCE:
-        display_distance(secondsElapsed);        
-
+        display_distance();        
         break;
     case DISPLAY_SET_GOAL:
-        display_set_goal(secondsElapsed);
-
+        display_set_goal();
         break;
 
     default:

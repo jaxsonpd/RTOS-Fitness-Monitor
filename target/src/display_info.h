@@ -59,6 +59,29 @@ bool display_info_get_input_flag(inputCommMsg_t msg);
 uint32_t display_info_get_goal(void);
 
 /** 
+ * @brief Get the number of seconds since the start of the RTOS
+ * 
+ * @return the number of seconds
+ */
+uint32_t display_info_get_ticks(void);
+
+/**
+ * @brief Get the time that the workout was started
+ * 
+ * @return the time in seconds if 0 workout hasn't be started
+ */
+uint32_t display_info_get_start(void);
+
+/** 
+ * @brief Set the time that the workout was started
+ * @param start_time the time the workout was started in seconds
+ * set this to 0 if the workout is inactive
+ * 
+ */
+void display_info_set_start(uint32_t start_time);
+
+
+/** 
  * @brief Set the current goal
  * @param goal the new goal to set to
  * 
