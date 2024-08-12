@@ -1,4 +1,4 @@
-/** 
+/**
  * @file display_info.c
  * @author Jack Duignan (Jdu80@uclive.ac.nz)
  * @date 2024-08-12
@@ -18,7 +18,7 @@
 bool g_debug = false;
 displayUnits_t g_units = UNITS_SI;
 uint32_t g_steps = 0;
-bool g_input_flags[NUM_MSGS] = {0};
+bool g_input_flags[NUM_MSGS] = { 0 };
 uint32_t g_goal = 1000;
 uint32_t g_workout_start_time = 0;
 
@@ -42,9 +42,9 @@ uint32_t display_info_get_goal(void) {
     return g_goal;
 }
 
-uint32_t display_info_get_ticks(void) {
+uint32_t display_info_get_time(void) {
     return (uint32_t)(xTaskGetTickCount() / 1000);
-}  
+}
 
 uint32_t display_info_get_start(void) {
     return g_workout_start_time;
