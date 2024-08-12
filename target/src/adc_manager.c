@@ -1,5 +1,5 @@
 /** 
- * @file ADC_read.c
+ * @file ADC_manager.c
  * @author Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-10
  * @brief Updated ADC_read source file abstracted from hardware.
@@ -10,11 +10,12 @@
 
 #include "adc_hal.h"
 #include "circular_buffer_T.h"
-#include "ADC_read.h"
+#include "adc_manager.h"
+
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "adc_comms.h"
+#include "pot_comms.h"
 
 //*****************************************************************************
 // Constants
@@ -66,32 +67,4 @@ uint32_t readADC()
     }
 
     return sum / i;
-}
-
-bool adc_read_init(void) 
-{
-    // Initialize the ADC hardware or API
-    bool result = true;
-    initADC();
-    result = adc_comms_init() && result; // Initialize ADC communication mechanism
-    return result;
-}
-
-void adc_read_thread(void* args) 
-{
-    if(adc_read_init() == false) {
-        while(1);
-    }
-
-    uint32_t adc_value = 0;
-    for (;;) {
-        pollADC(); // Poll the ADC hardware or API
-        adc_value = readADC(); // Read the ADC value
-
-        if(adc_value != 0) {
-            adc_set(adc_value); // Store the ADC value using comms
-        }
-
-        vTaskDelay(5); // Poll at specified rate
-    }
 }

@@ -39,8 +39,9 @@
 #include "input_manager.h"
 #include "input_comms.h"
 
-#include "ADC_read.h"
-#include "adc_comms.h"
+#include "adc_manager.h"
+#include "pot_manager.h"
+#include "pot_comms.h"
 
 #include "display_manager.h"
 
@@ -143,7 +144,7 @@ void superloop(void* args) {
         if (lastIoProcess + RATE_SYSTICK_HZ / RATE_IO_HZ < currentTick) {
             lastIoProcess = currentTick;
 
-            uint32_t adc_value = adc_get();
+            uint32_t adc_value = pot_get();
             if (adc_value != 0) {
                 deviceState.newGoal = adc_value * POT_SCALE_COEFF; 
                 deviceState.newGoal = (deviceState.newGoal / STEP_GOAL_ROUNDING) * STEP_GOAL_ROUNDING; 
@@ -248,7 +249,7 @@ int main(void) {
     xTaskCreate(&superloop, "superloop", 512, NULL, 1, NULL);
     xTaskCreate(&step_counter_thread, "step counter thread", 512, NULL, 1, NULL);
     xTaskCreate(&input_manager_thread, "input manager thread", 128, NULL, 1, NULL);
-    xTaskCreate(&adc_read_thread, "potentiometer thread", 128, NULL, 1, NULL);
+    xTaskCreate(&pot_read_thread, "potentiometer thread", 128, NULL, 1, NULL);
     vTaskStartScheduler();
     return 0;
 }
