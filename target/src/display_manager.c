@@ -18,6 +18,7 @@
 #include "input_comms.h"
 #include "serial_sender.h"
 #include "display.h"
+#include "display_info.h"
 
 #include "display_manager.h"
 
@@ -38,49 +39,36 @@ typedef enum
     DISPLAY_NUM_STATES, // Automatically enumerates to the number of display states there can be
 } displayMode_t;
 
-typedef enum
-{
-    UNITS_SI = 0,    // Steps  /km
-    UNITS_ALTERNATE, // Percent/miles
-    UNITS_NUM_TYPES,
-} displayUnits_t;
-
-inputCommMsg_t input_flags[NUM_MSGS] = {0};
-
+displayMode_t g_display_mode = DISPLAY_STEPS;
 
 void display_update_inputs(inputCommMsg_t msg);
 void display_update(uint16_t secondsElapsed);
 bool display_manager_init(void);
 
-displayMode_t displayMode = DISPLAY_STEPS;
-uint32_t currentGoal = 1000;
-bool debugMode = false;
-displayUnits_t displayUnits = UNITS_SI;
-uint32_t stepsTaken = 0;
-uint32_t newGoal = 3000;
-
 void display_manager_thread(void* rtos_param) {
     display_manager_init();
-    uint32_t seconds_elapsed = 0;
 
     for (;;) {
         uint8_t num_tries = 0;
         while (input_comms_num_msgs() > 0 && num_tries < 5) {
             inputCommMsg_t msg = input_comms_receive();
 
-            input_flags[msg] = 1;
+            display_info_set_input_flag(msg, 1);
             display_update_inputs(msg);
 
             num_tries++;
         }
 
-        stepsTaken += step_counter_get();
-        seconds_elapsed = xTaskGetTickCount() / 1000;
+        uint32_t steps = display_info_get_steps();
+        steps += step_counter_get();
+        display_info_set_steps(steps);
+
+        uint32_t seconds_elapsed = xTaskGetTickCount() / 1000;
         
         display_update(seconds_elapsed);
 
         for (uint8_t i = 0; i < NUM_MSGS; i++) {
-            input_flags[i] = 0;
+            display_info_set_input_flag(i, 0);
         }
 
         vTaskDelay(1000/5);
@@ -105,49 +93,49 @@ bool display_manager_init(void) {
  * @param deviceStateInfo the device state struct pointer
  */
 void display_update_inputs(inputCommMsg_t msg) {
-    displayMode_t currentDisplayMode = displayMode;
+    displayMode_t currentDisplayMode = g_display_mode;
 
     switch (msg) {
     case (MSG_SCREEN_LEFT):
-        displayMode = (displayMode + 1) % DISPLAY_NUM_STATES; // flicker when pressing button
+        g_display_mode = (g_display_mode + 1) % DISPLAY_NUM_STATES; // flicker when pressing button
         break;
 
     case (MSG_SCREEN_RIGHT):
-        if (displayMode > 0) {
-            displayMode--;
+        if (g_display_mode > 0) {
+            g_display_mode--;
         } else {
-            displayMode = DISPLAY_NUM_STATES - 1;
+            g_display_mode = DISPLAY_NUM_STATES - 1;
         }
         break;
 
     case (MSG_LEFT_SWITCH_ON):
     case (MSG_RIGHT_SWITCH_ON):
-        debugMode = true;
+        display_info_set_debug(true);
         break;
 
     case (MSG_LEFT_SWITCH_OFF):
     case (MSG_RIGHT_SWITCH_OFF):
-        debugMode = false;
+        display_info_set_debug(false);
         break;
 
     case (MSG_UP_BUTTON_P):
-        if (debugMode) {
-            stepsTaken = stepsTaken + DEBUG_STEP_INCREMENT;
+        if (display_info_get_debug()) {
+            display_info_set_steps(display_info_get_steps() + DEBUG_STEP_INCREMENT);
         } else {
-            if (displayUnits == UNITS_SI) {
-                displayUnits = UNITS_ALTERNATE;
+            if (display_info_get_units() == UNITS_SI) {
+                display_info_set_units(UNITS_ALTERNATE);
             } else {
-                displayUnits = UNITS_SI;
+                display_info_set_units(UNITS_SI);
             }
         }
         break;
 
     case (MSG_DOWN_BUTTON_P):
-        if (debugMode) {
-            if (stepsTaken >= DEBUG_STEP_DECREMENT) {
-                stepsTaken = stepsTaken - DEBUG_STEP_DECREMENT;
+        if (display_info_get_debug()) {
+            if (display_info_get_steps() >= DEBUG_STEP_DECREMENT) {
+                display_info_set_steps(display_info_get_steps() - DEBUG_STEP_INCREMENT);
             } else {
-                stepsTaken = 0;
+                display_info_set_steps(0);
             }
         } 
         break;
@@ -168,10 +156,10 @@ void display_update_inputs(inputCommMsg_t msg) {
  */
 void display_steps(uint16_t secondsElapsed) {
     display_line("", 0, ALIGN_CENTRE); // Clear the top line
-    if (displayUnits == UNITS_SI) {
-        display_value("", "steps", stepsTaken, 1, ALIGN_CENTRE, false);
+    if (display_info_get_units() == UNITS_SI) {
+        display_value("", "steps", display_info_get_steps(), 1, ALIGN_CENTRE, false);
     } else {
-        display_value("", "% of goal", stepsTaken * 100 / currentGoal, 1, ALIGN_CENTRE, false);
+        display_value("", "% of goal", display_info_get_steps() * 100 / display_info_get_goal(), 1, ALIGN_CENTRE, false);
     }
     display_time("Time:", secondsElapsed, 2, ALIGN_CENTRE);
 }
@@ -183,10 +171,8 @@ void display_steps(uint16_t secondsElapsed) {
  * 
  */
 void display_distance(uint16_t secondsElapsed) {
-    uint32_t mTravelled = 0;
-
     display_time("Time:", secondsElapsed, 1, ALIGN_CENTRE);
-    mTravelled = stepsTaken * M_PER_STEP;
+    uint32_t mTravelled = display_info_get_steps() * M_PER_STEP;
 
     // Protection against division by zero
     uint16_t speed;
@@ -196,7 +182,7 @@ void display_distance(uint16_t secondsElapsed) {
         speed = mTravelled * MS_TO_KMH; // if zero seconds elapsed, act as if it's at least one
     }
 
-    if (displayUnits == UNITS_SI) {
+    if (display_info_get_units() == UNITS_SI) {
         display_value("Dist:", "km", mTravelled, 0, ALIGN_CENTRE, true);
         display_value("Speed", "kph", speed, 2, ALIGN_CENTRE, false);
     } else {
@@ -212,26 +198,28 @@ void display_distance(uint16_t secondsElapsed) {
  * the start of the workout
  */
 void display_set_goal(uint16_t secondsElapsed) {
-    if (input_flags[MSG_DOWN_BUTTON_P] && !debugMode) {
-        currentGoal = newGoal;
-        displayMode = DISPLAY_STEPS;
+    uint32_t new_goal = 3000;
+
+    if (display_info_get_input_flag(MSG_DOWN_BUTTON_P) && !display_info_get_debug()) {
+        display_info_set_goal(new_goal);
+        g_display_mode = DISPLAY_STEPS;
     }
                     
     display_line("Set goal:", 0, ALIGN_CENTRE);
-    display_value("Current:", "", currentGoal, 2, ALIGN_CENTRE, false);
+    display_value("Current:", "", display_info_get_goal(), 2, ALIGN_CENTRE, false);
 
     // Display the step/distance preview
     char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
-    uint16_t distance = newGoal * M_PER_STEP; // ===== NEEDS to be updated to new goal
-    if (displayUnits != UNITS_SI) {
+    uint16_t distance = new_goal * M_PER_STEP; // ===== NEEDS to be updated to new goal
+    if (display_info_get_units() != UNITS_SI) {
         distance = distance * KM_TO_MILES;
     }
 
     // if <10 km/miles, use a decimal point. Otherwise display whole units (to save space)
     if (distance < 10 * 1000) {
-        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d.%01d%s", newGoal, distance / 1000, (distance % 1000) / 100, displayUnits == UNITS_SI ? "km" : "mi");
+        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d.%01d%s", new_goal, distance / 1000, (distance % 1000) / 100, display_info_get_units() == UNITS_SI ? "km" : "mi");
     } else {
-        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d%s", newGoal, distance / 1000, displayUnits == UNITS_SI ? "km" : "mi");
+        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d%s", new_goal, distance / 1000, display_info_get_units() == UNITS_SI ? "km" : "mi");
     }
 
     display_line(toDraw, 1, ALIGN_CENTRE);
@@ -258,7 +246,7 @@ void display_update(uint16_t secondsElapsed) {
 
     // uint32_t mTravelled = 0; // TODO: If I put this inside the case statement it won't compile. Work out why!
 
-    switch (displayMode) {
+    switch (g_display_mode) {
     case DISPLAY_STEPS:
         display_steps(secondsElapsed);
         break;
@@ -268,6 +256,10 @@ void display_update(uint16_t secondsElapsed) {
         break;
     case DISPLAY_SET_GOAL:
         display_set_goal(secondsElapsed);
+
+        break;
+
+    default:
 
         break;
     }
