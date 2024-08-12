@@ -21,7 +21,7 @@ typedef struct{
 
 bool acclInit(void);        // set up library
 void acclPoll(void);     // Run periodically
-vector3_t acclMean(void);   // Return mean acceleration, calculated using circular buffers
+vector3_t acclMean(void);   // Return mean acceleration
 
 
 #endif /* ACCL_MANAGER_H_ */

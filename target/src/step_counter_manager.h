@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 #ifdef UNIT_TESTING
-bool step_counter_init(void);
+bool step_counter_manager_init(void);
 #endif // UNIT_TESTING
 
 void step_counter_thread(void* args);

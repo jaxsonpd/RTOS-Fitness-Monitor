@@ -11,7 +11,7 @@ add_tiva_executable(fitness-tracker
     fitness_monitor_main.c
     IO_input.c
     input_comms.c
-    step_counter.c
+    step_counter_analog.c
     step_counter_manager.c
     step_counter_comms.c
 )

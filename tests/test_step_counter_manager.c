@@ -34,25 +34,34 @@ void tearDown(void)
     
 }
 
-void test_step_counter_init_calls_comms_init(void)
+void test_step_counter_manager_init_calls_comms_init(void)
 {
-    step_counter_init();
+    step_counter_manager_init();
 
     TEST_ASSERT_EQUAL(1, step_counter_comms_init_fake.call_count);
 }
 
-void test_step_counter_init_calls_accl_init(void)
+void test_step_counter_manager_init_calls_accl_init(void)
 {
-    step_counter_init();
+    step_counter_manager_init();
 
     TEST_ASSERT_EQUAL(1, acclInit_fake.call_count);
 }
 
-void test_step_counter_init_success(void)
+void test_step_counter_manager_init_calls_step_counter_init(void)
+{
+    step_counter_manager_init();
+
+    TEST_ASSERT_EQUAL(1, step_counter_init_fake.call_count);
+}
+
+void test_step_counter_manager_init_success(void)
 {
     bool return_seq[1] = {true};
 
     SET_RETURN_SEQ(step_counter_comms_init, return_seq, 1);
     SET_RETURN_SEQ(acclInit, return_seq, 1);
-    TEST_ASSERT_TRUE(step_counter_init());
+    SET_RETURN_SEQ(step_counter_init, return_seq, 1);
+
+    TEST_ASSERT_TRUE(step_counter_manager_init());
 }
