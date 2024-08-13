@@ -1,134 +1,223 @@
-/*
- * display_manager.c
- *
- * Handles drawing to the device's screen, given its current state
- *
- *  Created on: 23/03/2022
- *      Author: Matthew Suter
- *
- *  FitnessThur9-1
+/**
+ * @file display_manager.c
+ * @author Jack Duignan (Jdu80@uclive.ac.nz)
+ * @date 2024-08-11
+ * @brief Definitions for the display manager thread which write information to
+ * the OLED screen.
  */
+
 
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdlib.h>
-#include "inc/hw_memmap.h"
-#include "inc/hw_types.h"
-#include "inc/hw_ints.h"
-#include "driverlib/gpio.h"
-#include "driverlib/sysctl.h"
-#include "driverlib/systick.h"
-#include "driverlib/debug.h"
-#include "driverlib/pin_map.h"
-#include "utils/ustdlib.h"
-#include "stdio.h"
-#include "stdlib.h"
-#include "OrbitOLED/OrbitOLEDInterface.h"
+
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "utils/ustdlib.h"
 
+#include "step_counter_comms.h"
 #include "input_comms.h"
 #include "serial_sender.h"
+#include "display.h"
+#include "display_info.h"
+#include "pot_comms.h"
 
 #include "display_manager.h"
 
-
-//********************************************************
-// Constants and static vars
-//********************************************************
+#define LONG_PRESS_TIME 3/2
+#define FLASH_TIME 3/2
 
 #define KM_TO_MILES 62/100 // Multiply by 0.6215 to convert, this should be good enough
 #define MS_TO_KMH 36/10
-#define TIME_UNIT_SCALE 60
+#define M_PER_STEP 9 / 10
+
+#define DEBUG_STEP_INCREMENT 100
+#define DEBUG_STEP_DECREMENT 100
+
+#define STEP_GOAL_ROUNDING 100
+#define STEP_THRESHOLD_HIGH 270
+#define STEP_THRESHOLD_LOW 235
+
+#define GOAL_DEFAULT 1000
+
+#define POT_SCALE_COEFF 20000 / 4095 // in steps, adjusting to account for the potentiometer's maximum possible reading
+
+typedef enum {
+    DISPLAY_STEPS = 0,
+    DISPLAY_DISTANCE,
+    DISPLAY_SET_GOAL,
+    DISPLAY_NUM_STATES, // Automatically enumerates to the number of display states there can be
+    DISPLAY_FLASH_RESET,
+    DISPLAY_FLASH_GOAL_REACHED
+} displayMode_t;
+
+void display_update_state(displayMode_t* display_mode, inputCommMsg_t msg);
+void display_update(displayMode_t* display_mode);
+bool display_manager_init(void);
+
+void display_set_goal(void);
+void display_steps(void);
+void display_distance(void);
+void display_reset_screen(void);
+void display_goal_reached(void);
+
+/**
+ * @brief Update the step counter and check for workout start
+ *
+ * @return true if the workout is started
+ */
+bool update_steps(void) {
+    static uint32_t old_steps = 0;
+    uint32_t steps = display_info_get_steps();
+    uint32_t new_steps = step_counter_get();
+    display_info_set_steps(steps + new_steps);
+
+    if (display_info_get_start() == 0 && display_info_get_steps() > old_steps) {
+        display_info_set_start(display_info_get_ds());
+        return true;
+    }
+
+    old_steps = display_info_get_steps();
+
+    return false;
+}
+
+/**
+ * @brief Check reached goal
+ * @param reset if true reset the function
+ *
+ * @return true if goal has been reached for the first time
+ */
+bool check_goal_reached(bool reset) {
+    static uint32_t last_goal = 0;
+
+    if (reset) {
+        last_goal = 0;
+        return false;
+    }
+
+    if (display_info_get_steps() >= display_info_get_goal() && last_goal != display_info_get_goal()) {
+        last_goal = display_info_get_goal();
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * @brief update the input flags and display state
+ * @param display_mode a pointer to the display mode
+ *
+ */
+void update_inputs(displayMode_t* display_mode) {
+    uint8_t num_tries = 0;
+    while (input_comms_num_msgs() > 0 && num_tries < 5) {
+        inputCommMsg_t msg = input_comms_receive();
+
+        display_info_set_input_flag(msg, 1);
+        display_update_state(display_mode, msg);
+
+        num_tries++;
+    }
+}
+
+void display_manager_thread(void* rtos_param) {
+    displayMode_t display_mode = DISPLAY_STEPS;
+
+    display_manager_init();
 
 
-/*******************************************
- *      Local prototypes
- *******************************************/
-static void displayLine(char* inStr, uint8_t row, textAlignment_t alignment);
-static void displayValue(char* prefix, char* suffix, int32_t value, uint8_t row, textAlignment_t alignment, bool thousandsFormatting);
-static void displayTime(char* prefix, uint16_t time, uint8_t row, textAlignment_t alignment);
+    for (;;) {
+        update_inputs(&display_mode);
 
+        // Allow for updates of on input tasks
+        display_update_state(&display_mode, NO_MESSAGES);
 
-/*******************************************
- *      Global functions
- *******************************************/
-// Init the screen library
-void displayInit(void) {
-    OLEDInitialise();
+        update_steps();
+
+        if (check_goal_reached(false)) {
+            display_mode = DISPLAY_FLASH_GOAL_REACHED;
+        }
+
+        display_update(&display_mode);
+
+        for (uint8_t i = 0; i < NUM_MSGS; i++) {
+            display_info_set_input_flag(i, 0);
+        }
+
+        vTaskDelay(1000 / 5);
+    }
+}
+
+/**
+ * @brief Initialise the display manager thread
+ *
+ * @return true if successful
+ */
+bool display_manager_init(void) {
+    return display_init();
 }
 
 
-#define LONG_PRESS_CYCLES 20
-void display_update_state(inputCommMsg_t msg, deviceStateInfo_t* deviceStateInfo) {
-    displayMode_t currentDisplayMode = deviceStateInfo->displayMode;
-    static bool allowLongPress = true;
-    static uint16_t longPressCount = 0;
+/**
+ * @brief Update the global device state based on the message
+ * per screen functions are handled in the respective screen module
+ * itself
+ * @param msg the comms message
+ */
+void display_update_state(displayMode_t* display_mode, inputCommMsg_t msg) {
+    static uint32_t down_button_p_time = 0;
 
     switch (msg) {
     case (MSG_SCREEN_LEFT):
-        deviceStateInfo->displayMode = (deviceStateInfo->displayMode + 1) % DISPLAY_NUM_STATES; // flicker when pressing button
+        *display_mode = (*display_mode + 1) % DISPLAY_NUM_STATES; // flicker when pressing button
         break;
 
     case (MSG_SCREEN_RIGHT):
-        if (deviceStateInfo->displayMode > 0) {
-            deviceStateInfo->displayMode--;
+        if (*display_mode > 0) {
+            *display_mode -= 1;
         } else {
-            deviceStateInfo->displayMode = DISPLAY_NUM_STATES - 1;
+            *display_mode = DISPLAY_NUM_STATES - 1;
         }
         break;
 
     case (MSG_LEFT_SWITCH_ON):
     case (MSG_RIGHT_SWITCH_ON):
-        deviceStateInfo->debugMode = true;
+        display_info_set_debug(true);
         break;
 
     case (MSG_LEFT_SWITCH_OFF):
     case (MSG_RIGHT_SWITCH_OFF):
-        deviceStateInfo->debugMode = false;
+        display_info_set_debug(false);
         break;
 
     case (MSG_UP_BUTTON_P):
-        if (deviceStateInfo->debugMode) {
-            deviceStateInfo->stepsTaken = deviceStateInfo->stepsTaken + DEBUG_STEP_INCREMENT;
+        if (display_info_get_debug()) {
+            display_info_set_steps(display_info_get_steps() + DEBUG_STEP_INCREMENT);
         } else {
-            if (deviceStateInfo->displayUnits == UNITS_SI) {
-                deviceStateInfo->displayUnits = UNITS_ALTERNATE;
+            if (display_info_get_units() == UNITS_SI) {
+                display_info_set_units(UNITS_ALTERNATE);
             } else {
-                deviceStateInfo->displayUnits = UNITS_SI;
+                display_info_set_units(UNITS_SI);
             }
         }
         break;
 
     case (MSG_DOWN_BUTTON_P):
-        if (deviceStateInfo->debugMode) {
-            if (deviceStateInfo->stepsTaken >= DEBUG_STEP_DECREMENT) {
-                deviceStateInfo->stepsTaken = deviceStateInfo->stepsTaken - DEBUG_STEP_DECREMENT;
-            } else {
-                deviceStateInfo->stepsTaken = 0;
-            }
-        } else {
-            if ((currentDisplayMode != DISPLAY_SET_GOAL) && (allowLongPress)) {
-                longPressCount++;
-                if (longPressCount >= LONG_PRESS_CYCLES) {
-                    deviceStateInfo->stepsTaken = 0;
-                    // flashMessage("Reset!");
-                }
-            } else {
-                if ((currentDisplayMode == DISPLAY_SET_GOAL)) {
-                    deviceStateInfo->currentGoal = deviceStateInfo->newGoal;
-                    deviceStateInfo->displayMode = DISPLAY_STEPS;
+        down_button_p_time = display_info_get_ds();
 
-                    allowLongPress = false; // Hacky solution: Protection against double-registering as a short press then a long press
-                }
-                longPressCount = 0;
+        if (display_info_get_debug()) {
+            if (display_info_get_steps() >= DEBUG_STEP_DECREMENT) {
+                display_info_set_steps(display_info_get_steps() - DEBUG_STEP_INCREMENT);
+            } else {
+                display_info_set_steps(0);
             }
-
         }
         break;
 
     case (MSG_DOWN_BUTTON_R):
-        allowLongPress = true;
+        down_button_p_time = 0;
         break;
 
     default:
@@ -136,156 +225,175 @@ void display_update_state(inputCommMsg_t msg, deviceStateInfo_t* deviceStateInfo
         break;
     }
 
+    if ((down_button_p_time > 0) && ((display_info_get_ds() - down_button_p_time) > LONG_PRESS_TIME * S_TO_DS)) {
+        *display_mode = DISPLAY_FLASH_RESET;
+        display_info_set_steps(0);
+        check_goal_reached(true);
+        display_info_set_start(0);
+        down_button_p_time = 0;
+    }
 
 }
 
+/**
+ * @brief Update the display
+ *
+ */
+void display_update(displayMode_t* display_mode) {
+    static bool first_time_flash = true;
+    static uint32_t flash_start_time = 0;
 
-
-// Update the display, called on a loop
-void displayUpdate(deviceStateInfo_t deviceState, uint16_t secondsElapsed) {
-    // Check for flash message override
-    if (deviceState.flashTicksLeft != 0) {
-        char* emptyLine = "                ";
-        OLEDStringDraw(emptyLine, 0, 0);
-        displayLine(deviceState.flashMessage, 1, ALIGN_CENTRE);
-        OLEDStringDraw(emptyLine, 0, 2);
-        OLEDStringDraw(emptyLine, 0, 3);
-        return;
-    }
-
-
-    uint32_t mTravelled = 0; // TODO: If I put this inside the case statement it won't compile. Work out why!
-
-    switch (deviceState.displayMode) {
+    switch (*display_mode) {
     case DISPLAY_STEPS:
-        displayLine("", 0, ALIGN_CENTRE); // Clear the top line
-        if (deviceState.displayUnits == UNITS_SI) {
-            displayValue("", "steps", deviceState.stepsTaken, 1, ALIGN_CENTRE, false);
-        } else {
-            displayValue("", "% of goal", deviceState.stepsTaken * 100 / deviceState.currentGoal, 1, ALIGN_CENTRE, false);
-        }
-        displayTime("Time:", secondsElapsed, 2, ALIGN_CENTRE);
+        display_steps();
         break;
     case DISPLAY_DISTANCE:
-        displayTime("Time:", secondsElapsed, 1, ALIGN_CENTRE);
-        mTravelled = deviceState.stepsTaken * M_PER_STEP;
-
-        // Protection against division by zero
-        uint16_t speed;
-        if (secondsElapsed != 0) {
-            speed = (mTravelled / secondsElapsed) * MS_TO_KMH; // in km/h
-        } else {
-            speed = mTravelled * MS_TO_KMH; // if zero seconds elapsed, act as if it's at least one
-        }
-
-        if (deviceState.displayUnits == UNITS_SI) {
-            displayValue("Dist:", "km", mTravelled, 0, ALIGN_CENTRE, true);
-            displayValue("Speed", "kph", speed, 2, ALIGN_CENTRE, false);
-        } else {
-            displayValue("Dist:", "mi", mTravelled * KM_TO_MILES, 0, ALIGN_CENTRE, true);
-            displayValue("Speed", "mph", speed * KM_TO_MILES, 2, ALIGN_CENTRE, false);
-        }
-
+        display_distance();
         break;
     case DISPLAY_SET_GOAL:
-        displayLine("Set goal:", 0, ALIGN_CENTRE);
-        displayValue("Current:", "", deviceState.currentGoal, 2, ALIGN_CENTRE, false);
-
-        // Display the step/distance preview
-        char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
-        uint16_t distance = deviceState.newGoal * M_PER_STEP;
-        if (deviceState.displayUnits != UNITS_SI) {
-            distance = distance * KM_TO_MILES;
+        display_set_goal();
+        break;
+    case DISPLAY_FLASH_RESET:
+        if (first_time_flash) {
+            flash_start_time = display_info_get_ds();
+            first_time_flash = false;
         }
 
-        // if <10 km/miles, use a decimal point. Otherwise display whole units (to save space)
-        if (distance < 10 * 1000) {
-            usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d.%01d%s", deviceState.newGoal, distance / 1000, (distance % 1000) / 100, deviceState.displayUnits == UNITS_SI ? "km" : "mi");
-        } else {
-            usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d%s", deviceState.newGoal, distance / 1000, deviceState.displayUnits == UNITS_SI ? "km" : "mi");
+        if (display_info_get_ds() - flash_start_time > FLASH_TIME * S_TO_DS) {
+            *display_mode = DISPLAY_STEPS;
+            first_time_flash = true;
         }
 
-        displayLine(toDraw, 1, ALIGN_CENTRE);
+        display_reset_screen();
+        break;
+    case DISPLAY_FLASH_GOAL_REACHED:
+        if (first_time_flash) {
+            flash_start_time = display_info_get_ds();
+            first_time_flash = false;
+        }
+
+        if (display_info_get_ds() - flash_start_time > FLASH_TIME * S_TO_DS) {
+            *display_mode = DISPLAY_STEPS;
+            first_time_flash = true;
+        }
+        display_goal_reached();
+        break;
+
+    default:
 
         break;
     }
 }
 
-
-/*******************************************
- *      Local Functions
- *******************************************/
-// Draw a line to the OLED screen, with the specified alignment
-static void displayLine(char* inStr, uint8_t row, textAlignment_t alignment) {
-    // Get the length of the string, but prevent it from being more than 16 chars long
-    uint8_t inStrLength = 0;
-    while (inStr[inStrLength] != '\0' && inStrLength < DISPLAY_WIDTH) {
-        inStrLength++;
-    }
-
-    // Create a 16-char long array to write to
-    uint8_t i = 0;
-    char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
-    for (i = 0; i < DISPLAY_WIDTH; i++) {
-        toDraw[i] = ' ';
-    }
-    toDraw[DISPLAY_WIDTH] = '\0'; // Set the last character to EOF
-
-    // Set the starting position based on the alignment specified
-    uint8_t startPos = 0;
-    switch (alignment) {
-    case ALIGN_LEFT:
-        startPos = 0;
-        break;
-    case ALIGN_CENTRE:
-        startPos = (DISPLAY_WIDTH - inStrLength) / 2;
-        break;
-    case ALIGN_RIGHT:
-        startPos = (DISPLAY_WIDTH - inStrLength);
-        break;
-    }
-
-    // Copy the string we were given onto the 16-char row
-    for (i = 0; i < inStrLength; i++) {
-        toDraw[i + startPos] = inStr[i];
-    }
-
-    OLEDStringDraw(toDraw, 0, row);
-}
-
-
-
-// Display a value, with a prefix and suffix
-// Can optionally divide the value by 1000, to mimic floats without actually having to use them
-static void displayValue(char* prefix, char* suffix, int32_t value, uint8_t row, textAlignment_t alignment, bool thousandsFormatting) {
-    char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
-
-    if (thousandsFormatting) {
-        // Print a number/1000 to 3dp, with decimal point and sign
-        // Use a mega cool ternary operator to decide whether to use a minus sign
-        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s%c%d.%03d %s", prefix, value < 0 ? '-' : ' ', abs(value / 1000), abs(value) % 1000, suffix);
+/**
+ * @brief Display the screen showing the steps count
+ *
+ */
+void display_steps(void) {
+    display_line("", 0, ALIGN_CENTRE); // Clear the top line
+    if (display_info_get_units() == UNITS_SI) {
+        display_value("", "steps", display_info_get_steps(), 1, ALIGN_CENTRE, false);
     } else {
-        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s %d %s", prefix, value, suffix); // Can use %4d if we want uniform spacing
+        display_value("", "% of goal", display_info_get_steps() * 100 / display_info_get_goal(), 1, ALIGN_CENTRE, false);
+    }
+    uint32_t workout_time = 0;
+    uint32_t workout_start_time = display_info_get_start();
+    if (workout_start_time != 0) {
+        workout_time = display_info_get_ds() - workout_start_time;
     }
 
-    displayLine(toDraw, row, alignment);
+    display_time("Time:", workout_time * DS_TO_S, 2, ALIGN_CENTRE);
 }
 
+/**
+ * @brief Display the screen showing the distance traveled
+ *
+ */
+void display_distance(void) {
+    uint32_t workout_time = 0;
+    uint32_t workout_start_time = display_info_get_start();
+    if (workout_start_time != 0) {
+        workout_time = display_info_get_ds() - workout_start_time;
+    }
 
+    display_time("Time:", workout_time * DS_TO_S, 1, ALIGN_CENTRE);
+    uint32_t mTravelled = display_info_get_steps() * M_PER_STEP;
 
-// Display a given number of seconds, formatted as mm:ss or hh:mm:ss
-static void displayTime(char* prefix, uint16_t time, uint8_t row, textAlignment_t alignment) {
-    char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
-    uint16_t minutes = (time / TIME_UNIT_SCALE) % TIME_UNIT_SCALE;
-    uint16_t seconds = time % TIME_UNIT_SCALE;
-    uint16_t hours = time / (TIME_UNIT_SCALE * TIME_UNIT_SCALE);
-
-    if (hours == 0) {
-        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s %01d:%02d", prefix, minutes, seconds);
+    // Protection against division by zero
+    uint16_t speed;
+    if (workout_time != 0) {
+        speed = (mTravelled / (workout_time * DS_TO_S)) * MS_TO_KMH; // in km/h
     } else {
-        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s %01d:%02d:%02d", prefix, hours, minutes, seconds);
+        speed = mTravelled * MS_TO_KMH; // if zero seconds elapsed, act as if it's at least one
     }
 
-    displayLine(toDraw, row, alignment);
+    if (display_info_get_units() == UNITS_SI) {
+        display_value("Dist:", "km", mTravelled, 0, ALIGN_CENTRE, true);
+        display_value("Speed", "kph", speed, 2, ALIGN_CENTRE, false);
+    } else {
+        display_value("Dist:", "mi", mTravelled * KM_TO_MILES, 0, ALIGN_CENTRE, true);
+        display_value("Speed", "mph", speed * KM_TO_MILES, 2, ALIGN_CENTRE, false);
+    }
 }
 
+
+/**
+ * @brief display the set goal screen
+ */
+void display_set_goal(void) {
+    uint32_t new_goal = GOAL_DEFAULT;
+    uint32_t adc_value = pot_get();
+    if (adc_value != 0) {
+        new_goal = adc_value * POT_SCALE_COEFF;
+        new_goal = (new_goal / STEP_GOAL_ROUNDING) * STEP_GOAL_ROUNDING;
+    }
+
+
+    if (display_info_get_input_flag(MSG_DOWN_BUTTON_P) && !display_info_get_debug()) {
+        display_info_set_goal(new_goal);
+        // g_display_mode = DISPLAY_STEPS;
+    }
+
+    display_line("Set goal:", 0, ALIGN_CENTRE);
+    display_value("Current:", "", display_info_get_goal(), 2, ALIGN_CENTRE, false);
+
+    // Display the step/distance preview
+    char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
+    uint16_t distance = new_goal * M_PER_STEP; // ===== NEEDS to be updated to new goal
+    if (display_info_get_units() != UNITS_SI) {
+        distance = distance * KM_TO_MILES;
+    }
+
+    // if <10 km/miles, use a decimal point. Otherwise display whole units (to save space)
+    if (distance < 10 * 1000) {
+        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d.%01d%s", new_goal, distance / 1000, (distance % 1000) / 100, display_info_get_units() == UNITS_SI ? "km" : "mi");
+    } else {
+        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d stps/%d%s", new_goal, distance / 1000, display_info_get_units() == UNITS_SI ? "km" : "mi");
+    }
+
+    display_line(toDraw, 1, ALIGN_CENTRE);
+}
+
+/**
+ * @brief Display the reset message
+ *
+ */
+void display_reset_screen(void) {
+    char* emptyLine = "                ";
+    display_line(emptyLine, 0, ALIGN_LEFT);
+    display_line("RESET", 1, ALIGN_CENTRE);
+    display_line(emptyLine, 2, ALIGN_LEFT);
+    display_line(emptyLine, 3, ALIGN_LEFT);
+}
+
+/**
+ * @brief Display the goal reached message
+ *
+ */
+void display_goal_reached(void) {
+    char* emptyLine = "                ";
+    display_line(emptyLine, 0, ALIGN_LEFT);
+    display_line("GOAL REACHED!", 1, ALIGN_CENTRE);
+    display_line(emptyLine, 2, ALIGN_LEFT);
+    display_line(emptyLine, 3, ALIGN_LEFT);
+}
