@@ -249,7 +249,7 @@ int main(void) {
     xTaskCreate(&superloop, "superloop", 512, NULL, 1, NULL);
     xTaskCreate(&step_counter_thread, "step counter thread", 512, NULL, 1, NULL);
     xTaskCreate(&input_manager_thread, "input manager thread", 128, NULL, 1, NULL);
-    xTaskCreate(&pot_read_thread, "potentiometer thread", 128, NULL, 1, NULL);
+    xTaskCreate(&pot_read_thread, "pot read thread", 128, NULL, 1, NULL);
     vTaskStartScheduler();
     return 0;
 }

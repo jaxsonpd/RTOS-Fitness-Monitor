@@ -5,15 +5,15 @@
  * @brief Interface to handle communication of the step
  */
 
-#ifdef pot_COMMS_H
-#define pot_COMMS_H
+#ifndef POT_COMMS_H
+#define POT_COMMS_H
 
 #include <stdint.h>
 #include <stdbool.h>
 
 bool pot_comms_init(void);
-bool pot_set(uint32_t pot_value);
+bool pot_set(uint32_t pot_value_passed);
 uint32_t pot_get(void);
 
 
-#endif // pot_COMMS_H
+#endif // POT_COMMS_H

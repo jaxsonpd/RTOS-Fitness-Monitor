@@ -1,5 +1,5 @@
 #include "unity.h"
-#include "ADC_read.h"
+#include "adc_manager.h"
 
 #include "fff.h"
 DEFINE_FFF_GLOBALS;

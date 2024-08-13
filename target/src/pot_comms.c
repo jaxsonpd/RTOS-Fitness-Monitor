@@ -12,17 +12,17 @@ static bool mutex_enabled = false;
 bool pot_comms_init(void) {
     g_pot_mutex = xSemaphoreCreateMutex();
     mutex_enabled = g_pot_mutex != NULL;
-    g_pot_mutex = 0;
+    g_pot_value = 0;
 
     return mutex_enabled;
 }
 
-bool pot_set(uint32_t pot_value) {
+bool pot_set(uint32_t pot_value_passed) {
     if (mutex_enabled == false) {
         return 0;
     }
     xSemaphoreTake(g_pot_mutex, portMAX_DELAY);
-    g_pot_value = pot_value;
+    g_pot_value = pot_value_passed;
     xSemaphoreGive(g_pot_mutex);
     return true;
 }
@@ -36,5 +36,5 @@ uint32_t pot_get(void) {
     pot_value = g_pot_value;
     g_pot_value = 0;
     xSemaphoreGive(g_pot_mutex);
-    return g_pot_value;
+    return pot_value;
 }

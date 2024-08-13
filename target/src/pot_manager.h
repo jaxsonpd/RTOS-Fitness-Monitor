@@ -1,5 +1,5 @@
-#ifdef POT_MANAGER_H_
-#define POT_MANAGER_H_
+#ifndef POT_MANAGER_H
+#define POT_MANAGER_H
 
 #include <stdint.h>
 #include <stdbool.h>
