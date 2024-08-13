@@ -5,6 +5,8 @@
  * ENCE361 step counter.
  */
 
+#define SERIAL_PLOTTING_ENABLED
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>

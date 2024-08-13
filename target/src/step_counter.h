@@ -2,8 +2,8 @@
  * @file step_counter.h
  * @author Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
- * @brief Abstract interface for step counting algorithm based to determine a step based
- * on data from a vector3_t.
+ * @brief Abstract interface for step counting algorithm with accelerometer data
+ * of type vector3_t
  */
 
 #ifndef STEP_COUNTER_H_
@@ -12,9 +12,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "accl_manager.h" // for vector3_t
+#include "vector3.h"
 
-bool step_counter_init(void);
+bool step_counter_init(uint16_t* period);
 
 /**
  * @brief Detects a step based on the provided acceleration data. 

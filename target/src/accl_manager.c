@@ -27,7 +27,7 @@ static CircBuf_t acclZBuffer;
  *      Global functions
  *******************************************/
 // Init the library
-bool acclInit(void)
+bool accl_init(void)
 {
     accl_chip_init(); // Init the chip over I2C
 
@@ -38,7 +38,7 @@ bool acclInit(void)
 }
 
 // Run periodically to store acceleration to the circular buffer
-void acclPoll(void)
+void accl_poll(void)
 {
     int16_t acceleration[3];
     accl_data_get(acceleration);
@@ -48,7 +48,7 @@ void acclPoll(void)
 }
 
 // Return the mean acceleration stored within the circular buffers
-vector3_t acclMean(void)
+vector3_t accl_mean(void)
 {
     // Sum with 32-bit ints to prevent overflow, then dividing the total sum for better accuracy
     int32_t result_x = 0;
@@ -83,11 +83,11 @@ vector3_t acclMean(void)
             z_divisor++;
         }
     }
+    int16_t acc_x = result_x / x_divisor;
+    int16_t acc_y = result_y / y_divisor;
+    int16_t acc_z = result_z / z_divisor;
 
-    vector3_t result = {0};
-    result.x = result_x / x_divisor;
-    result.y = result_y / y_divisor;
-    result.z = result_z / z_divisor;
+    vector3_t result = v3_constructor(acc_x, acc_y, acc_z);
 
     return result;
 }

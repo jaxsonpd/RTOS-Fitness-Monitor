@@ -1,5 +1,5 @@
 /** 
- * @file step_counter_analog
+ * @file step_counter_analog.c
  * @author Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
  * @brief Implementation of step counter to fit the defined interface. Algorithm based on 
@@ -13,11 +13,14 @@
 
 #include "step_counter.h"
 
-#define TIME_WINDOW_LOWER 10    // Lower bound of time window (0.2s in 50 Hz data rate)
-#define TIME_WINDOW_UPPER 100   // Upper bound of time window (2.0s in 50 Hz data rate)
-#define DYNAMIC_PRECISION 100    // Example value for dynamic precision threshold
+// Defined parameters
+#define ALGORITHM_PERIOD_MS 20
+#define TIME_WINDOW_LOWER 10    // H.f. noise rejection
+#define TIME_WINDOW_UPPER 100   // Rhythmic timeout
+#define DYNAMIC_PRECISION 100   // Magnitude threshold
+#define RHYTHMIC_SEQUENCE_START 2 // Steps to begin tracking rhythmic sequence
 
-
+// typedefs to store algorithm information
 typedef enum {
     STATE_SEARCHING,
     STATE_RHYTHMIC,
@@ -34,14 +37,16 @@ typedef struct {
     StepState state;
 } step_context_t;
 
+// Initialise step counter context
 static step_context_t context;
 
+// Local helper functions
 static void init_step_context(step_context_t* context) {
     context->min_threshold = INT16_MAX;
     context->max_threshold = INT16_MIN;
     context->sample_old = 0;
     context->sample_new = 0;
-    context->acceleration_old = (vector3_t){0};
+    context->acceleration_old = v3_constructor(0,0,0);
     context->samples_counter = 0;
     context->rhythmic_step_counter = 0;
     context->state = STATE_SEARCHING;
@@ -79,7 +84,7 @@ static bool is_step_detected(int16_t sample_new, int16_t sample_old, int dynamic
 static bool handle_searching_state(step_context_t* context, uint32_t* stepsAccumulated, vector3_t acceleration) {
     if (is_step_detected(context->sample_new, context->sample_old, (context->max_threshold + context->min_threshold) / 2)) {
         context->rhythmic_step_counter++;
-        if (context->rhythmic_step_counter >= 2) {
+        if (context->rhythmic_step_counter >= RHYTHMIC_SEQUENCE_START) {
             context->samples_counter = 0;
             context->state = STATE_RHYTHMIC;
         }
@@ -113,8 +118,13 @@ static bool handle_rhythmic_state(step_context_t* context, uint32_t* stepsAccumu
     return false;
 }
 
-bool step_counter_init(void) {
+// Implementations of interface functions
+bool step_counter_init(uint16_t* period) {
+    if (period == NULL) {
+        return false;
+    }
     init_step_context(&context);
+    *period = ALGORITHM_PERIOD_MS;
     return true;
 }
 

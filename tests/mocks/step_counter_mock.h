@@ -16,5 +16,5 @@
     FUNC(step_counter_init)         \
     FUNC(detect_step)               \
 
-VALUE_FUNC(bool, step_counter_init);
+VALUE_FUNC(bool, step_counter_init, uint16_t*);
 VALUE_FUNC(bool, detect_step, vector3_t, uint32_t*);
