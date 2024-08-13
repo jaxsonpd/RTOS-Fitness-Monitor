@@ -38,7 +38,7 @@ void adc_hal_isr(void)
         uint32_t ulValue;
         config = adc_configurations[id];
         
-        if (config.configuration == NULL) {
+        if (config.callback == NULL) {
             continue;
         }
         if (ADCIntStatus(config.baseAddress, config.sequenceNumber, false)) {
