@@ -1,5 +1,5 @@
 /** 
- * @file ADC_read.c
+ * @file ADC_manager.c
  * @author Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-10
  * @brief Updated ADC_read source file abstracted from hardware.
@@ -10,12 +10,22 @@
 
 #include "adc_hal.h"
 #include "circular_buffer_T.h"
+#include "adc_manager.h"
+
+#include "FreeRTOS.h"
+#include "task.h"
+
+#include "pot_comms.h"
 
 //*****************************************************************************
 // Constants
 //*****************************************************************************
 #define ADC_BUF_SIZE 10
 #define ADC_ID ADC_ID_0
+
+
+#define STEP_GOAL_ROUNDING 100
+#define POT_SCALE_COEFF 20000 / 4095 
 
 
 //*****************************************************************************

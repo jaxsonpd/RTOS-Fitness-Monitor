@@ -12,6 +12,7 @@
 
 #define FFF_TASK_FAKES_LIST(FUNC) \
     FUNC(vTaskDelay)              \
+    FUNC(xTaskGetTickCount)       \
 
 
 VOID_FUNC(vTaskDelay, const TickType_t)

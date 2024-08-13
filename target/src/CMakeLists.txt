@@ -2,7 +2,7 @@ add_tiva_executable(fitness-tracker
     accl_hal_tiva.c
     accl_manager.c
     adc_hal_tiva.c
-    ADC_read.c
+    adc_manager.c
     input_manager.c
     circular_buffer_T.c
     display_manager.c
@@ -12,9 +12,12 @@ add_tiva_executable(fitness-tracker
     IO_input.c
     input_comms.c
     step_counter.c
+    step_counter_manager.c
     step_counter_comms.c
     display.c
     display_info.c
+    pot_comms.c
+    pot_manager.c
 )
 target_compile_options(fitness-tracker PRIVATE -Wall)
 target_link_libraries(fitness-tracker PRIVATE tivaware OrbitOLED freertos::heap-4 m)
