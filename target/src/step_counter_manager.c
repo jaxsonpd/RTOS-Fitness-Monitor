@@ -6,7 +6,6 @@
 #include "accl_manager.h"
 #include "step_counter.h"
 #include "step_counter_comms.h"
-#include "serial_sender.h"
 #include "vector3.h"
 
 #include "FreeRTOS.h"
@@ -43,9 +42,6 @@ void step_counter_thread(void* args)
             t_last_step_ticks = xTaskGetTickCount();
             acceleration = accl_mean();
             stepChange = detect_step(acceleration, &stepsAccumulated);
-            #ifdef SERIAL_PLOTTING_ENABLED
-            SerialPlot(acceleration.x,acceleration.y,acceleration.z,stepsAccumulated);
-            #endif // SERIAL_PLOTTING_ENABLED
         }
         if (stepChange == true) {
             step_counter_set(stepsAccumulated);

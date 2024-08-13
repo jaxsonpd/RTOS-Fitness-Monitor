@@ -5,8 +5,6 @@
  * ENCE361 step counter.
  */
 
-#define SERIAL_PLOTTING_ENABLED
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -64,10 +62,6 @@ int main(void) {
     // Init libs
     initClock();
     
-    #ifdef SERIAL_PLOTTING_ENABLED
-    SerialInit ();
-    #endif // SERIAL_PLOTTING_ENABLED
-
     xTaskCreate(&step_counter_thread, "step counter thread", 512, NULL, 1, NULL);
     xTaskCreate(&input_manager_thread, "input manager thread", 128, NULL, 1, NULL);
     xTaskCreate(&display_manager_thread, "display manager thread", 512, NULL, 1, NULL);
