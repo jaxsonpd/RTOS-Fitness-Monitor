@@ -14,6 +14,8 @@ add_tiva_executable(fitness-tracker
     step_counter.c
     step_counter_manager.c
     step_counter_comms.c
+    display.c
+    display_info.c
     pot_comms.c
     pot_manager.c
 )

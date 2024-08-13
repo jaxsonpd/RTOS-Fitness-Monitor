@@ -18,7 +18,13 @@ DEFINE_FFF_GLOBALS;
 
 #include "input_comms.h"
 
+void reset_fff(void) {
+    FFF_QUEUE_FAKES_LIST(RESET_FAKE);
+    FFF_RESET_HISTORY();
+}
+
 void setUp(void) {
+    reset_fff();
 }
 
 void tearDown(void) {

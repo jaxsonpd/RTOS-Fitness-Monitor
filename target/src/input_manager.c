@@ -17,7 +17,6 @@
 #include "IO_input.h"
 #include "input_comms.h"
 
-#include "fitness_monitor_main.h"
 #include "input_manager.h"
 
 /**
@@ -34,7 +33,6 @@ bool input_manager_init(void) {
 }
 
 void input_manager_thread(void* rtos_param) {
-    BaseType_t xStatus;
     input_state_t input_state;
 
     input_manager_init();

@@ -15,8 +15,7 @@
 #include <stdbool.h>
 
 enum inputCommMsg_e {
-    NO_MESSAGES = 0,
-    MSG_SCREEN_LEFT,
+    MSG_SCREEN_LEFT = 0,
     MSG_SCREEN_RIGHT,
     MSG_UP_BUTTON_P,
     MSG_UP_BUTTON_R,
@@ -25,8 +24,11 @@ enum inputCommMsg_e {
     MSG_RIGHT_SWITCH_ON,
     MSG_RIGHT_SWITCH_OFF,
     MSG_LEFT_SWITCH_ON,
-    MSG_LEFT_SWITCH_OFF
+    MSG_LEFT_SWITCH_OFF,
+    NO_MESSAGES
 };
+
+#define NUM_MSGS 10
 
 typedef enum inputCommMsg_e inputCommMsg_t;
 
