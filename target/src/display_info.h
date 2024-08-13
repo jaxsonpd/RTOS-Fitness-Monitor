@@ -15,6 +15,9 @@
 
 #include "input_comms.h"
 
+#define DS_TO_S 1/10 ///< divide by ten to convert from deci-seconds to seconds
+#define S_TO_DS 10 ///< multiply by ten to convert from seconds to deci-seconds
+
 typedef enum {
     UNITS_SI = 0,    // Steps  /km
     UNITS_ALTERNATE, // Percent/miles
@@ -58,22 +61,22 @@ bool display_info_get_input_flag(inputCommMsg_t msg);
 uint32_t display_info_get_goal(void);
 
 /**
- * @brief Get the number of seconds since the start of the RTOS
+ * @brief Get the number of 100s of milli seconds (deci-seconds) since the start of the RTOS
  *
- * @return the number of seconds
+ * @return the number of 100s milli seconds (deci-seconds)
  */
-uint32_t display_info_get_time(void);
+uint32_t display_info_get_ds(void);
 
 /**
  * @brief Get the time that the workout was started
  *
- * @return the time in seconds if 0 workout hasn't be started
+ * @return the time in deci-seconds, 0 workout if hasn't started
  */
 uint32_t display_info_get_start(void);
 
 /**
  * @brief Set the time that the workout was started
- * @param start_time the time the workout was started in seconds
+ * @param start_time the time the workout was started in deci-seconds
  * set this to 0 if the workout is inactive
  *
  */

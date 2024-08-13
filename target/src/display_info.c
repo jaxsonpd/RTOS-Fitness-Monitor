@@ -15,6 +15,8 @@
 #include "display_info.h"
 #include "input_comms.h"
 
+#define TICKS_TO_DS 1/100 ///< To convert from ticks to deci-seconds divide by 100
+
 bool g_debug = false;
 displayUnits_t g_units = UNITS_SI;
 uint32_t g_steps = 0;
@@ -42,8 +44,8 @@ uint32_t display_info_get_goal(void) {
     return g_goal;
 }
 
-uint32_t display_info_get_time(void) {
-    return (uint32_t)(xTaskGetTickCount() / 1000);
+uint32_t display_info_get_ds(void) {
+    return (uint32_t)(xTaskGetTickCount()*TICKS_TO_DS);
 }
 
 uint32_t display_info_get_start(void) {

@@ -21,11 +21,12 @@
 #include "serial_sender.h"
 #include "display.h"
 #include "display_info.h"
+#include "pot_comms.h"
 
 #include "display_manager.h"
 
-#define LONG_PRESS_TIME 1
-#define FLASH_TIME 2
+#define LONG_PRESS_TIME 3/2
+#define FLASH_TIME 3/2
 
 #define KM_TO_MILES 62/100 // Multiply by 0.6215 to convert, this should be good enough
 #define MS_TO_KMH 36/10
@@ -33,6 +34,14 @@
 
 #define DEBUG_STEP_INCREMENT 100
 #define DEBUG_STEP_DECREMENT 100
+
+#define STEP_GOAL_ROUNDING 100
+#define STEP_THRESHOLD_HIGH 270
+#define STEP_THRESHOLD_LOW 235
+
+#define GOAL_DEFAULT 1000
+
+#define POT_SCALE_COEFF 20000 / 4095 // in steps, adjusting to account for the potentiometer's maximum possible reading
 
 typedef enum {
     DISPLAY_STEPS = 0,
@@ -53,9 +62,9 @@ void display_distance(void);
 void display_reset_screen(void);
 void display_goal_reached(void);
 
-/** 
+/**
  * @brief Update the step counter and check for workout start
- * 
+ *
  * @return true if the workout is started
  */
 bool update_steps(void) {
@@ -64,24 +73,28 @@ bool update_steps(void) {
     display_info_set_steps(steps + new_steps);
 
     if (display_info_get_start() == 0 && new_steps > steps) {
-        display_info_set_start(display_info_get_time());
+        display_info_set_start(display_info_get_ds()+1);
         return true;
     }
 
-    return false;    
+    return false;
 }
 
-/** 
+/**
  * @brief Check reached goal
- * 
+ *
  * @return true if goal has been reached for the first time
  */
 bool check_goal_reached() {
     static uint32_t last_goal = 0;
 
     if (display_info_get_steps() >= display_info_get_goal() && last_goal != display_info_get_goal()) {
-        last_goal = display_info_get_goal();
+        last_goal = display_info_get_goal(); 
         return true;
+    }
+
+    if (last_goal != display_info_get_goal()) {
+        last_goal = display_info_get_goal(); 
     }
 
     return false;
@@ -103,7 +116,7 @@ void display_manager_thread(void* rtos_param) {
 
             num_tries++;
         }
-        
+
         update_steps();
 
         if (check_goal_reached()) {
@@ -175,7 +188,7 @@ void display_update_state(displayMode_t* display_mode, inputCommMsg_t msg) {
         break;
 
     case (MSG_DOWN_BUTTON_P):
-        down_button_p_time = display_info_get_time();
+        down_button_p_time = display_info_get_ds();
         if (display_info_get_debug()) {
             if (display_info_get_steps() >= DEBUG_STEP_DECREMENT) {
                 display_info_set_steps(display_info_get_steps() - DEBUG_STEP_INCREMENT);
@@ -186,9 +199,9 @@ void display_update_state(displayMode_t* display_mode, inputCommMsg_t msg) {
         break;
 
     case (MSG_DOWN_BUTTON_R):
-        if (display_info_get_time() - down_button_p_time > LONG_PRESS_TIME) {
+        if (display_info_get_ds() - down_button_p_time > LONG_PRESS_TIME*S_TO_DS) {
             *display_mode = DISPLAY_FLASH_RESET;
-            display_info_set_steps(0); 
+            display_info_set_steps(0);
         }
         break;
 
@@ -220,11 +233,11 @@ void display_update(displayMode_t* display_mode) {
         break;
     case DISPLAY_FLASH_RESET:
         if (first_time_flash) {
-            flash_start_time = display_info_get_time();
+            flash_start_time = display_info_get_ds();
             first_time_flash = false;
-        } 
-        
-        if (display_info_get_time() - flash_start_time > FLASH_TIME) {
+        }
+
+        if (display_info_get_ds() - flash_start_time > FLASH_TIME*S_TO_DS) {
             *display_mode = DISPLAY_STEPS;
             first_time_flash = true;
         }
@@ -233,11 +246,11 @@ void display_update(displayMode_t* display_mode) {
         break;
     case DISPLAY_FLASH_GOAL_REACHED:
         if (first_time_flash) {
-            flash_start_time = display_info_get_time();
+            flash_start_time = display_info_get_ds();
             first_time_flash = false;
-        } 
-        
-        if (display_info_get_time() - flash_start_time > FLASH_TIME) {
+        }
+
+        if (display_info_get_ds() - flash_start_time > FLASH_TIME*S_TO_DS) {
             *display_mode = DISPLAY_SET_GOAL;
             first_time_flash = true;
         }
@@ -264,10 +277,10 @@ void display_steps(void) {
     uint32_t workout_time = 0;
     uint32_t workout_start_time = display_info_get_start();
     if (workout_start_time != 0) {
-        workout_time = display_info_get_time() - workout_start_time;
+        workout_time = display_info_get_ds() - workout_start_time;
     }
 
-    display_time("Time:", workout_time, 2, ALIGN_CENTRE);
+    display_time("Time:", workout_time*DS_TO_S, 2, ALIGN_CENTRE);
 }
 
 /**
@@ -278,16 +291,16 @@ void display_distance(void) {
     uint32_t workout_time = 0;
     uint32_t workout_start_time = display_info_get_start();
     if (workout_start_time != 0) {
-        workout_time = display_info_get_time() - workout_start_time;
+        workout_time = display_info_get_ds() - workout_start_time;
     }
 
-    display_time("Time:", workout_time, 1, ALIGN_CENTRE);
+    display_time("Time:", workout_time*DS_TO_S, 1, ALIGN_CENTRE);
     uint32_t mTravelled = display_info_get_steps() * M_PER_STEP;
 
     // Protection against division by zero
     uint16_t speed;
     if (workout_time != 0) {
-        speed = (mTravelled / workout_time) * MS_TO_KMH; // in km/h
+        speed = (mTravelled / workout_time*DS_TO_S) * MS_TO_KMH; // in km/h
     } else {
         speed = mTravelled * MS_TO_KMH; // if zero seconds elapsed, act as if it's at least one
     }
@@ -306,7 +319,13 @@ void display_distance(void) {
  * @brief display the set goal screen
  */
 void display_set_goal(void) {
-    uint32_t new_goal = 3000;
+    uint32_t new_goal = GOAL_DEFAULT;
+    uint32_t adc_value = pot_get();
+    if (adc_value != 0) {
+        new_goal = adc_value * POT_SCALE_COEFF;
+        new_goal = (new_goal / STEP_GOAL_ROUNDING) * STEP_GOAL_ROUNDING;
+    }
+
 
     if (display_info_get_input_flag(MSG_DOWN_BUTTON_P) && !display_info_get_debug()) {
         display_info_set_goal(new_goal);
