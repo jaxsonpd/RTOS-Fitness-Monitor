@@ -24,7 +24,6 @@
 #include "stdlib.h"
 #include "utils/ustdlib.h"
 #include "math.h"
-#include "ADC_read.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -39,6 +38,10 @@
 
 #include "input_manager.h"
 #include "input_comms.h"
+
+#include "adc_manager.h"
+#include "pot_manager.h"
+#include "pot_comms.h"
 
 #include "display_manager.h"
 
@@ -141,16 +144,10 @@ void superloop(void* args) {
         if (lastIoProcess + RATE_SYSTICK_HZ / RATE_IO_HZ < currentTick) {
             lastIoProcess = currentTick;
 
-            pollADC();
-
-            int32_t adc_reading = readADC();
-            if (adc_reading != 0) {
-                deviceState.newGoal = adc_reading * POT_SCALE_COEFF; // Set the new goal value, scaling to give the desired range
-                deviceState.newGoal = (deviceState.newGoal / STEP_GOAL_ROUNDING) * STEP_GOAL_ROUNDING; // Round to the nearest 100 steps
-            }
-            
-            if (deviceState.newGoal == 0) { // Prevent a goal of zero, instead setting to the minimum goal (this also makes it easier to test the goal-reaching code on a small but non-zero target)
-                deviceState.newGoal = STEP_GOAL_ROUNDING;
+            uint32_t adc_value = pot_get();
+            if (adc_value != 0) {
+                deviceState.newGoal = adc_value * POT_SCALE_COEFF; 
+                deviceState.newGoal = (deviceState.newGoal / STEP_GOAL_ROUNDING) * STEP_GOAL_ROUNDING; 
             }
         }
 
@@ -252,6 +249,7 @@ int main(void) {
     xTaskCreate(&superloop, "superloop", 512, NULL, 1, NULL);
     xTaskCreate(&step_counter_thread, "step counter thread", 512, NULL, 1, NULL);
     xTaskCreate(&input_manager_thread, "input manager thread", 128, NULL, 1, NULL);
+    xTaskCreate(&pot_read_thread, "pot read thread", 128, NULL, 1, NULL);
     vTaskStartScheduler();
     return 0;
 }
