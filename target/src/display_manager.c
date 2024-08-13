@@ -68,12 +68,37 @@ void display_goal_reached(void);
  * @return true if the workout is started
  */
 bool update_steps(void) {
+    static uint32_t old_steps = 0;
     uint32_t steps = display_info_get_steps();
     uint32_t new_steps = step_counter_get();
     display_info_set_steps(steps + new_steps);
 
-    if (display_info_get_start() == 0 && new_steps > steps) {
-        display_info_set_start(display_info_get_ds()+1);
+    if (display_info_get_start() == 0 && display_info_get_steps() > old_steps) {
+        display_info_set_start(display_info_get_ds());
+        return true;
+    }
+
+    old_steps = display_info_get_steps();
+
+    return false;
+}
+
+/**
+ * @brief Check reached goal
+ * @param reset if true reset the function
+ *
+ * @return true if goal has been reached for the first time
+ */
+bool check_goal_reached(bool reset) {
+    static uint32_t last_goal = 0;
+
+    if (reset) {
+        last_goal = 0;
+        return false;
+    }
+
+    if (display_info_get_steps() >= display_info_get_goal() && last_goal != display_info_get_goal()) {
+        last_goal = display_info_get_goal();
         return true;
     }
 
@@ -81,23 +106,20 @@ bool update_steps(void) {
 }
 
 /**
- * @brief Check reached goal
+ * @brief update the input flags and display state
+ * @param display_mode a pointer to the display mode
  *
- * @return true if goal has been reached for the first time
  */
-bool check_goal_reached() {
-    static uint32_t last_goal = 0;
+void update_inputs(displayMode_t* display_mode) {
+    uint8_t num_tries = 0;
+    while (input_comms_num_msgs() > 0 && num_tries < 5) {
+        inputCommMsg_t msg = input_comms_receive();
 
-    if (display_info_get_steps() >= display_info_get_goal() && last_goal != display_info_get_goal()) {
-        last_goal = display_info_get_goal(); 
-        return true;
+        display_info_set_input_flag(msg, 1);
+        display_update_state(display_mode, msg);
+
+        num_tries++;
     }
-
-    if (last_goal != display_info_get_goal()) {
-        last_goal = display_info_get_goal(); 
-    }
-
-    return false;
 }
 
 void display_manager_thread(void* rtos_param) {
@@ -107,19 +129,14 @@ void display_manager_thread(void* rtos_param) {
 
 
     for (;;) {
-        uint8_t num_tries = 0;
-        while (input_comms_num_msgs() > 0 && num_tries < 5) {
-            inputCommMsg_t msg = input_comms_receive();
+        update_inputs(&display_mode);
 
-            display_info_set_input_flag(msg, 1);
-            display_update_state(&display_mode, msg);
-
-            num_tries++;
-        }
+        // Allow for updates of on input tasks
+        display_update_state(&display_mode, NO_MESSAGES);
 
         update_steps();
 
-        if (check_goal_reached()) {
+        if (check_goal_reached(false)) {
             display_mode = DISPLAY_FLASH_GOAL_REACHED;
         }
 
@@ -189,6 +206,7 @@ void display_update_state(displayMode_t* display_mode, inputCommMsg_t msg) {
 
     case (MSG_DOWN_BUTTON_P):
         down_button_p_time = display_info_get_ds();
+
         if (display_info_get_debug()) {
             if (display_info_get_steps() >= DEBUG_STEP_DECREMENT) {
                 display_info_set_steps(display_info_get_steps() - DEBUG_STEP_INCREMENT);
@@ -199,10 +217,7 @@ void display_update_state(displayMode_t* display_mode, inputCommMsg_t msg) {
         break;
 
     case (MSG_DOWN_BUTTON_R):
-        if (display_info_get_ds() - down_button_p_time > LONG_PRESS_TIME*S_TO_DS) {
-            *display_mode = DISPLAY_FLASH_RESET;
-            display_info_set_steps(0);
-        }
+        down_button_p_time = 0;
         break;
 
     default:
@@ -210,6 +225,13 @@ void display_update_state(displayMode_t* display_mode, inputCommMsg_t msg) {
         break;
     }
 
+    if ((down_button_p_time > 0) && ((display_info_get_ds() - down_button_p_time) > LONG_PRESS_TIME * S_TO_DS)) {
+        *display_mode = DISPLAY_FLASH_RESET;
+        display_info_set_steps(0);
+        check_goal_reached(true);
+        display_info_set_start(0);
+        down_button_p_time = 0;
+    }
 
 }
 
@@ -237,7 +259,7 @@ void display_update(displayMode_t* display_mode) {
             first_time_flash = false;
         }
 
-        if (display_info_get_ds() - flash_start_time > FLASH_TIME*S_TO_DS) {
+        if (display_info_get_ds() - flash_start_time > FLASH_TIME * S_TO_DS) {
             *display_mode = DISPLAY_STEPS;
             first_time_flash = true;
         }
@@ -250,8 +272,8 @@ void display_update(displayMode_t* display_mode) {
             first_time_flash = false;
         }
 
-        if (display_info_get_ds() - flash_start_time > FLASH_TIME*S_TO_DS) {
-            *display_mode = DISPLAY_SET_GOAL;
+        if (display_info_get_ds() - flash_start_time > FLASH_TIME * S_TO_DS) {
+            *display_mode = DISPLAY_STEPS;
             first_time_flash = true;
         }
         display_goal_reached();
@@ -280,7 +302,7 @@ void display_steps(void) {
         workout_time = display_info_get_ds() - workout_start_time;
     }
 
-    display_time("Time:", workout_time*DS_TO_S, 2, ALIGN_CENTRE);
+    display_time("Time:", workout_time * DS_TO_S, 2, ALIGN_CENTRE);
 }
 
 /**
@@ -294,13 +316,13 @@ void display_distance(void) {
         workout_time = display_info_get_ds() - workout_start_time;
     }
 
-    display_time("Time:", workout_time*DS_TO_S, 1, ALIGN_CENTRE);
+    display_time("Time:", workout_time * DS_TO_S, 1, ALIGN_CENTRE);
     uint32_t mTravelled = display_info_get_steps() * M_PER_STEP;
 
     // Protection against division by zero
     uint16_t speed;
     if (workout_time != 0) {
-        speed = (mTravelled / workout_time*DS_TO_S) * MS_TO_KMH; // in km/h
+        speed = (mTravelled / (workout_time * DS_TO_S)) * MS_TO_KMH; // in km/h
     } else {
         speed = mTravelled * MS_TO_KMH; // if zero seconds elapsed, act as if it's at least one
     }
