@@ -30,23 +30,34 @@
 
 #define KM_TO_MILES 62/100 // Multiply by 0.6215 to convert, this should be good enough
 #define MS_TO_KMH 36/10
+#define KG_TO_LB 22/100
+#define CM_TO_INCHES 394/1000
 #define M_PER_STEP 9 / 10
 
 #define DEBUG_STEP_INCREMENT 100
 #define DEBUG_STEP_DECREMENT 100
 
 #define STEP_GOAL_ROUNDING 100
-#define STEP_THRESHOLD_HIGH 270
-#define STEP_THRESHOLD_LOW 235
+
+#define POT_MAX 4095
 
 #define GOAL_DEFAULT 1000
+#define GOAL_MAX 20000
+#define GOAL_POT_SCALE_COEFF GOAL_MAX / POT_MAX // in steps, adjusting to account for the potentiometer's maximum possible reading
 
-#define POT_SCALE_COEFF 20000 / 4095 // in steps, adjusting to account for the potentiometer's maximum possible reading
+#define WEIGHT_DEFAULT 70
+#define WEIGHT_MAX 150
+#define WEIGHT_POT_SCALE_COEFF WEIGHT_MAX / POT_MAX
+
+#define HEIGHT_DEFAULT 150
+#define HEIGHT_MAX 200
+#define HEIGHT_POT_SCALE_COEFF HEIGHT_MAX / POT_MAX
 
 typedef enum {
     DISPLAY_STEPS = 0,
     DISPLAY_DISTANCE,
     DISPLAY_SET_GOAL,
+    DISPLAY_SET_USER_PARAMETERS,
     DISPLAY_NUM_STATES, // Automatically enumerates to the number of display states there can be
     DISPLAY_FLASH_RESET,
     DISPLAY_FLASH_GOAL_REACHED
@@ -56,6 +67,7 @@ void display_update_state(displayMode_t* display_mode, inputCommMsg_t msg);
 void display_update(displayMode_t* display_mode);
 bool display_manager_init(void);
 
+void display_set_user_parameters(void);
 void display_set_goal(void);
 void display_steps(void);
 void display_distance(void);
@@ -183,11 +195,15 @@ void display_update_state(displayMode_t* display_mode, inputCommMsg_t msg) {
         break;
 
     case (MSG_LEFT_SWITCH_ON):
+        display_info_set_toggle(true);
+        break;
     case (MSG_RIGHT_SWITCH_ON):
         display_info_set_debug(true);
         break;
 
     case (MSG_LEFT_SWITCH_OFF):
+        display_info_set_toggle(false);
+        break;
     case (MSG_RIGHT_SWITCH_OFF):
         display_info_set_debug(false);
         break;
@@ -252,6 +268,9 @@ void display_update(displayMode_t* display_mode) {
         break;
     case DISPLAY_SET_GOAL:
         display_set_goal();
+        break;
+    case DISPLAY_SET_USER_PARAMETERS:
+        display_set_user_parameters();
         break;
     case DISPLAY_FLASH_RESET:
         if (first_time_flash) {
@@ -344,7 +363,7 @@ void display_set_goal(void) {
     uint32_t new_goal = GOAL_DEFAULT;
     uint32_t adc_value = pot_get();
     if (adc_value != 0) {
-        new_goal = adc_value * POT_SCALE_COEFF;
+        new_goal = adc_value * GOAL_POT_SCALE_COEFF;
         new_goal = (new_goal / STEP_GOAL_ROUNDING) * STEP_GOAL_ROUNDING;
     }
 
@@ -372,6 +391,53 @@ void display_set_goal(void) {
     }
 
     display_line(toDraw, 1, ALIGN_CENTRE);
+}
+
+/**
+ * @brief display the set user parameters screen
+ */
+void display_set_user_parameters(void) {
+    uint32_t new_weight = WEIGHT_DEFAULT;
+    uint32_t new_height = HEIGHT_DEFAULT;
+    uint32_t adc_value = pot_get();
+
+    if (adc_value != 0) {
+        if (display_info_get_toggle()) {
+            new_weight = adc_value * WEIGHT_POT_SCALE_COEFF;
+            new_height = display_info_get_height();
+            // new_weight = (new_weight / STEP_GOAL_ROUNDING) * STEP_GOAL_ROUNDING;
+        } else if (!display_info_get_toggle()) {
+            new_height = adc_value * HEIGHT_POT_SCALE_COEFF;
+            new_weight = display_info_get_weight();
+            // new_height = (new_weight / STEP_GOAL_ROUNDING) * STEP_GOAL_ROUNDING;
+        }
+    }
+
+
+    if (display_info_get_input_flag(MSG_DOWN_BUTTON_P) && !display_info_get_debug() && display_info_get_toggle()) {
+        display_info_set_weight(new_weight);
+    } else if (display_info_get_input_flag(MSG_DOWN_BUTTON_P) && !display_info_get_debug() && !display_info_get_toggle()) {
+        display_info_set_height(new_height);
+    }
+
+    // display_line("Set weight:", 0, ALIGN_CENTRE);
+    // display_value("Set weight:", "", display_info_get_(), 2, ALIGN_CENTRE, false);
+
+    char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
+    uint16_t weight = new_weight;
+    if (display_info_get_units() != UNITS_SI) {
+        weight = weight * KG_TO_LB;
+    }
+    usnprintf(toDraw, DISPLAY_WIDTH + 1, "Weight: %d %s", new_weight, display_info_get_units() == UNITS_SI ? "kg" : "lb");
+    display_line(toDraw, 0, ALIGN_CENTRE);
+    display_line("                ",1,ALIGN_CENTRE);
+    uint16_t height = new_height;
+    if (display_info_get_units() != UNITS_SI) {
+        height = height * CM_TO_INCHES;
+    }
+    usnprintf(toDraw, DISPLAY_WIDTH + 1, "Height: %d %s", new_height, display_info_get_units() == UNITS_SI ? "cm" : "in");
+    display_line(toDraw, 2, ALIGN_CENTRE);
+    display_line("                ",3,ALIGN_CENTRE);
 }
 
 /**
