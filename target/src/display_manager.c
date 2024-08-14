@@ -30,7 +30,7 @@
 
 #define KM_TO_MILES 62/100 // Multiply by 0.6215 to convert, this should be good enough
 #define MS_TO_KMH 36/10
-#define KG_TO_LB 22/100
+#define KG_TO_LB 22/10
 #define CM_TO_INCHES 394/1000
 #define M_PER_STEP 9 / 10
 
@@ -428,14 +428,14 @@ void display_set_user_parameters(void) {
     if (display_info_get_units() != UNITS_SI) {
         weight = weight * KG_TO_LB;
     }
-    usnprintf(toDraw, DISPLAY_WIDTH + 1, "Weight: %d %s", new_weight, display_info_get_units() == UNITS_SI ? "kg" : "lb");
+    usnprintf(toDraw, DISPLAY_WIDTH + 1, "Weight: %d %s", weight, display_info_get_units() == UNITS_SI ? "kg" : "lb");
     display_line(toDraw, 0, ALIGN_CENTRE);
     display_line("                ",1,ALIGN_CENTRE);
     uint16_t height = new_height;
     if (display_info_get_units() != UNITS_SI) {
         height = height * CM_TO_INCHES;
     }
-    usnprintf(toDraw, DISPLAY_WIDTH + 1, "Height: %d %s", new_height, display_info_get_units() == UNITS_SI ? "cm" : "in");
+    usnprintf(toDraw, DISPLAY_WIDTH + 1, "Height: %d %s", height, display_info_get_units() == UNITS_SI ? "cm" : "in");
     display_line(toDraw, 2, ALIGN_CENTRE);
     display_line("                ",3,ALIGN_CENTRE);
 }
