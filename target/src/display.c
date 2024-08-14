@@ -88,4 +88,21 @@ void display_time(char* prefix, uint16_t time, uint8_t row, textAlignment_t alig
     }
 
     display_line(toDraw, row, alignment);
+} 
+
+void display_time_ds(char* prefix, uint32_t time, uint8_t row, textAlignment_t alignment) {
+    char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
+    uint32_t deci_seconds = (time % 10);
+    time = time/10;
+    uint16_t minutes = (time / TIME_UNIT_SCALE) % TIME_UNIT_SCALE;
+    uint16_t seconds = time % TIME_UNIT_SCALE;
+    uint16_t hours = time / (TIME_UNIT_SCALE * TIME_UNIT_SCALE);
+
+    if (hours == 0) {
+        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s %01d:%02d:%01d", prefix, minutes, seconds, deci_seconds);
+    } else {
+        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s %01d:%02d:%02d", prefix, hours, minutes, seconds);
+    }
+
+    display_line(toDraw, row, alignment);
 }

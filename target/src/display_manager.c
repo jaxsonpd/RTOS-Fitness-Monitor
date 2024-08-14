@@ -148,7 +148,7 @@ void display_manager_thread(void* rtos_param) {
             display_info_set_input_flag(i, 0);
         }
 
-        vTaskDelay(1000 / 5);
+        vTaskDelay(1000 / 10);
     }
 }
 
@@ -308,6 +308,7 @@ void display_steps(void) {
     }
 
     display_time("Time:", workout_time * DS_TO_S, 2, ALIGN_CENTRE);
+    display_line("", 3, ALIGN_CENTRE);
 }
 
 /**
@@ -339,6 +340,8 @@ void display_distance(void) {
         display_value("Dist:", "mi", mTravelled * KM_TO_MILES, 0, ALIGN_CENTRE, true);
         display_value("Speed", "mph", speed * KM_TO_MILES, 2, ALIGN_CENTRE, false);
     }
+
+    display_line("", 3, ALIGN_CENTRE);
 }
 
 
@@ -377,6 +380,7 @@ void display_set_goal(void) {
     }
 
     display_line(toDraw, 1, ALIGN_CENTRE);
+    display_line("", 3, ALIGN_CENTRE);
 }
 
 /**

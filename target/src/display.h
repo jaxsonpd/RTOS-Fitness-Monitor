@@ -63,4 +63,14 @@ void display_value(char* prefix, char* suffix, int32_t value, uint8_t row, textA
  */
 void display_time(char* prefix, uint16_t time, uint8_t row, textAlignment_t alignment);
 
+/** 
+ * @brief Display a given number of deci seconds as ether mm:ss:d or hh:mm:ss
+ * @param prefix Text to display before the time
+ * @param time The time to display in seconds
+ * @param row The row to display on
+ * @param alignment how to align the text
+ * 
+ */
+void display_time_ds(char* prefix, uint32_t time, uint8_t row, textAlignment_t alignment);
+
 #endif // DISPLAY_H
