@@ -23,7 +23,7 @@ displayUnits_t g_units = UNITS_SI;
 uint32_t g_steps = 0;
 bool g_input_flags[NUM_MSGS] = { 0 };
 uint32_t g_goal = 1000;
-uint32_t g_height = 150;
+uint32_t g_height = 175;
 uint32_t g_weight = 70;
 uint32_t g_workout_start_time = 0;
 

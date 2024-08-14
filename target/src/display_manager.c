@@ -32,7 +32,9 @@
 #define MS_TO_KMH 36/10
 #define KG_TO_LB 22/10
 #define CM_TO_INCHES(x) (x*394)/1000
-#define M_PER_STEP 9 / 10
+#define M_PER_STEP(x) (x*415)/100000
+#define CAL_TO_KJ(x) (4184*x)/1000
+#define M_KG_TO_CAL(x,y) (125*x*y)/100000 // https://www.analog.com/en/resources/analog-dialogue/articles/pedometer-design-3-axis-digital-acceler.html
 
 #define DEBUG_STEP_INCREMENT 100
 #define DEBUG_STEP_DECREMENT 100
@@ -322,6 +324,7 @@ void display_steps(void) {
     }
 
     display_time("Time:", workout_time * DS_TO_S, 2, ALIGN_CENTRE);
+    display_line("", 3, ALIGN_CENTRE);
 }
 
 /**
@@ -336,7 +339,8 @@ void display_distance(void) {
     }
 
     display_time("Time:", workout_time * DS_TO_S, 1, ALIGN_CENTRE);
-    uint32_t mTravelled = display_info_get_steps() * M_PER_STEP;
+    uint32_t mTravelled = display_info_get_steps() * M_PER_STEP(display_info_get_height());
+    uint32_t calories = M_KG_TO_CAL(mTravelled,display_info_get_weight());
 
     // Protection against division by zero
     uint16_t speed;
@@ -349,9 +353,12 @@ void display_distance(void) {
     if (display_info_get_units() == UNITS_SI) {
         display_value("Dist:", "km", mTravelled, 0, ALIGN_CENTRE, true);
         display_value("Speed", "kph", speed, 2, ALIGN_CENTRE, false);
+        display_value("Energy:","kJ", CAL_TO_KJ(calories), 3, ALIGN_CENTRE, false);
+
     } else {
         display_value("Dist:", "mi", mTravelled * KM_TO_MILES, 0, ALIGN_CENTRE, true);
-        display_value("Speed", "mph", speed * KM_TO_MILES, 2, ALIGN_CENTRE, false);
+        display_value("Speed:", "mph", speed * KM_TO_MILES, 2, ALIGN_CENTRE, false);
+        display_value("Energy:","Cal", calories, 3, ALIGN_CENTRE, false);
     }
 }
 
@@ -378,7 +385,7 @@ void display_set_goal(void) {
 
     // Display the step/distance preview
     char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
-    uint16_t distance = new_goal * M_PER_STEP; // ===== NEEDS to be updated to new goal
+    uint16_t distance = new_goal * M_PER_STEP(display_info_get_height()); // ===== NEEDS to be updated to new goal
     if (display_info_get_units() != UNITS_SI) {
         distance = distance * KM_TO_MILES;
     }
@@ -391,6 +398,8 @@ void display_set_goal(void) {
     }
 
     display_line(toDraw, 1, ALIGN_CENTRE);
+    display_line("", 3, ALIGN_CENTRE);
+
 }
 
 /**
