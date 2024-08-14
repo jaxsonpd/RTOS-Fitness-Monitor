@@ -1,15 +1,28 @@
+/** 
+ * @file step_counter.h
+ * @author Isaac Cone (ico29@uclive.ac.nz)
+ * @date 2024-08
+ * @brief Abstract interface for step counting algorithm with accelerometer data
+ * of type vector3_t
+ */
+
 #ifndef STEP_COUNTER_H_
 #define STEP_COUNTER_H_
 
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "accl_manager.h"
+#include "vector3.h"
 
-#define STEP_THRESHOLD_HIGH 300
-#define STEP_THRESHOLD_LOW 250
-#define STEP_DELAY_MS 1000
+bool step_counter_init(uint16_t* period);
 
-bool detect_step(vector3_t acceleration, uint32_t *stepsAccumulated);
+/**
+ * @brief Detects a step based on the provided acceleration data. 
+ *
+ * @param acceleration A vector3_t structure representing the current acceleration data.
+ * @param stepsAccumulated A pointer to the step count accumulator, which will be incremented if a step is detected.
+ * @return true if a valid step is detected, otherwise false.
+ */
+bool detect_step(vector3_t acceleration, uint32_t* stepsAccumulated);
 
-#endif // STEP_COUNTER_H_
+#endif // STEP_COUNTER_H

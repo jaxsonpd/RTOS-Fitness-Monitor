@@ -13,10 +13,10 @@
 #endif
 
 #define FFF_ACCL_MANAGER_FAKES_LIST(FUNC) \
-    FUNC(acclInit)                              \
-    FUNC(acclPoll)                              \
-    FUNC(acclMean)                              \
+    FUNC(accl_init)                              \
+    FUNC(accl_poll)                              \
+    FUNC(accl_mean)                              \
 
-VALUE_FUNC(bool, acclInit);
-VOID_FUNC(acclPoll);
-VALUE_FUNC(vector3_t, acclMean);
+VALUE_FUNC(bool, accl_init);
+VOID_FUNC(accl_poll);
+VALUE_FUNC(vector3_t, accl_mean);

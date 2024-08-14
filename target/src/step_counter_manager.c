@@ -1,45 +1,59 @@
 #include "math.h"
+#include "assert.h"
 
 #include "step_counter_manager.h"
 
-#include "step_counter.h"
-#include "accl_manager.h"
-#include "step_counter_comms.h"
 #include "serial_sender.h"
+#include "accl_manager.h"
+#include "step_counter.h"
+#include "step_counter_comms.h"
+#include "vector3.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
 
+// #define STEP_SERIAL_ENABLED
+
+static uint16_t step_counter_period = 0;
 /** 
  * @brief Initialise the accelerometer manager thread
  * 
  * @return true if successful
  */
-bool step_counter_init(void) 
+bool step_counter_manager_init(uint16_t* p_step_counter_period) 
 {
+    #ifdef STEP_SERIAL_ENABLED
+    SerialInit ();
+    #endif // STEP_SERIAL_ENABLED
     bool result = true;
-    result = acclInit() && result;
+    result = accl_init() && result;
     result = step_counter_comms_init() && result;
+    result = step_counter_init(p_step_counter_period) && result;
     return result;
 }
 
 void step_counter_thread(void* args) 
 {
-    if(step_counter_init() == false) {
-        while(1);
-    }
-    vector3_t acceleration = {0};
+    assert(step_counter_manager_init(&step_counter_period));
+    assert(step_counter_period > 0);
+
+    vector3_t acceleration;
     uint32_t stepsAccumulated = 0;
-    bool stepChange = false;
     
+    TickType_t t_last_step_ticks = xTaskGetTickCount();
     for (;;) {
-        acclPoll();
-        acceleration = acclMean();
-        stepChange = detect_step(acceleration, &stepsAccumulated);
-        if (stepChange == true) {
-            step_counter_set(stepsAccumulated);
-            stepsAccumulated = 0;
+        accl_poll();
+        if(xTaskGetTickCount() - t_last_step_ticks >= step_counter_period) {
+            t_last_step_ticks = xTaskGetTickCount();
+            acceleration = accl_mean();
+            if (detect_step(acceleration, &stepsAccumulated)) {
+                step_counter_set(stepsAccumulated);
+                stepsAccumulated = 0;
+            }
         }
+        #ifdef STEP_SERIAL_ENABLED
+        SerialPlot(acceleration.x,acceleration.y,acceleration.z,t_last_step_ticks);
+        #endif // STEP_SERIAL_ENABLED
         vTaskDelay(5);
     }
 }

@@ -34,25 +34,53 @@ void tearDown(void)
     
 }
 
-void test_step_counter_init_calls_comms_init(void)
+#define DUMMY_PERIOD 100 // ticks
+bool step_counter_init_fake_period(uint16_t* arg0)
 {
-    step_counter_init();
+    *arg0 = DUMMY_PERIOD;
+}
+
+void test_step_counter_manager_init_calls_comms_init(void)
+{
+    uint16_t dummy_period;
+    step_counter_manager_init(&dummy_period);
 
     TEST_ASSERT_EQUAL(1, step_counter_comms_init_fake.call_count);
 }
 
-void test_step_counter_init_calls_accl_init(void)
+void test_step_counter_manager_init_calls_accl_init(void)
 {
-    step_counter_init();
+    uint16_t dummy_period;
+    step_counter_manager_init(&dummy_period);
 
-    TEST_ASSERT_EQUAL(1, acclInit_fake.call_count);
+    TEST_ASSERT_EQUAL(1, accl_init_fake.call_count);
 }
 
-void test_step_counter_init_success(void)
+void test_step_counter_manager_init_calls_step_counter_init(void)
 {
+    uint16_t dummy_period;
+    step_counter_manager_init(&dummy_period);
+
+    TEST_ASSERT_EQUAL(1, step_counter_init_fake.call_count);
+}
+
+void test_step_counter_manager_init_gets_period(void)
+{
+    step_counter_init_fake.custom_fake = step_counter_init_fake_period;
+    uint16_t dummy_period;
+
+    step_counter_manager_init(&dummy_period);
+    TEST_ASSERT_EQUAL(DUMMY_PERIOD, dummy_period);
+}
+
+void test_step_counter_manager_init_success(void)
+{
+    uint16_t dummy_period;
     bool return_seq[1] = {true};
 
     SET_RETURN_SEQ(step_counter_comms_init, return_seq, 1);
-    SET_RETURN_SEQ(acclInit, return_seq, 1);
-    TEST_ASSERT_TRUE(step_counter_init());
+    SET_RETURN_SEQ(accl_init, return_seq, 1);
+    SET_RETURN_SEQ(step_counter_init, return_seq, 1);
+
+    TEST_ASSERT_TRUE(step_counter_manager_init(&dummy_period));
 }

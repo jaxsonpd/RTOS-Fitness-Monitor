@@ -9,6 +9,7 @@ DEFINE_FFF_GLOBALS;
 
 #include "circular_buffer_T_mock.h"
 #include "accl_hal_mock.h"
+#include "vector3_mock.h"
 
 #define BUF_SIZE 20
 #define FAKE_ACCL_X 10
@@ -19,6 +20,7 @@ DEFINE_FFF_GLOBALS;
 void reset_fff(void)
 {
     FFF_ACCLHAL_FAKES_LIST(RESET_FAKE);
+    FFF_VECTOR3_FAKES_LIST(RESET_FAKE);
     FFF_RESET_HISTORY();
 }
 
@@ -34,6 +36,12 @@ void accl_data_get_fake_acceleration_value(int16_t* arg0)
     arg0[0] = FAKE_ACCL_X;
     arg0[1] = FAKE_ACCL_Y;
     arg0[2] = FAKE_ACCL_Z;
+}
+
+vector3_t v3_constructor_fake_construction(int16_t arg0, int16_t arg1, int16_t arg2) 
+{
+    vector3_t return_val = {arg0,arg1,arg2};
+    return return_val;
 }
 
 /* Unity setup and teardown */
@@ -53,7 +61,7 @@ void test_accl_init_initialises_buffers(void)
     // Arrange
 
     // Act
-    acclInit();
+    accl_init();
 
     // Assert
     TEST_ASSERT_EQUAL(3,CircBuf_init_fake.call_count);
@@ -64,7 +72,7 @@ void test_accl_init_configures_accl(void)
     // Arrange
 
     // Act
-    acclInit();
+    accl_init();
 
     // Assert
     TEST_ASSERT_EQUAL(1,accl_chip_init_fake.call_count);
@@ -73,12 +81,12 @@ void test_accl_init_configures_accl(void)
 void test_accl_process_gets_acceleration(void)
 {
     // Arrange
-    acclInit();
+    accl_init();
 
     accl_data_get_fake.custom_fake = accl_data_get_fake_acceleration_value;
 
     // Act
-    acclPoll();
+    accl_poll();
     
     // Assert
     TEST_ASSERT_EQUAL(3, CircBuf_write_fake.call_count);
@@ -96,7 +104,7 @@ void test_accl_mean_zero(void)
     CircBuf_read_fake.return_val = test_value;
 
     // Act
-    vector3_t result = acclMean();
+    vector3_t result = accl_mean();
 
     // Assert
     TEST_ASSERT_EQUAL(test_value, result.x);
@@ -111,9 +119,10 @@ void test_accl_mean_homogenous(void)
 
     // Set up the fake to return the test value for each call
     CircBuf_read_fake.return_val = test_value;
+    v3_constructor_fake.custom_fake = v3_constructor_fake_construction;
 
     // Act
-    vector3_t result = acclMean();
+    vector3_t result = accl_mean();
 
     // Assert
     TEST_ASSERT_EQUAL(test_value, result.x);
@@ -129,9 +138,10 @@ void test_accl_mean_nonhomogenous(void) {
     }
 
     SET_RETURN_SEQ(CircBuf_read, return_values, 3*BUF_SIZE);
+    v3_constructor_fake.custom_fake = v3_constructor_fake_construction;
 
     // Act
-    vector3_t result = acclMean();
+    vector3_t result = accl_mean();
 
     // Assert
     TEST_ASSERT_EQUAL(29, result.x);

@@ -12,16 +12,10 @@
 
 #include <stdint.h> // needed to init the vector type
 #include <stdbool.h>
+#include "vector3.h"
 
-typedef struct{
-    int16_t x;
-    int16_t y;
-    int16_t z;
-} vector3_t;
-
-bool acclInit(void);        // set up library
-void acclPoll(void);     // Run periodically
-vector3_t acclMean(void);   // Return mean acceleration, calculated using circular buffers
-
+bool accl_init(void);           // set up library
+void accl_poll(void);           // Run periodically
+vector3_t accl_mean(void);      // Return mean acceleration
 
 #endif /* ACCL_MANAGER_H_ */

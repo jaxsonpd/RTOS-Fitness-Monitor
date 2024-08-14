@@ -18,6 +18,7 @@ add_unity_test(test_accl_manager test_accl_manager.c ${SRC_DIR}/accl_manager.c)
 add_unity_test(test_IO_input test_IO_input.c ${SRC_DIR}/IO_input.c)
 add_unity_test(test_input_manager test_input_manager.c ${SRC_DIR}/input_manager.c)
 add_unity_test(test_input_comms test_input_comms.c ${SRC_DIR}/input_comms.c)
+add_unity_test(test_step_counter test_step_counter.c ${SRC_DIR}/step_counter_analog.c)
 add_unity_test(test_step_counter_manager test_step_counter_manager.c ${SRC_DIR}/step_counter_manager.c)
 add_unity_test(test_step_counter_comms test_step_counter_comms.c ${SRC_DIR}/step_counter_comms.c)
 add_unity_test(test_pot_comms test_pot_comms.c ${SRC_DIR}/pot_comms.c)
@@ -41,12 +42,14 @@ target_compile_definitions(test_input_manager PRIVATE UNIT_TESTING)
 
 target_include_directories(test_input_comms PRIVATE ${SRC_DIR} ${RTOS_ARM} ${RTOS_DIR_INCLUDE} ${MOCK_DIR} ${RTOS_CONFIG_DIR})
 
+target_include_directories(test_step_counter PRIVATE ${SRC_DIR} ${TIVAWARE_DIR} ${MOCK_DIR})
+
 target_include_directories(test_step_counter_manager PRIVATE ${SRC_DIR} ${MOCK_DIR} ${RTOS_ARM} ${RTOS_DIR_INCLUDE} ${RTOS_CONFIG_DIR})
 target_compile_definitions(test_step_counter_manager PRIVATE UNIT_TESTING)
 
 target_include_directories(test_step_counter_comms PRIVATE ${SRC_DIR} ${RTOS_ARM} ${RTOS_DIR_INCLUDE} ${MOCK_DIR} ${RTOS_CONFIG_DIR})
-target_include_directories(test_pot_comms PRIVATE ${SRC_DIR} ${RTOS_ARM} ${RTOS_DIR_INCLUDE} ${MOCK_DIR} ${RTOS_CONFIG_DIR})
 
+target_include_directories(test_pot_comms PRIVATE ${SRC_DIR} ${RTOS_ARM} ${RTOS_DIR_INCLUDE} ${MOCK_DIR} ${RTOS_CONFIG_DIR})
 
 target_include_directories(test_display PRIVATE ${SRC_DIR} ${RTOS_ARM} ${RTOS_CONFIG_DIR} ${RTOS_DIR_INCLUDE} ${MOCK_DIR} ${OLED_DIR} ${TIVAWARE_DIR})
 
