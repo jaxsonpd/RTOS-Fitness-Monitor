@@ -12,7 +12,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#define SERIAL_PLOTTING_ENABLED
+// #define STEP_SERIAL_ENABLED
 
 static uint16_t step_counter_period = 0;
 /** 
@@ -22,9 +22,9 @@ static uint16_t step_counter_period = 0;
  */
 bool step_counter_manager_init(uint16_t* p_step_counter_period) 
 {
-    #ifdef SERIAL_PLOTTING_ENABLED
+    #ifdef STEP_SERIAL_ENABLED
     SerialInit ();
-    #endif // SERIAL_PLOTTING_ENABLED
+    #endif // STEP_SERIAL_ENABLED
     bool result = true;
     result = accl_init() && result;
     result = step_counter_comms_init() && result;
@@ -51,9 +51,9 @@ void step_counter_thread(void* args)
                 stepsAccumulated = 0;
             }
         }
-        #ifdef SERIAL_PLOTTING_ENABLED
+        #ifdef STEP_SERIAL_ENABLED
         SerialPlot(acceleration.x,acceleration.y,acceleration.z,t_last_step_ticks);
-        #endif // SERIAL_PLOTTING_ENABLED
+        #endif // STEP_SERIAL_ENABLED
         vTaskDelay(5);
     }
 }

@@ -4,7 +4,7 @@
  * @brief ENCE464 fitness monitor project based on 
  * ENCE361 step counter.
  */
-#define SERIAL_PLOTTING_ENABLED
+// #define SERIAL_PLOTTING_ENABLED
 
 #include <stdint.h>
 #include <stdbool.h>
