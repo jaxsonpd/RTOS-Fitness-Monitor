@@ -3,6 +3,7 @@
 
 #include "step_counter_manager.h"
 
+#include "serial_sender.h"
 #include "accl_manager.h"
 #include "step_counter.h"
 #include "step_counter_comms.h"
@@ -10,6 +11,8 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+
+#define SERIAL_PLOTTING_ENABLED
 
 static uint16_t step_counter_period = 0;
 /** 
@@ -19,6 +22,9 @@ static uint16_t step_counter_period = 0;
  */
 bool step_counter_manager_init(uint16_t* p_step_counter_period) 
 {
+    #ifdef SERIAL_PLOTTING_ENABLED
+    SerialInit ();
+    #endif // SERIAL_PLOTTING_ENABLED
     bool result = true;
     result = accl_init() && result;
     result = step_counter_comms_init() && result;
@@ -33,7 +39,6 @@ void step_counter_thread(void* args)
 
     vector3_t acceleration;
     uint32_t stepsAccumulated = 0;
-    bool stepChange = false;
     
     TickType_t t_last_step_ticks = xTaskGetTickCount();
     for (;;) {
@@ -41,12 +46,14 @@ void step_counter_thread(void* args)
         if(xTaskGetTickCount() - t_last_step_ticks >= step_counter_period) {
             t_last_step_ticks = xTaskGetTickCount();
             acceleration = accl_mean();
-            stepChange = detect_step(acceleration, &stepsAccumulated);
+            if (detect_step(acceleration, &stepsAccumulated)) {
+                step_counter_set(stepsAccumulated);
+                stepsAccumulated = 0;
+            }
         }
-        if (stepChange == true) {
-            step_counter_set(stepsAccumulated);
-            stepsAccumulated = 0;
-        }
+        #ifdef SERIAL_PLOTTING_ENABLED
+        SerialPlot(acceleration.x,acceleration.y,acceleration.z,t_last_step_ticks);
+        #endif // SERIAL_PLOTTING_ENABLED
         vTaskDelay(5);
     }
 }
