@@ -22,6 +22,7 @@
 #include "display.h"
 #include "display_info.h"
 #include "pot_comms.h"
+#include "stopwatch.h"
 
 #include "display_manager.h"
 
@@ -47,6 +48,7 @@ typedef enum {
     DISPLAY_STEPS = 0,
     DISPLAY_DISTANCE,
     DISPLAY_SET_GOAL,
+    DISPLAY_STOPWATCH,
     DISPLAY_NUM_STATES, // Automatically enumerates to the number of display states there can be
     DISPLAY_FLASH_RESET,
     DISPLAY_FLASH_GOAL_REACHED
@@ -277,6 +279,9 @@ void display_update(displayMode_t* display_mode) {
             first_time_flash = true;
         }
         display_goal_reached();
+        break;
+    case DISPLAY_STOPWATCH:
+        stopwatch_display();
         break;
 
     default:

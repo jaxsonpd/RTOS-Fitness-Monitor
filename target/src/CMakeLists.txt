@@ -19,6 +19,7 @@ add_tiva_executable(fitness-tracker
     pot_comms.c
     pot_manager.c
     vector3.c
+    stopwatch.c
 )
 target_compile_options(fitness-tracker PRIVATE -Wall)
 target_link_libraries(fitness-tracker PRIVATE tivaware OrbitOLED freertos::heap-4 m)
