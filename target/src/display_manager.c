@@ -31,7 +31,7 @@
 #define KM_TO_MILES 62/100 // Multiply by 0.6215 to convert, this should be good enough
 #define MS_TO_KMH 36/10
 #define KG_TO_LB 22/10
-#define CM_TO_INCHES 394/1000
+#define CM_TO_INCHES(x) (x*394)/1000
 #define M_PER_STEP 9 / 10
 
 #define DEBUG_STEP_INCREMENT 100
@@ -420,24 +420,35 @@ void display_set_user_parameters(void) {
         display_info_set_height(new_height);
     }
 
-    // display_line("Set weight:", 0, ALIGN_CENTRE);
-    // display_value("Set weight:", "", display_info_get_(), 2, ALIGN_CENTRE, false);
+    display_line("Weight",0,ALIGN_CENTRE);
+    display_line("Height",2,ALIGN_CENTRE);
 
     char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
     uint16_t weight = new_weight;
+    uint16_t current_weight = display_info_get_weight();
     if (display_info_get_units() != UNITS_SI) {
-        weight = weight * KG_TO_LB;
+        weight *= KG_TO_LB;
+        current_weight *= KG_TO_LB;
     }
-    usnprintf(toDraw, DISPLAY_WIDTH + 1, "Weight: %d %s", weight, display_info_get_units() == UNITS_SI ? "kg" : "lb");
-    display_line(toDraw, 0, ALIGN_CENTRE);
-    display_line("                ",1,ALIGN_CENTRE);
+    if (display_info_get_toggle()) {
+        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d %s <- %d %s", current_weight, display_info_get_units() == UNITS_SI ? "kg" : "lb", weight, display_info_get_units() == UNITS_SI ? "kg" : "lb");
+    } else {
+        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d %s", current_weight, display_info_get_units() == UNITS_SI ? "kg" : "lb");
+    }
+    display_line(toDraw, 1, ALIGN_LEFT);
+
     uint16_t height = new_height;
+    uint16_t current_height = display_info_get_height();
     if (display_info_get_units() != UNITS_SI) {
-        height = height * CM_TO_INCHES;
+        height = CM_TO_INCHES(height);
+        current_height = CM_TO_INCHES(current_height);
     }
-    usnprintf(toDraw, DISPLAY_WIDTH + 1, "Height: %d %s", height, display_info_get_units() == UNITS_SI ? "cm" : "in");
-    display_line(toDraw, 2, ALIGN_CENTRE);
-    display_line("                ",3,ALIGN_CENTRE);
+    if (!display_info_get_toggle()) {
+        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d %s <- %d %s", current_height, display_info_get_units() == UNITS_SI ? "cm" : "in", height, display_info_get_units() == UNITS_SI ? "cm" : "in");    
+    } else {
+        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d %s", current_height, display_info_get_units() == UNITS_SI ? "cm" : "in");    
+    }
+    display_line(toDraw, 3, ALIGN_LEFT);
 }
 
 /**
