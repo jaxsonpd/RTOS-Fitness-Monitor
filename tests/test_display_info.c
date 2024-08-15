@@ -98,3 +98,15 @@ void test_display_info_get_set_input_flags(void) {
         TEST_ASSERT_EQUAL(1, display_info_get_input_flag(i));
     }
 }
+
+void test_display_info_get_set_height(void) {
+    display_info_set_height(150);
+
+    TEST_ASSERT_EQUAL(150, display_info_get_height());
+}
+
+void test_display_info_get_set_weight(void) {
+    display_info_set_weight(70);
+
+    TEST_ASSERT_EQUAL(70, display_info_get_weight());
+}

@@ -98,6 +98,20 @@ void display_info_set_goal(uint32_t goal);
 void display_info_set_debug(bool debug);
 
 /**
+ * @brief Set the toggle flag
+ * @param debug the value to set the toggle flag to
+ *
+ */
+void display_info_set_toggle(bool toggle);
+
+/**
+ * @brief Get the toggle state
+ *
+ * @return true if in toggle
+ */
+bool display_info_get_toggle(void);
+
+/**
  * @brief Set the displas units
  * @param unit the unit to set the display too
  *
@@ -118,5 +132,28 @@ void display_info_set_steps(uint32_t steps);
  */
 void display_info_set_input_flag(inputCommMsg_t msg, bool flag);
 
+/**
+ * @brief Set the height
+ * @param height the height
+ */
+void display_info_set_height(uint32_t height);
+
+/**
+ * @brief Set the weight
+ * @param weight the weight
+ */
+void display_info_set_weight(uint32_t weight);
+
+/**
+ * @brief Get the height
+ * @return height
+ */
+uint32_t display_info_get_height(void);
+
+/**
+ * @brief Get the weight
+ * @return weight
+ */
+uint32_t display_info_get_weight(void);
 
 #endif // DISPLAY_INFO_H
