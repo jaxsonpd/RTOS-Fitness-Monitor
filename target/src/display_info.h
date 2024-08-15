@@ -75,6 +75,13 @@ uint32_t display_info_get_ds(void);
 uint32_t display_info_get_start(void);
 
 /**
+ * @brief Get the time of the last step
+ *
+ * @return the time of the last step in deci-seconds
+ */
+uint32_t display_info_get_last_step_time(void);
+
+/**
  * @brief Set the time that the workout was started
  * @param start_time the time the workout was started in deci-seconds
  * set this to 0 if the workout is inactive
@@ -117,6 +124,12 @@ void display_info_set_steps(uint32_t steps);
  * @param flag the value to set it to
  */
 void display_info_set_input_flag(inputCommMsg_t msg, bool flag);
+
+/**
+ * @brief Set the time of the last step
+ * @param time the time of the last step in deci-seconds
+ */
+void display_info_set_last_step_time(uint32_t time);
 
 
 #endif // DISPLAY_INFO_H

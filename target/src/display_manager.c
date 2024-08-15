@@ -43,13 +43,15 @@
 
 #define POT_SCALE_COEFF 20000 / 4095 // in steps, adjusting to account for the potentiometer's maximum possible reading
 
+#define PROMPT_TO_MOVE_TIME 10
 typedef enum {
     DISPLAY_STEPS = 0,
     DISPLAY_DISTANCE,
     DISPLAY_SET_GOAL,
     DISPLAY_NUM_STATES, // Automatically enumerates to the number of display states there can be
     DISPLAY_FLASH_RESET,
-    DISPLAY_FLASH_GOAL_REACHED
+    DISPLAY_FLASH_GOAL_REACHED,
+    DISPLAY_FLASH_MOVE_PROMPT
 } displayMode_t;
 
 void display_update_state(displayMode_t* display_mode, inputCommMsg_t msg);
@@ -61,6 +63,7 @@ void display_steps(void);
 void display_distance(void);
 void display_reset_screen(void);
 void display_goal_reached(void);
+void display_move_prompt(void);
 
 /**
  * @brief Update the step counter and check for workout start
@@ -75,10 +78,12 @@ bool update_steps(void) {
 
     if (display_info_get_start() == 0 && display_info_get_steps() > old_steps) {
         display_info_set_start(display_info_get_ds());
+        display_info_set_last_step_time(display_info_get_ds());
         return true;
     }
 
     old_steps = display_info_get_steps();
+    
 
     return false;
 }
@@ -99,6 +104,27 @@ bool check_goal_reached(bool reset) {
 
     if (display_info_get_steps() >= display_info_get_goal() && last_goal != display_info_get_goal()) {
         last_goal = display_info_get_goal();
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * @brief Check how long since last step
+ * @param reset if true reset the function
+ * 
+ * @return true if the user has been inactive for too long
+ */
+bool check_inactive(bool reset) {
+    // static uint32_t last_step = 0;
+
+    if (reset) {
+        // last_step = display_info_get_ds();
+        return false;
+    }
+
+    if ((display_info_get_ds() - display_info_get_last_step_time()) > PROMPT_TO_MOVE_TIME * S_TO_DS) {
         return true;
     }
 
@@ -138,6 +164,9 @@ void display_manager_thread(void* rtos_param) {
 
         if (check_goal_reached(false)) {
             display_mode = DISPLAY_FLASH_GOAL_REACHED;
+        }
+        if (check_inactive(false)) {
+            display_mode = DISPLAY_FLASH_MOVE_PROMPT;
         }
 
         display_update(&display_mode);
@@ -278,6 +307,26 @@ void display_update(displayMode_t* display_mode) {
         }
         display_goal_reached();
         break;
+    case DISPLAY_FLASH_MOVE_PROMPT:
+        if (first_time_flash) {
+            flash_start_time = display_info_get_ds();
+            first_time_flash = false;
+        }
+
+        if (display_info_get_ds() - flash_start_time > 3 * FLASH_TIME * S_TO_DS) {
+            *display_mode = DISPLAY_STEPS;
+            display_info_set_last_step_time(display_info_get_ds());
+            first_time_flash = true;
+        }
+        display_move_prompt();
+        break;
+
+        if (display_info_get_ds() - flash_start_time > FLASH_TIME * S_TO_DS) {
+            *display_mode = DISPLAY_STEPS;
+            first_time_flash = true;
+        }
+        display_move_prompt();
+        break;
 
     default:
 
@@ -394,6 +443,18 @@ void display_goal_reached(void) {
     char* emptyLine = "                ";
     display_line(emptyLine, 0, ALIGN_LEFT);
     display_line("GOAL REACHED!", 1, ALIGN_CENTRE);
+    display_line(emptyLine, 2, ALIGN_LEFT);
+    display_line(emptyLine, 3, ALIGN_LEFT);
+}
+
+/**
+ * @brief Display the prompt to move message 
+ * 
+ */
+void display_move_prompt(void) {
+    char* emptyLine = "                ";
+    display_line(emptyLine, 0, ALIGN_LEFT);
+    display_line("TIME TO MOVE", 1, ALIGN_CENTRE);
     display_line(emptyLine, 2, ALIGN_LEFT);
     display_line(emptyLine, 3, ALIGN_LEFT);
 }
