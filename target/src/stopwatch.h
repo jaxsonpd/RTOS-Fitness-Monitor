@@ -15,9 +15,10 @@
 
 /** 
  * @brief Update the stopwatch screen/display
+ * @param reset true if the stopwatch display should be reset
  * 
  */
-void stopwatch_display(void);
+void stopwatch_display(bool reset);
 
 
 #endif // STOPWATCH_H

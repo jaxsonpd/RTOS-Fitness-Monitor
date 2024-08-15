@@ -232,6 +232,7 @@ void display_update_state(displayMode_t* display_mode, inputCommMsg_t msg) {
         display_info_set_steps(0);
         check_goal_reached(true);
         display_info_set_start(0);
+        stopwatch_display(true);
         down_button_p_time = 0;
     }
 
@@ -281,7 +282,7 @@ void display_update(displayMode_t* display_mode) {
         display_goal_reached();
         break;
     case DISPLAY_STOPWATCH:
-        stopwatch_display();
+        stopwatch_display(false);
         break;
 
     default:

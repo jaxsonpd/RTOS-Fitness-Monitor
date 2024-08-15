@@ -99,7 +99,7 @@ void display_time_ds(char* prefix, uint32_t time, uint8_t row, textAlignment_t a
     uint16_t hours = time / (TIME_UNIT_SCALE * TIME_UNIT_SCALE);
 
     if (hours == 0) {
-        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s %01d:%02d:%01d", prefix, minutes, seconds, deci_seconds);
+        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s %01d:%02d.%01d", prefix, minutes, seconds, deci_seconds);
     } else {
         usnprintf(toDraw, DISPLAY_WIDTH + 1, "%s %01d:%02d:%02d", prefix, hours, minutes, seconds);
     }
