@@ -1,8 +1,8 @@
 /** 
- * @file display.c
+ * @file display_hal_tiva.c
  * @author Jack Duignan (Jdu80@uclive.ac.nz)
  * @date 2024-08-11
- * @brief Definitions for the functions to display text on the OLED 
+ * @brief Definitions for the functions to display text on the OLED on the tiva.
  */
 
 

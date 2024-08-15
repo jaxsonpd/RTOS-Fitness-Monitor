@@ -2,7 +2,7 @@
  * @file input_hal.h
  * @author Jack Duignan (Jdu80@uclive.ac.nz)
  * @date 2024-07-31
- * @brief This module allows for communication IO on the TIVA board.
+ * @brief Abstract IO interface.
  */
 
 
@@ -35,9 +35,7 @@ typedef enum input_state_e {
 
 /**
  * @brief Initialise the input module
- *
- * @param override_portf true if the port f (right button) should work (this
- * will fail on non tiva board systems)
+
  * @return true if successful
  */
 bool input_init(void);
