@@ -18,10 +18,13 @@
 #define TICKS_TO_DS 1/100 ///< To convert from ticks to deci-seconds divide by 100
 
 bool g_debug = false;
+bool g_toggle = false;
 displayUnits_t g_units = UNITS_SI;
 uint32_t g_steps = 0;
 bool g_input_flags[NUM_MSGS] = { 0 };
 uint32_t g_goal = 1000;
+uint32_t g_height = 175;
+uint32_t g_weight = 70;
 uint32_t g_workout_start_time = 0;
 
 bool display_info_get_debug(void) {
@@ -64,6 +67,14 @@ void display_info_set_debug(bool debug) {
     g_debug = debug;
 }
 
+void display_info_set_toggle(bool toggle) {
+    g_toggle = toggle;
+}
+
+bool display_info_get_toggle(void) {
+    return g_toggle;
+}
+
 void display_info_set_units(displayUnits_t unit) {
     g_units = unit;
 }
@@ -76,5 +87,18 @@ void display_info_set_input_flag(inputCommMsg_t msg, bool flag) {
     g_input_flags[msg] = flag;
 }
 
+void display_info_set_height(uint32_t height) {
+    g_height = height;
+}
 
+void display_info_set_weight(uint32_t weight) {
+    g_weight = weight;
+}
 
+uint32_t display_info_get_height(void) {
+    return g_height;
+}
+
+uint32_t display_info_get_weight(void) {
+    return g_weight;
+}
