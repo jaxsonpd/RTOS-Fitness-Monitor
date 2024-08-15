@@ -19,7 +19,7 @@
 #include "step_counter_comms.h"
 #include "input_comms.h"
 #include "serial_sender.h"
-#include "display.h"
+#include "display_hal.h"
 #include "display_info.h"
 #include "pot_comms.h"
 

@@ -13,7 +13,7 @@
 
 #include "utils/ustdlib.h"
 
-#include "display.h"
+#include "display_hal.h"
 #include "OrbitOLED/OrbitOLEDInterface.h"
 
 #define TIME_UNIT_SCALE 60

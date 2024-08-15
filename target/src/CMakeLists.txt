@@ -10,11 +10,12 @@ add_tiva_executable(fitness-tracker
     serial_sender.c
     fitness_monitor_main.c
     IO_input.c
+    clock_hal_tiva.c
     input_comms.c
     step_counter_analog.c
     step_counter_manager.c
     step_counter_comms.c
-    display.c
+    display_hal_tiva.c
     display_info.c
     pot_comms.c
     pot_manager.c
