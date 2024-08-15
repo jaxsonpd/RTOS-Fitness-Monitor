@@ -1,5 +1,5 @@
 /**
- * @file IO_input_mock.h
+ * @file input_hal_mock.h
  * @author Jack Duignan (Jdu80@uclive.ac.nz)
  * @date 2024-08-07
  * @brief Mock for the IO input module to allow for unit testing
@@ -10,7 +10,7 @@
 
 #include "fff.h"
 
-#include "IO_input.h"
+#include "input_hal.h"
 
 #ifdef FFF_MOCK_IMPL
 #define VOID_FUNC FAKE_VOID_FUNC
@@ -20,7 +20,7 @@
 #define VALUE_FUNC DECLARE_FAKE_VALUE_FUNC
 #endif
 
-#define FFF_IO_INPUT_FAKES_LIST(FUNC) \
+#define FFF_INPUT_HAL_FAKES_LIST(FUNC) \
     FUNC(input_init)                   \
     FUNC(input_get)                    \
     FUNC(input_check)                  \

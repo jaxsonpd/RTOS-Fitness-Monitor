@@ -1,13 +1,13 @@
 /**
- * @file IO_input.h
+ * @file input_hal.h
  * @author Jack Duignan (Jdu80@uclive.ac.nz)
  * @date 2024-07-31
  * @brief This module allows for communication IO on the TIVA board.
  */
 
 
-#ifndef IO_INPUT_H
-#define IO_INPUT_H
+#ifndef INPUT_HAL_H_
+#define INPUT_HAL_H
 
 
 #include <stdint.h>
@@ -70,4 +70,4 @@ void input_update(void);
  */
 input_state_t input_check(input_mode_t input);
 
-#endif // IO_INPUT_H
+#endif // INPUT_HAL_H_

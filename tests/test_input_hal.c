@@ -19,7 +19,7 @@ DEFINE_FFF_GLOBALS;
 
 #include "inc/tm4c123gh6pm.h" // Board specific defines (for PF0)
 
-#include "IO_input.h"
+#include "input_hal.h"
 
 #define INPUTS_ON_LIST 0x00000000, 0x00000004, 0x00000000, 0x00000000, 0x00000080, 0x00000040
 #define INPUTS_OFF_LIST 0x00000001, 0x00000000, 0x00000010, 0x00000001, 0x00000000, 0x00000000
