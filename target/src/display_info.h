@@ -133,6 +133,32 @@ void display_info_set_steps(uint32_t steps);
 void display_info_set_input_flag(inputCommMsg_t msg, bool flag);
 
 /**
+ * @brief Get the time of the last step
+ *
+ * @return the time of the last step in deci-seconds
+ */
+uint32_t display_info_get_last_step_time(void);
+
+/**
+ * @brief Set the time of the last step
+ * @param time the time of the last step in deci-seconds
+ */
+void display_info_set_last_step_time(uint32_t time);
+
+/**
+ * @brief Get the time of the last prompt
+ *
+ * @return the time of the last prompt in deci-seconds
+ */
+uint32_t display_info_get_prompt_time(void);
+
+/**
+ * @brief Set the time of the last prompt
+ * @param time the time of the last prompt in deci-seconds
+ */
+void display_info_set_prompt_time(uint32_t time);
+
+/**
  * @brief Set the height
  * @param height the height
  */
@@ -156,4 +182,4 @@ uint32_t display_info_get_height(void);
  */
 uint32_t display_info_get_weight(void);
 
-#endif // DISPLAY_INFO_H
+#endif // DIgit SPLAY_INFO_H
