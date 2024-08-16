@@ -1,5 +1,5 @@
 /**
- * @file IO_input.c
+ * @file input_hal_tiva.c
  * @author Jack Duignan (Jdu80@uclive.ac.nz)
  * @date 2024-07-31
  * @brief This module allows for interaction with the IO on the orbit board.
@@ -18,7 +18,7 @@
 #include "tiva_mocks/tm4c123gh6pm_mock.h"
 #endif // UNIT_TESTING
 
-#include "IO_input.h"
+#include "input_hal.h"
 
 
 /**
