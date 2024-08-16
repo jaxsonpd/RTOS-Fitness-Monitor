@@ -14,15 +14,23 @@
 #include "driverlib/i2c.h"
 #include "i2c_hal.h"
 
-#define I2CPort         GPIO_PORTB_BASE
-#define I2CSDAPort      GPIO_PORTB_BASE
-#define I2CSCLPort      GPIO_PORTB_BASE
-#define I2CSDA_PIN      GPIO_PIN_3
-#define I2CSCL_PIN      GPIO_PIN_2
-#define I2CSCL          GPIO_PB2_I2C0SCL
-#define I2CSDA          GPIO_PB3_I2C0SDA
 #define READ            1
 #define WRITE           0
+
+typedef struct {
+    uint32_t sysctlPeriphGPIO;
+    uint32_t sysctlPeriphI2C;
+    uint32_t gpioBaseAddress;
+    uint32_t i2cBaseAddress;
+    uint8_t sdaPin;
+    uint8_t sclPin;
+    uint32_t sdaConfig;
+    uint32_t sclConfig;
+} i2c_config_t;
+
+static i2c_config_t i2c_configurations[MAX_I2C_IDS] = {
+    {SYSCTL_PERIPH_GPIOB, SYSCTL_PERIPH_I2C0, GPIO_PORTB_BASE, I2C0_BASE, GPIO_PIN_3, GPIO_PIN_2, GPIO_PB3_I2C0SDA, GPIO_PB2_I2C0SCL}
+};
 
 void wait_us(void)
 {
@@ -31,122 +39,92 @@ void wait_us(void)
         ;
 }
 
-void i2c_hal_init(void)
+void i2c_hal_init(uint8_t id)
 {
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_I2C0);
-    SysCtlPeripheralReset(SYSCTL_PERIPH_I2C0);
+    if (id >= MAX_I2C_IDS) {
+        return;
+    }
+    i2c_config_t config = i2c_configurations[id];
 
-    GPIOPinTypeI2C(I2CSDAPort, I2CSDA_PIN);
-    GPIOPinTypeI2CSCL(I2CSCLPort, I2CSCL_PIN);
-    GPIOPinConfigure(I2CSCL);
-    GPIOPinConfigure(I2CSDA);
+    SysCtlPeripheralEnable(config.sysctlPeriphGPIO);
+    SysCtlPeripheralEnable(config.sysctlPeriphI2C);
+    SysCtlPeripheralReset(config.sysctlPeriphI2C);
 
-    I2CMasterInitExpClk(I2C0_BASE, SysCtlClockGet(), true);
+    GPIOPinTypeI2C(config.gpioBaseAddress, config.sdaPin);
+    GPIOPinTypeI2CSCL(config.gpioBaseAddress, config.sclPin);
+    GPIOPinConfigure(config.sdaConfig);
+    GPIOPinConfigure(config.sclConfig);
+
+    I2CMasterInitExpClk(config.i2cBaseAddress, SysCtlClockGet(), true);
 }
 
-char i2c_hal_write(char *data, int32_t size, char addr) {
-    int32_t i;
-    char *temp;
-    temp = data;
+char i2c_hal_write(uint8_t id,char *data, int32_t size, char addr) {
+    i2c_config_t config = i2c_configurations[id];
 
-    I2CMasterSlaveAddrSet(I2C0_BASE, addr, WRITE);
-    I2CMasterDataPut(I2C0_BASE, *temp);
+    I2CMasterSlaveAddrSet(config.i2cBaseAddress, addr, WRITE);
+    I2CMasterDataPut(config.i2cBaseAddress, *data);
+    I2CMasterControl(config.i2cBaseAddress, I2C_MASTER_CMD_BURST_SEND_START);
+    wait_us();
+    while(!I2CMasterBusBusy(config.i2cBaseAddress));
+    data++;
 
-    I2CMasterControl(I2C0_BASE, I2C_MASTER_CMD_BURST_SEND_START);
-
-    wait_us();;
-
-    while(!I2CMasterBusBusy(I2C0_BASE));
-
-    temp++;
-
-    for(i = 0; i < size; i++) {
-
-        I2CMasterDataPut(I2C0_BASE, *temp);
-
-        while(I2CMasterBusy(I2C0_BASE));
-
+    for(int32_t i = 0; i < size; i++) {
+        I2CMasterDataPut(config.i2cBaseAddress, *data);
+        while(I2CMasterBusy(config.i2cBaseAddress));
         if(i == size - 1) {
-            I2CMasterControl(I2C0_BASE, I2C_MASTER_CMD_BURST_SEND_FINISH);
-
-            wait_us();;
-            while(I2CMasterBusy(I2C0_BASE));
+            I2CMasterControl(config.i2cBaseAddress, I2C_MASTER_CMD_BURST_SEND_FINISH);
+            wait_us();
+            while(I2CMasterBusy(config.i2cBaseAddress));
         }
         else {
-            I2CMasterControl(I2C0_BASE, I2C_MASTER_CMD_BURST_SEND_CONT);
-
-            wait_us();;
-            while(I2CMasterBusy(I2C0_BASE));
-
-            while(!I2CMasterBusBusy(I2C0_BASE));
+            I2CMasterControl(config.i2cBaseAddress, I2C_MASTER_CMD_BURST_SEND_CONT);
+            wait_us();
+            while(I2CMasterBusy(config.i2cBaseAddress));
+            while(!I2CMasterBusBusy(config.i2cBaseAddress));
         }
-
-        temp++;
+        data++;
     }
     return 0x00;
-
 }
 
-char i2c_hal_read(char *data, int32_t size, char addr) {
-    int32_t i;
-    char *temp;
-    temp = data;
+char i2c_hal_read(uint8_t id, char *data, int32_t size, char addr) {
+    i2c_config_t config = i2c_configurations[id];
+    I2CMasterSlaveAddrSet(config.i2cBaseAddress, addr, WRITE);
+    I2CMasterDataPut(config.i2cBaseAddress, *data);
+    I2CMasterControl(config.i2cBaseAddress, I2C_MASTER_CMD_BURST_SEND_START);
+    wait_us();
+    while(!I2CMasterBusBusy(config.i2cBaseAddress));
+    data++;
+    I2CMasterSlaveAddrSet(config.i2cBaseAddress, addr, READ);
+    while(I2CMasterBusy(config.i2cBaseAddress));
 
-    I2CMasterSlaveAddrSet(I2C0_BASE, addr, WRITE);
-    I2CMasterDataPut(I2C0_BASE, *temp);
-
-    I2CMasterControl(I2C0_BASE, I2C_MASTER_CMD_BURST_SEND_START);
-
-    wait_us();;
-
-    while(!I2CMasterBusBusy(I2C0_BASE));
-
-    temp++;
-
-    I2CMasterSlaveAddrSet(I2C0_BASE, addr, READ);
-
-    while(I2CMasterBusy(I2C0_BASE));
-
-    for(i = 0; i < size; i++) {
-
+    for(int32_t i = 0; i < size; i++) {
         if(size == i + 1 && size == 1) {
-            I2CMasterControl(I2C0_BASE, I2C_MASTER_CMD_SINGLE_RECEIVE);
-
-            wait_us();;
-            while(I2CMasterBusy(I2C0_BASE));
+            I2CMasterControl(config.i2cBaseAddress, I2C_MASTER_CMD_SINGLE_RECEIVE);
+            wait_us();
+            while(I2CMasterBusy(config.i2cBaseAddress));
         }
         else if(size == i + 1 && size > 1) {
-            I2CMasterControl(I2C0_BASE, I2C_MASTER_CMD_BURST_RECEIVE_FINISH);
-
-            wait_us();;
-            while(I2CMasterBusy(I2C0_BASE));
+            I2CMasterControl(config.i2cBaseAddress, I2C_MASTER_CMD_BURST_RECEIVE_FINISH);
+            wait_us();
+            while(I2CMasterBusy(config.i2cBaseAddress));
         }
         else if(i == 0) {
-            I2CMasterControl(I2C0_BASE, I2C_MASTER_CMD_BURST_RECEIVE_START);
-
-            wait_us();;
-            while(I2CMasterBusy(I2C0_BASE));
-
-            while(!I2CMasterBusBusy(I2C0_BASE));
+            I2CMasterControl(config.i2cBaseAddress, I2C_MASTER_CMD_BURST_RECEIVE_START);
+            wait_us();
+            while(I2CMasterBusy(config.i2cBaseAddress));
+            while(!I2CMasterBusBusy(config.i2cBaseAddress));
         }
         else {
-            I2CMasterControl(I2C0_BASE, I2C_MASTER_CMD_BURST_RECEIVE_CONT);
-
-            wait_us();;
-            while(I2CMasterBusy(I2C0_BASE));
-
-            while(!I2CMasterBusBusy(I2C0_BASE));
+            I2CMasterControl(config.i2cBaseAddress, I2C_MASTER_CMD_BURST_RECEIVE_CONT);
+            wait_us();
+            while(I2CMasterBusy(config.i2cBaseAddress));
+            while(!I2CMasterBusBusy(config.i2cBaseAddress));
         }
 
-        while(I2CMasterBusy(I2C0_BASE));
-
-        *temp = (char)I2CMasterDataGet(I2C0_BASE);
-
-        temp++;
-
+        while(I2CMasterBusy(config.i2cBaseAddress));
+        *data = (char)I2CMasterDataGet(config.i2cBaseAddress);
+        data++;
     }
     return 0x00;
-
 }

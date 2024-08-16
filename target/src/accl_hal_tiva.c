@@ -68,7 +68,7 @@
 // Init the accl chip via I2C
 void accl_chip_init(void)
 {
-    i2c_hal_init();
+    i2c_hal_init(I2C_ID_0);
     char    toAccl[] = {0, 0};  // parameter, value
 
     //Initialize ADXL345 Acceleromter
@@ -76,31 +76,31 @@ void accl_chip_init(void)
     // set +-16g, 13 bit resolution, active low interrupts
     toAccl[0] = ACCL_DATA_FORMAT;
     toAccl[1] = (ACCL_RANGE_16G | ACCL_FULL_RES);
-    i2c_hal_write(toAccl, 1, ACCL_ADDR);
+    i2c_hal_write(I2C_ID_0, toAccl, 1, ACCL_ADDR);
 
     toAccl[0] = ACCL_PWR_CTL;
     toAccl[1] = ACCL_MEASURE;
-    i2c_hal_write(toAccl, 1, ACCL_ADDR);
+    i2c_hal_write(I2C_ID_0, toAccl, 1, ACCL_ADDR);
 
     toAccl[0] = ACCL_BW_RATE;
     toAccl[1] = ACCL_RATE_100HZ;
-    i2c_hal_write(toAccl, 1, ACCL_ADDR);
+    i2c_hal_write(I2C_ID_0, toAccl, 1, ACCL_ADDR);
 
     toAccl[0] = ACCL_INT;
     toAccl[1] = 0x00;       // Disable interrupts from accelerometer.
-    i2c_hal_write(toAccl, 1, ACCL_ADDR);
+    i2c_hal_write(I2C_ID_0, toAccl, 1, ACCL_ADDR);
 
     toAccl[0] = ACCL_OFFSET_X;
     toAccl[1] = 0x00;
-    i2c_hal_write(toAccl, 1, ACCL_ADDR);
+    i2c_hal_write(I2C_ID_0, toAccl, 1, ACCL_ADDR);
 
     toAccl[0] = ACCL_OFFSET_Y;
     toAccl[1] = 0x00;
-    i2c_hal_write(toAccl, 1, ACCL_ADDR);
+    i2c_hal_write(I2C_ID_0, toAccl, 1, ACCL_ADDR);
 
     toAccl[0] = ACCL_OFFSET_Z;
     toAccl[1] = 0x00;
-    i2c_hal_write(toAccl, 1, ACCL_ADDR);
+    i2c_hal_write(I2C_ID_0, toAccl, 1, ACCL_ADDR);
 }
 
 // Read the accl chip
@@ -110,7 +110,7 @@ void accl_data_get(int16_t* acceleration)
     uint8_t bytesToRead = 6;
 
     fromAccl[0] = ACCL_DATA_X0;
-    i2c_hal_read(fromAccl, bytesToRead, ACCL_ADDR);
+    i2c_hal_read(I2C_ID_0, fromAccl, bytesToRead, ACCL_ADDR);
 
     acceleration[0] = (fromAccl[2] << 8) | fromAccl[1]; // Return 16-bit acceleration readings.
     acceleration[1] = (fromAccl[4] << 8) | fromAccl[3];
