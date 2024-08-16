@@ -1,5 +1,5 @@
 /** 
- * @file circular_buffer_T.c
+ * @file circular_buffer.c
  * @author Jack Duignan (Jdu80@uclive.ac.nz)
  * @date 2024-07-22
  * @brief Support for a circular buffer of int32_t values
@@ -12,7 +12,7 @@
 #include <stdio.h>
 
 #include "stdlib.h"
-#include "circular_buffer_T.h"
+#include "circular_buffer.h"
 
 int32_t *CircBuf_init (CircBuf_t *buffer, uint32_t size) {
 	if (size == 0) {

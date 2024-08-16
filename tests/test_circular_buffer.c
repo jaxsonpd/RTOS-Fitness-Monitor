@@ -5,7 +5,7 @@
 
 #include "unity.h"
 
-#include "circular_buffer_T.h"
+#include "circular_buffer.h"
 
 const uint8_t STANDARD_TEST_CAPACITY = 5;
 static CircBuf_t buff;

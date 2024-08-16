@@ -1,5 +1,5 @@
 #include "fff.h"
-#include "circular_buffer_T.h"
+#include "circular_buffer.h"
 
 #ifdef FFF_MOCK_IMPL
     #define VOID_FUNC FAKE_VOID_FUNC
@@ -9,7 +9,7 @@
     #define VALUE_FUNC DECLARE_FAKE_VALUE_FUNC
 #endif
 
-#define FFF_CIRCBUFT_FAKES_LIST(FUNC)         \
+#define FFF_CIRCULAR_BUFFER_FAKES_LIST(FUNC)         \
     FUNC(CircBuf_init)                    \
     FUNC(CircBuf_write)                   \
     FUNC(CircBuf_read)                    \

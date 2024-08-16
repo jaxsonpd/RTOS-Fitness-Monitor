@@ -7,7 +7,7 @@
 DEFINE_FFF_GLOBALS;
 #define FFF_MOCK_IMPL // Includes mock implementations
 
-#include "circular_buffer_T_mock.h"
+#include "circular_buffer_mock.h"
 #include "accl_hal_mock.h"
 #include "vector3_mock.h"
 
