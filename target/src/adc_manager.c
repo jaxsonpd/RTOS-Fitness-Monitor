@@ -9,7 +9,7 @@
 #include <stdbool.h>
 
 #include "adc_hal.h"
-#include "circular_buffer_T.h"
+#include "circular_buffer.h"
 #include "adc_manager.h"
 
 #include "FreeRTOS.h"

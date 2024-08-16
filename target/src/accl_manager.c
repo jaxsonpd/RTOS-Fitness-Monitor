@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "circular_buffer_T.h"
+#include "circular_buffer.h"
 #include "accl_hal.h"
 #include "accl_manager.h"
 

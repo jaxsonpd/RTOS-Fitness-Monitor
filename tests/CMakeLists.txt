@@ -12,7 +12,7 @@ project(FitnessTrackerTests LANGUAGES C)
 enable_testing()
 add_subdirectory(unity)
 
-add_unity_test(test_circular_buffer test_circular_buffer.c ${SRC_DIR}/circular_buffer_T.c)
+add_unity_test(test_circular_buffer test_circular_buffer.c ${SRC_DIR}/circular_buffer.c)
 add_unity_test(test_adc test_adc.c ${SRC_DIR}/adc_manager.c)
 add_unity_test(test_accl_manager test_accl_manager.c ${SRC_DIR}/accl_manager.c)
 add_unity_test(test_input_hal test_input_hal.c ${SRC_DIR}/input_hal_tiva.c)

@@ -1,5 +1,5 @@
 /** 
- * @file circular_buffer_T.h
+ * @file circular_buffer.h
  * @author Jack Duignan (Jdu80@uclive.ac.nz)
  * @date 2024-07-22
  * @brief Declarations for a circular buffer of uint32_t values
@@ -10,8 +10,8 @@
  * @cite P.J. Bones
  */
 
-#ifndef circular_buffer_T_H_
-#define circular_buffer_T_H_
+#ifndef CIRCULAR_BUFFER_H_
+#define CIRCULAR_BUFFER_H_
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -78,4 +78,4 @@ int32_t CircBuf_read (CircBuf_t *buffer);
  */
 void CircBuf_free (CircBuf_t *buffer);
 
-#endif /*circular_buffer_T_H_*/
+#endif /*CIRCULAR_BUFFER_H_*/

@@ -5,7 +5,7 @@
 DEFINE_FFF_GLOBALS;
 #define FFF_MOCK_IMPL // Includes mock implementations
 
-#include "circular_buffer_T_mock.h"
+#include "circular_buffer_mock.h"
 #include "adc_hal_mock.h"
 
 #define ADC_BUF_SIZE 10
@@ -14,7 +14,7 @@ DEFINE_FFF_GLOBALS;
 /* Helper functions */
 void reset_fff(void)
 {
-    FFF_CIRCBUFT_FAKES_LIST(RESET_FAKE);
+    FFF_CIRCULAR_BUFFER_FAKES_LIST(RESET_FAKE);
     FFF_ADCHAL_FAKES_LIST(RESET_FAKE);
     FFF_RESET_HISTORY();
 }
