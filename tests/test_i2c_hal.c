@@ -114,8 +114,8 @@ void test_i2c_hal_read_receives_data_correctly(void)
     i2c_hal_read(0, data, size, addr);
 
     // Assert
-    // TEST_ASSERT_EQUAL(addr, I2CMasterSlaveAddrSet_fake.arg1_val);
-    // TEST_ASSERT_EQUAL(1, I2CMasterSlaveAddrSet_fake.arg2_val);
+    TEST_ASSERT_EQUAL(addr, I2CMasterSlaveAddrSet_fake.arg1_val);
+    TEST_ASSERT_EQUAL(1, I2CMasterSlaveAddrSet_fake.arg2_val);
     TEST_ASSERT_EQUAL(size, I2CMasterControl_fake.call_count - 1);
     TEST_ASSERT_EQUAL(size, I2CMasterDataGet_fake.call_count);
 }
