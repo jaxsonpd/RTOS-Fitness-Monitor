@@ -1,4 +1,4 @@
-/** 
+/**
  * @file test_display.c
  * @author Jack Duignan (Jdu80@uclive.ac.nz)
  * @date 2024-08-11
@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "unity.h"
 
@@ -57,6 +58,38 @@ void test_display_line_correct_row(void) {
     TEST_ASSERT_EQUAL(0, OLEDStringDraw_fake.arg2_val);
 }
 
-void test_display_line_algins_left(void) {
-    TEST_IGNORE();
+void test_display_line_aligns_center(void) {
+    display_line("Tests", 0, ALIGN_CENTRE);
+
+    const char* oled_input = malloc(sizeof(char) * 17);
+    memcpy(oled_input, OLEDStringDraw_fake.arg0_val, 17);
+
+    char* expected = "     Tests      ";
+    for (uint8_t i = 0; i < 16; i++) {
+        TEST_ASSERT_EQUAL(expected[i], oled_input[i]);
+    }
+}
+
+void test_display_line_aligns_left(void) {
+    display_line("Tests", 0, ALIGN_LEFT);
+
+    const char* oled_input = malloc(sizeof(char) * 17);
+    memcpy(oled_input, OLEDStringDraw_fake.arg0_val, 17);
+
+    char* expected = "Tests           ";
+    for (uint8_t i = 0; i < 16; i++) {
+        TEST_ASSERT_EQUAL(expected[i], oled_input[i]);
+    }
+}
+
+void test_display_line_aligns_right(void) {
+    display_line("Tests", 0, ALIGN_RIGHT);
+
+    const char* oled_input = malloc(sizeof(char) * 17);
+    memcpy(oled_input, OLEDStringDraw_fake.arg0_val, 17);
+
+    char* expected = "           Tests";
+    for (uint8_t i = 0; i < 16; i++) {
+        TEST_ASSERT_EQUAL(expected[i], oled_input[i]);
+    }
 }
