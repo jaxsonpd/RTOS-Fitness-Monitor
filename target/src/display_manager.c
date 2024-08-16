@@ -56,15 +56,22 @@
 #define HEIGHT_MAX 200
 #define HEIGHT_POT_SCALE_COEFF HEIGHT_MAX / POT_MAX
 
+#define PROMPT_TO_MOVE_TIME_DEFAULT 10 // 10 seconds
+#define PROMPT_TO_MOVE_TIME_MAX 3600 // 1 hour
+#define PROMPT_TO_MOVE_TIME_ROUNDING 10
+#define PROMPT_TO_MOVE_TIME_POT_SCALE_COEFF PROMPT_TO_MOVE_TIME_MAX / POT_MAX
+
 typedef enum {
     DISPLAY_STEPS = 0,
     DISPLAY_DISTANCE,
     DISPLAY_SET_GOAL,
     DISPLAY_STOPWATCH,
+    DISPLAY_SET_MOVE_PROMPT,
     DISPLAY_SET_USER_PARAMETERS,
     DISPLAY_NUM_STATES, // Automatically enumerates to the number of display states there can be
     DISPLAY_FLASH_RESET,
-    DISPLAY_FLASH_GOAL_REACHED
+    DISPLAY_FLASH_GOAL_REACHED,
+    DISPLAY_FLASH_MOVE_PROMPT
 } displayMode_t;
 
 void display_update_state(displayMode_t* display_mode, inputCommMsg_t msg);
@@ -73,10 +80,12 @@ bool display_manager_init(void);
 
 void display_set_user_parameters(void);
 void display_set_goal(void);
+void display_set_move_prompt(void);
 void display_steps(void);
 void display_distance(void);
 void display_reset_screen(void);
 void display_goal_reached(void);
+void display_move_prompt(void);
 
 /**
  * @brief Update the step counter and check for workout start
@@ -91,10 +100,12 @@ bool update_steps(void) {
 
     if (display_info_get_start() == 0 && display_info_get_steps() > old_steps) {
         display_info_set_start(display_info_get_ds());
+        display_info_set_last_step_time(display_info_get_ds());
         return true;
     }
 
     old_steps = display_info_get_steps();
+    
 
     return false;
 }
@@ -117,6 +128,26 @@ bool check_goal_reached(bool reset) {
         last_goal = display_info_get_goal();
         return true;
     }
+
+    return false;
+}
+
+/**
+ * @brief Check how long since last step
+ * @param reset if true reset the function
+ * 
+ * @return true if the user has been inactive for too long
+ */
+bool check_inactive(bool reset) {
+
+    if (reset) {
+        // last_step = display_info_get_ds();
+        return false;
+    }
+
+    if ((display_info_get_ds() - display_info_get_last_step_time()) > display_info_get_prompt_time() * S_TO_DS && display_info_get_last_step_time() != display_info_get_ds()) {
+        return true;
+    }   
 
     return false;
 }
@@ -154,6 +185,9 @@ void display_manager_thread(void* rtos_param) {
 
         if (check_goal_reached(false)) {
             display_mode = DISPLAY_FLASH_GOAL_REACHED;
+        }
+        if (check_inactive(false)) {
+            display_mode = DISPLAY_FLASH_MOVE_PROMPT;
         }
 
         display_update(&display_mode);
@@ -274,6 +308,9 @@ void display_update(displayMode_t* display_mode) {
     case DISPLAY_SET_GOAL:
         display_set_goal();
         break;
+    case DISPLAY_SET_MOVE_PROMPT:
+        display_set_move_prompt();
+        break;
     case DISPLAY_SET_USER_PARAMETERS:
         display_set_user_parameters();
         break;
@@ -304,6 +341,26 @@ void display_update(displayMode_t* display_mode) {
         break;
     case DISPLAY_STOPWATCH:
         stopwatch_display(false);
+        break;
+    case DISPLAY_FLASH_MOVE_PROMPT:
+        if (first_time_flash) {
+            flash_start_time = display_info_get_ds();
+            first_time_flash = false;
+        }
+
+        if (display_info_get_ds() - flash_start_time > 3 * FLASH_TIME * S_TO_DS) {
+            *display_mode = DISPLAY_STEPS;
+            display_info_set_last_step_time(display_info_get_ds());
+            first_time_flash = true;
+        }
+        display_move_prompt();
+        break;
+
+        if (display_info_get_ds() - flash_start_time > FLASH_TIME * S_TO_DS) {
+            *display_mode = DISPLAY_STEPS;
+            first_time_flash = true;
+        }
+        display_move_prompt();
         break;
 
     default:
@@ -412,6 +469,33 @@ void display_set_goal(void) {
 }
 
 /**
+ * @brief Display the set prompt to move time screen
+ */
+void display_set_move_prompt(void) {
+    uint32_t new_prompt_time = PROMPT_TO_MOVE_TIME_DEFAULT;
+    uint32_t adc_value = pot_get();
+
+    if (adc_value != 0) {
+        new_prompt_time = adc_value * PROMPT_TO_MOVE_TIME_POT_SCALE_COEFF;
+        new_prompt_time = (new_prompt_time / PROMPT_TO_MOVE_TIME_ROUNDING) * PROMPT_TO_MOVE_TIME_ROUNDING;
+    }
+
+    if (display_info_get_input_flag(MSG_DOWN_BUTTON_P) && !display_info_get_debug()) {
+        display_info_set_prompt_time(new_prompt_time);
+    }
+
+    display_line("Set prompt time:", 0, ALIGN_CENTRE);
+    display_value("Current:", "", display_info_get_prompt_time(), 2, ALIGN_CENTRE, false);
+
+    char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
+    usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d s", new_prompt_time);
+    display_line(toDraw, 1, ALIGN_CENTRE);
+    display_line("", 3, ALIGN_CENTRE);
+
+}
+
+
+/**
  * @brief display the set user parameters screen
  */
 void display_set_user_parameters(void) {
@@ -498,6 +582,18 @@ void display_goal_reached(void) {
     char* emptyLine = "                ";
     display_line(emptyLine, 0, ALIGN_LEFT);
     display_line("GOAL REACHED!", 1, ALIGN_CENTRE);
+    display_line(emptyLine, 2, ALIGN_LEFT);
+    display_line(emptyLine, 3, ALIGN_LEFT);
+}
+
+/**
+ * @brief Display the prompt to move message 
+ * 
+ */
+void display_move_prompt(void) {
+    char* emptyLine = "                ";
+    display_line(emptyLine, 0, ALIGN_LEFT);
+    display_line("TIME TO MOVE", 1, ALIGN_CENTRE);
     display_line(emptyLine, 2, ALIGN_LEFT);
     display_line(emptyLine, 3, ALIGN_LEFT);
 }
