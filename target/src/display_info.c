@@ -27,6 +27,7 @@ uint32_t g_height = 175;
 uint32_t g_weight = 70;
 uint32_t g_workout_start_time = 0;
 uint32_t g_last_step_time = 0;
+uint32_t g_prompt_time = 100;
 
 bool display_info_get_debug(void) {
     return g_debug;
@@ -54,10 +55,6 @@ uint32_t display_info_get_ds(void) {
 
 uint32_t display_info_get_start(void) {
     return g_workout_start_time;
-}
-
-uint32_t display_info_get_last_step_time(void) {
-    return g_last_step_time;
 }
 
 void display_info_set_start(uint32_t start_time) {
@@ -90,6 +87,18 @@ void display_info_set_steps(uint32_t steps) {
 
 void display_info_set_input_flag(inputCommMsg_t msg, bool flag) {
     g_input_flags[msg] = flag;
+}
+
+uint32_t display_info_get_prompt_time(void) {
+    return g_prompt_time;
+}
+
+void display_info_set_prompt_time(uint32_t time) {
+    g_prompt_time = time;
+}
+
+uint32_t display_info_get_last_step_time(void) {
+    return g_last_step_time;
 }
 
 void display_info_set_last_step_time(uint32_t time) {
