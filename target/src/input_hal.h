@@ -1,13 +1,13 @@
 /**
- * @file IO_input.h
+ * @file input_hal.h
  * @author Jack Duignan (Jdu80@uclive.ac.nz)
  * @date 2024-07-31
- * @brief This module allows for communication IO on the TIVA board.
+ * @brief Abstract IO interface.
  */
 
 
-#ifndef IO_INPUT_H
-#define IO_INPUT_H
+#ifndef INPUT_HAL_H_
+#define INPUT_HAL_H
 
 
 #include <stdint.h>
@@ -35,9 +35,7 @@ typedef enum input_state_e {
 
 /**
  * @brief Initialise the input module
- *
- * @param override_portf true if the port f (right button) should work (this
- * will fail on non tiva board systems)
+
  * @return true if successful
  */
 bool input_init(void);
@@ -70,4 +68,4 @@ void input_update(void);
  */
 input_state_t input_check(input_mode_t input);
 
-#endif // IO_INPUT_H
+#endif // INPUT_HAL_H_

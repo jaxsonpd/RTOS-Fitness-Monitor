@@ -1,8 +1,8 @@
 /**
- * @file display.h
+ * @file display_hal.h
  * @author Jack Duignan (Jdu80@uclive.ac.nz)
  * @date 2024-08-11
- * @brief Declarations for the functions to write to the OLED display
+ * @brief Declarations for the functions to write to a 16 character width display
  */
 
 

@@ -9,8 +9,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "driverlib/sysctl.h"
-
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -18,31 +16,12 @@
 
 #include "serial_sender.h"
 
+#include "clock_hal.h"
+
 #include "step_counter_manager.h"
 #include "input_manager.h"
 #include "pot_manager.h"
 #include "display_manager.h"
-
-
-// #define RATE_SYSTICK_HZ 1000
-// #define RATE_IO_HZ 75
-// #define RATE_ACCL_HZ 200
-// #define RATE_DISPLAY_UPDATE_HZ 5
-// #define FLASH_MESSAGE_TIME 3 / 2 // seconds
-
-void SysTickIntHandler(void);
-void initClock(void);
-void initDisplay(void);
-
-/***********************************************************
- * Initialisation functions
- ***********************************************************/
-
-void initClock(void) {
-    // Set the clock rate to 20 MHz
-    SysCtlClockSet(SYSCTL_SYSDIV_2_5 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
-        SYSCTL_XTAL_16MHZ);
-}
 
 /***********************************************************
  * Helper functions
@@ -61,7 +40,7 @@ void vAssertCalled(const char* pcFile, unsigned long ulLine) {
 
 int main(void) {
     // Init libs
-    initClock();
+    init_clock();
     #ifdef SERIAL_PLOTTING_ENABLED
     SerialInit ();
     #endif // SERIAL_PLOTTING_ENABLED

@@ -18,7 +18,7 @@ DEFINE_FFF_GLOBALS;
 #include "OrbitOLEDInterface_mock.h"
 #include "tiva_mocks/ustdlib_mock.h"
 
-#include "display.h"
+#include "display_hal.h"
 
 void reset_fff(void) {
     FFF_ORBIT_OLED_INPUT_FAKES_LIST(RESET_FAKE);
