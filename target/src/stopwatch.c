@@ -1,4 +1,4 @@
-/** 
+/**
  * @file stopwatch.c
  * @author Jack Duignan (Jdu80@uclive.ac.nz)
  * @date 2024-08-14
@@ -10,11 +10,11 @@
 #include <stdbool.h>
 
 #include "display_info.h"
-#include "display.h"
+#include "display_hal.h"
 
 #include "stopwatch.h"
 
-uint32_t last_stops[2] = {0};
+uint32_t last_stops[2] = { 0 };
 
 enum stopwatch_states {
     ZEROED,
@@ -23,17 +23,17 @@ enum stopwatch_states {
     NUM_STATES
 };
 
-/** 
+/**
  * @brief Update the stopwatch_state_machine
  * @param first_run true if the first run
  * @param state the state that the machine is in
- * 
+ *
  * @return the run time of the stopwatch
  */
 uint32_t stopwatch_state_machine(bool first_run, enum stopwatch_states state) {
     static uint32_t start_time = 0;
     static uint32_t stop_time = 0;
-    uint32_t run_time  = 0;
+    uint32_t run_time = 0;
 
     switch (state) {
     case (ZEROED):
@@ -41,11 +41,11 @@ uint32_t stopwatch_state_machine(bool first_run, enum stopwatch_states state) {
             last_stops[1] = last_stops[0];
             last_stops[0] = (stop_time - start_time);
         }
-        
+
         run_time = 0;
 
         break;
-    
+
     case (RUNNING):
         if (first_run) {
             start_time = display_info_get_ds();
@@ -64,9 +64,9 @@ uint32_t stopwatch_state_machine(bool first_run, enum stopwatch_states state) {
         break;
 
     default:
-        
+
         break;
-        
+
     }
 
     return run_time;
@@ -88,7 +88,7 @@ void stopwatch_display(bool reset) {
 
         if (state >= NUM_STATES) {
             state = 0;
-        } 
+        }
 
         first_run = true;
     }
