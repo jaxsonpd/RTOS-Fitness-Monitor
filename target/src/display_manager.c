@@ -411,27 +411,27 @@ void display_set_user_parameters(void) {
     uint32_t adc_value = pot_get();
 
     if (adc_value != 0) {
-        if (display_info_get_toggle()) {
+        if (display_info_get_toggle()) { // Setting weight
             new_weight = adc_value * WEIGHT_POT_SCALE_COEFF;
             new_height = display_info_get_height();
-            // new_weight = (new_weight / STEP_GOAL_ROUNDING) * STEP_GOAL_ROUNDING;
         } else if (!display_info_get_toggle()) {
             new_height = adc_value * HEIGHT_POT_SCALE_COEFF;
-            new_weight = display_info_get_weight();
-            // new_height = (new_weight / STEP_GOAL_ROUNDING) * STEP_GOAL_ROUNDING;
+            new_weight = display_info_get_weight(); // Setting height
         }
     }
 
-
-    if (display_info_get_input_flag(MSG_DOWN_BUTTON_P) && !display_info_get_debug() && display_info_get_toggle()) {
-        display_info_set_weight(new_weight);
-    } else if (display_info_get_input_flag(MSG_DOWN_BUTTON_P) && !display_info_get_debug() && !display_info_get_toggle()) {
-        display_info_set_height(new_height);
+    if (display_info_get_input_flag(MSG_DOWN_BUTTON_P) && !display_info_get_debug()) {
+        if (display_info_get_toggle()) {
+            display_info_set_weight(new_weight);
+        } else if (!display_info_get_toggle()) {
+            display_info_set_height(new_height);
+        }
     }
 
     display_line("Weight",0,ALIGN_CENTRE);
     display_line("Height",2,ALIGN_CENTRE);
 
+    // Generate weight line
     char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
     uint16_t weight = new_weight;
     uint16_t current_weight = display_info_get_weight();
@@ -440,12 +440,13 @@ void display_set_user_parameters(void) {
         current_weight *= KG_TO_LB;
     }
     if (display_info_get_toggle()) {
-        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d %s <- %d %s", current_weight, display_info_get_units() == UNITS_SI ? "kg" : "lb", weight, display_info_get_units() == UNITS_SI ? "kg" : "lb");
+        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%3d %s <- %3d %s", current_weight, display_info_get_units() == UNITS_SI ? "kg" : "lb", weight, display_info_get_units() == UNITS_SI ? "kg" : "lb");
     } else {
-        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d %s", current_weight, display_info_get_units() == UNITS_SI ? "kg" : "lb");
+        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%3d %s", current_weight, display_info_get_units() == UNITS_SI ? "kg" : "lb");
     }
     display_line(toDraw, 1, ALIGN_LEFT);
 
+    // Generate height line
     uint16_t height = new_height;
     uint16_t current_height = display_info_get_height();
     if (display_info_get_units() != UNITS_SI) {
@@ -453,9 +454,17 @@ void display_set_user_parameters(void) {
         current_height = CM_TO_INCHES(current_height);
     }
     if (!display_info_get_toggle()) {
-        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d %s <- %d %s", current_height, display_info_get_units() == UNITS_SI ? "cm" : "in", height, display_info_get_units() == UNITS_SI ? "cm" : "in");    
+        if (display_info_get_units() == UNITS_SI) {
+            usnprintf(toDraw, DISPLAY_WIDTH + 1, "%3d cm <- %d cm", current_height, height);    
+        } else {
+            usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d'%2d\"  <- %d'%2d\"", current_height / 12, current_height % 12, height / 12, height % 12);    
+        }
     } else {
-        usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d %s", current_height, display_info_get_units() == UNITS_SI ? "cm" : "in");    
+        if (display_info_get_units() == UNITS_SI) {
+            usnprintf(toDraw, DISPLAY_WIDTH + 1, "%3d cm", current_height);    
+        } else {
+            usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d'%2d\"", current_height / 12, current_height % 12);    
+        }
     }
     display_line(toDraw, 3, ALIGN_LEFT);
 }

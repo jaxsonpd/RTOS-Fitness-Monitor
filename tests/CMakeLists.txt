@@ -26,6 +26,7 @@ add_unity_test(test_adc_hal test_adc_hal.c ${SRC_DIR}/adc_hal_tiva.c)
 add_unity_test(test_display_hal test_display_hal.c ${SRC_DIR}/display_hal_tiva.c)
 add_unity_test(test_display_info test_display_info.c ${SRC_DIR}/display_info.c)
 add_unity_test(test_clock_hal test_clock_hal.c ${SRC_DIR}/clock_hal_tiva.c)
+add_unity_test(test_i2c_hal test_i2c_hal.c ${SRC_DIR}/i2c_hal_tiva.c)
 
 target_include_directories(test_circular_buffer PRIVATE ${SRC_DIR})
 target_include_directories(test_input_hal PRIVATE ${SRC_DIR} ${TIVAWARE_DIR} ${MOCK_DIR})
@@ -57,3 +58,6 @@ target_include_directories(test_pot_comms PRIVATE ${SRC_DIR} ${RTOS_ARM} ${RTOS_
 target_include_directories(test_display_hal PRIVATE ${SRC_DIR} ${RTOS_ARM} ${RTOS_CONFIG_DIR} ${RTOS_DIR_INCLUDE} ${MOCK_DIR} ${OLED_DIR} ${TIVAWARE_DIR})
 
 target_include_directories(test_display_info PRIVATE ${SRC_DIR} ${RTOS_ARM} ${RTOS_CONFIG_DIR} ${RTOS_DIR_INCLUDE} ${MOCK_DIR})
+
+target_include_directories(test_i2c_hal PRIVATE ${SRC_DIR} ${TIVAWARE_DIR} ${MOCK_DIR})
+target_compile_definitions(test_i2c_hal PRIVATE PART_TM4C123GH6PM)

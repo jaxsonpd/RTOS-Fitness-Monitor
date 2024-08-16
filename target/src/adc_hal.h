@@ -12,7 +12,7 @@
 
 typedef enum {
     ADC_ID_0 = 0,
-    MAX_ADC_IDS = 10
+    MAX_ADC_IDS
 } adc_id_t;
 
 typedef void (*callback_t)(uint32_t);
