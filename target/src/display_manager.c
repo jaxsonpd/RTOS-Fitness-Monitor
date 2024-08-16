@@ -22,6 +22,7 @@
 #include "display_hal.h"
 #include "display_info.h"
 #include "pot_comms.h"
+#include "stopwatch.h"
 
 #include "display_manager.h"
 
@@ -59,6 +60,7 @@ typedef enum {
     DISPLAY_STEPS = 0,
     DISPLAY_DISTANCE,
     DISPLAY_SET_GOAL,
+    DISPLAY_STOPWATCH,
     DISPLAY_SET_USER_PARAMETERS,
     DISPLAY_NUM_STATES, // Automatically enumerates to the number of display states there can be
     DISPLAY_FLASH_RESET,
@@ -160,7 +162,7 @@ void display_manager_thread(void* rtos_param) {
             display_info_set_input_flag(i, 0);
         }
 
-        vTaskDelay(1000 / 5);
+        vTaskDelay(1000 / 10);
     }
 }
 
@@ -248,6 +250,7 @@ void display_update_state(displayMode_t* display_mode, inputCommMsg_t msg) {
         display_info_set_steps(0);
         check_goal_reached(true);
         display_info_set_start(0);
+        stopwatch_display(true);
         down_button_p_time = 0;
     }
 
@@ -299,6 +302,9 @@ void display_update(displayMode_t* display_mode) {
         }
         display_goal_reached();
         break;
+    case DISPLAY_STOPWATCH:
+        stopwatch_display(false);
+        break;
 
     default:
 
@@ -324,6 +330,7 @@ void display_steps(void) {
     }
 
     display_time("Time:", workout_time * DS_TO_S, 2, ALIGN_CENTRE);
+    display_line("", 3, ALIGN_CENTRE);
     display_line("", 3, ALIGN_CENTRE);
 }
 
@@ -360,6 +367,8 @@ void display_distance(void) {
         display_value("Speed:", "mph", speed * KM_TO_MILES, 2, ALIGN_CENTRE, false);
         display_value("Energy:","Cal", calories, 3, ALIGN_CENTRE, false);
     }
+
+    display_line("", 3, ALIGN_CENTRE);
 }
 
 
