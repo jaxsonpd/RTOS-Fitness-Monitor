@@ -104,8 +104,8 @@ void test_i2c_hal_write_sends_data_correctly(void)
 void test_i2c_hal_read_receives_data_correctly(void)
 {
     // Arrange
-    char data[100];
-    int32_t size = 100;
+    char data[4];
+    int32_t size = 4;
     char addr = 0x50;
     I2CMasterBusBusy_fake.custom_fake = i2c_master_bus_busy_fake_return;
     I2CMasterBusy_fake.custom_fake = i2c_master_busy_fake_return;
