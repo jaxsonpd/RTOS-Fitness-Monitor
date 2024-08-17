@@ -11,7 +11,7 @@
 #include "goal_state.h"
 
 void goalState_enter(void) {
-    display_line("goal", 0, ALIGN_CENTRE);
+    display_line("2goal", 0, ALIGN_CENTRE);
 }
 
 void goalState_execute(void* args) {

@@ -9,6 +9,8 @@ add_tiva_executable(fitness-tracker
     device_states/stopwatch_state.c
     device_states/move_prompt_state.c
     device_states/user_parameters_state.c
+    device_states/goal_reached_state.c
+    device_states/move_prompt_alert_state.c
     hal/accl_hal_tiva.c
     hal/adc_hal_tiva.c
     hal/clock_hal_tiva.c

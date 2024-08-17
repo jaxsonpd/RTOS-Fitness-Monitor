@@ -11,7 +11,7 @@
 #include "user_parameters_state.h"
 
 void userParametersState_enter(void) {
-    display_line("user parameters", 0, ALIGN_CENTRE);
+    display_line("5user parameters", 0, ALIGN_CENTRE);
 }
 
 void userParametersState_execute(void* args) {

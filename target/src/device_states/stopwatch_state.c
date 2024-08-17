@@ -12,7 +12,7 @@
 #include "stopwatch_state.h"
 
 void stopwatchState_enter(void) {
-    display_line("stopwatch", 0, ALIGN_CENTRE);
+    display_line("3stopwatch", 0, ALIGN_CENTRE);
 }
 
 void stopwatchState_execute(void* args) {

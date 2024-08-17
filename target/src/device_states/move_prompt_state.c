@@ -11,7 +11,7 @@
 #include "move_prompt_state.h"
 
 void movePromptState_enter(void) {
-    display_line("move prompt", 0, ALIGN_CENTRE);
+    display_line("4move prompt", 0, ALIGN_CENTRE);
 }
 
 void movePromptState_execute(void* args) {

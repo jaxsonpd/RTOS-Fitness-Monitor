@@ -11,7 +11,7 @@
 #include "steps_state.h"
 
 void stepsState_enter(void) {
-    display_line("steps", 0, ALIGN_CENTRE);
+    display_line("0steps", 0, ALIGN_CENTRE);
 }
 
 void stepsState_execute(void* args) {

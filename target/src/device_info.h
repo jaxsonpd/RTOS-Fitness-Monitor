@@ -30,4 +30,29 @@ bool device_info_get_input_flag(inputCommMsg_t msg);
  */
 void device_info_set_input_flag(inputCommMsg_t msg, bool flag);
 
+/**
+ * @brief Clear all input flags
+ */
+void device_info_clear_input_flags(void);
+
+/**
+ * @brief Set alternate flag for state logic
+ */
+void device_info_set_alternate(bool status);
+
+/**
+ * @brief Get alternate flag for state logic
+ */
+bool device_info_get_alternate(void);
+
+/**
+ * @brief Set debug flag for state logic
+ */
+void device_info_set_debug(bool status);
+
+/**
+ * @brief Get debug flag for state logic
+ */
+bool device_info_get_debug(void);
+
 #endif // DEVICE_INFO_H_

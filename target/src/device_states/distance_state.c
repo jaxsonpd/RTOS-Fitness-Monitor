@@ -11,7 +11,7 @@
 #include "distance_state.h"
 
 void distanceState_enter(void) {
-    display_line("distance", 0, ALIGN_CENTRE);
+    display_line("1distance", 0, ALIGN_CENTRE);
 }
 
 void distanceState_execute(void* args) {
