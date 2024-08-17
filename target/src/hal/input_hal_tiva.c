@@ -24,7 +24,7 @@
 /**
  * @struct input_mode_info_t
  *  A structure to store information about a input mode (button or switch)
- * 
+ *
  */
 typedef struct input_mode_info {
     uint32_t periph;            ///< Gpio peripheral for the device
@@ -32,7 +32,7 @@ typedef struct input_mode_info {
     uint8_t pin;                ///< Gpio pin
     uint32_t type;              ///< Gpio type pull down etc.
     bool normal;                ///< Normal state of the device (off state)
-    input_mode_t name;          ///< Corrsponding name of the device
+    inputMode_t name;          ///< Corrsponding name of the device
     bool state;                 ///< Current state after debouncing
     bool value;                 ///< Raw value of the device
     uint8_t count;              ///< Number of times at the given value
@@ -46,7 +46,7 @@ input_mode_info_t g_up_button = {
     .port_base = GPIO_PORTE_BASE,
     .pin = GPIO_PIN_0,
     .type = GPIO_PIN_TYPE_STD_WPD,
-    .normal = true,
+    .normal = false,
     .name = UP_BUTTON };
 
 /// DOWN button on orbit board
@@ -131,11 +131,11 @@ bool input_init(void) {
     return true;
 }
 
-bool input_get(input_mode_t input) {
+bool input_get(inputMode_t input) {
     return g_mode_arr[input].state != g_mode_arr[input].normal;
 }
 
-input_state_t input_check(input_mode_t input) {
+inputState_t input_check(inputMode_t input) {
     if (g_mode_arr[input].flag) {
         g_mode_arr[input].flag = false;
 

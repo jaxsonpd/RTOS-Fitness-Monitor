@@ -27,7 +27,7 @@ add_unity_test(test_step_counter_comms test_step_counter_comms.c ${COMMS_DIR}/st
 add_unity_test(test_pot_comms test_pot_comms.c ${COMMS_DIR}/pot_comms.c)
 add_unity_test(test_pot_manager test_pot_manager.c ${SRC_DIR}/pot_manager.c)
 add_unity_test(test_adc_hal test_adc_hal.c ${HAL_DIR}/adc_hal_tiva.c)
-add_unity_test(test_display_hal test_display_hal.c ${HAL_DIR}/display_hal_tiva.c)
+add_unity_test(test_display_hal test_display_hal.c ${HAL_DIR}/display_hal_tiva.c ${TIVAWARE_DIR}/utils/ustdlib.c)
 add_unity_test(test_display_info test_display_info.c ${SRC_DIR}/display_info.c)
 add_unity_test(test_clock_hal test_clock_hal.c ${HAL_DIR}/clock_hal_tiva.c)
 add_unity_test(test_i2c_hal test_i2c_hal.c ${HAL_DIR}/i2c_hal_tiva.c)

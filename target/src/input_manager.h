@@ -23,6 +23,7 @@ void input_manager_thread(void* rtos_param);
 
 #ifdef UNIT_TESTING
 bool input_manager_init(void);
+void input_manager_send_updates(void);
 #endif // UNIT_TESTING
 
 #endif // INPUT_MANAGER_H
