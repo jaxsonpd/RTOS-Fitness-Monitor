@@ -6,18 +6,21 @@
  * 
  */
 
-#ifndef POT_MANAGER_H
+#ifndef POT_MANAGER_H_
 #define POT_MANAGER_H
 
 #include <stdint.h>
 #include <stdbool.h>
+
 
 /**
  * @brief Initialise the potentiometer manager
  * 
  * @return true if successful
  */
+#ifdef UNIT_TESTING
 bool pot_read_init(void);
+#endif // UNIT_TESTING
 
 /**
  * @brief The entry to the potentiometer manager thread

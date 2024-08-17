@@ -10,7 +10,7 @@ DEFINE_FFF_GLOBALS;
 #include "freertos_mocks/semphr_mock.h"
 #include "freertos_mocks/queue_mock.h"
 
-#include "pot_comms.h"
+#include "comms/pot_comms.h"
 
 void setUp(void) {
 }
