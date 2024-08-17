@@ -1,0 +1,95 @@
+# Doxyfile 1.9.1
+
+# The PROJECT_NAME tag is the name of the project.
+PROJECT_NAME           = "YourProjectName"
+
+# The OUTPUT_DIRECTORY tag is used to specify the directory where the output files are generated.
+OUTPUT_DIRECTORY       = docs
+
+# The INPUT tag is used to specify the directories or files to be scanned.
+INPUT                  = target/src
+
+# This tag can be used to specify the character encoding of the source files.
+FILE_ENCODING          = UTF-8
+
+# The RECURSIVE tag can be used to specify whether subdirectories should be searched for input files.
+RECURSIVE              = YES
+
+# If the EXTRACT_ALL tag is set to YES, Doxygen will assume all entities in source files should be included in the documentation.
+EXTRACT_ALL            = YES
+
+# If the EXTRACT_PRIVATE tag is set to YES, all private members of a class will be included in the documentation.
+EXTRACT_PRIVATE        = YES
+
+# If the EXTRACT_STATIC tag is set to YES, all static members of a file will be included in the documentation.
+EXTRACT_STATIC         = YES
+
+# The GENERATE_LATEX tag is used to specify whether LaTeX output should be generated.
+GENERATE_LATEX         = NO
+
+# The GENERATE_HTML tag is used to specify whether HTML output should be generated.
+GENERATE_HTML          = YES
+
+# The UML_LOOK tag determines if UML diagrams should look better, but may require more resources.
+UML_LOOK               = YES
+
+# The CLASS_DIAGRAMS tag can be used to create class inheritance and collaboration diagrams.
+CLASS_DIAGRAMS         = YES
+
+# The HAVE_DOT tag can be used to specify whether the dot tool is available.
+HAVE_DOT               = YES
+
+# The DOT_NUM_THREADS specifies the number of parallel threads to use for dot.
+DOT_NUM_THREADS        = 4
+
+# If the CALL_GRAPH and HAVE_DOT tags are set to YES, Doxygen will generate a call graph for each function.
+CALL_GRAPH             = YES
+
+# If the CALLER_GRAPH and HAVE_DOT tags are set to YES, Doxygen will generate a caller graph for each function.
+CALLER_GRAPH           = YES
+
+# The DOT_PATH tag can be used to specify the path where the dot tool resides.
+# Update this if necessary.
+DOT_PATH               = /usr/bin/dot
+
+# The DOT_FONTNAME tag can be used to specify the name of the font to be used by dot.
+DOT_FONTNAME           = Helvetica
+
+# The DOT_FONTSIZE tag can be used to set the size of the font to be used by dot.
+DOT_FONTSIZE           = 10
+
+# The DOT_GRAPH_MAX_NODES tag can be used to set the maximum number of nodes that will be shown in a graph.
+DOT_GRAPH_MAX_NODES    = 50
+
+# If the UML_LOOK tag is enabled, this option is ignored and set to YES.
+TEMPLATE_RELATIONS     = YES
+
+# The UML_LOOK tag determines if UML diagrams should look nicer. This may require the installation of dot.
+UML_LOOK               = YES
+
+# If DOT_TRANSPARENT tag is set to YES, dot will produce graphs with a transparent background.
+DOT_TRANSPARENT        = YES
+
+# The DOT_MULTI_TARGETS tag allows dot to generate multiple output formats in parallel.
+DOT_MULTI_TARGETS      = YES
+
+# The INTERACTIVE_SVG tag can be used to generate interactive SVG diagrams.
+INTERACTIVE_SVG        = YES
+
+# If the DOT_IMAGE_FORMAT tag is set to svg, doxygen will generate SVG images.
+DOT_IMAGE_FORMAT       = svg
+
+# The DOTFILE_DIRS tag is a list of directories that contain dot files that are included by the dot tool.
+DOTFILE_DIRS           =
+
+# The GRAPHVIZ_DOT tag can be used to specify the path where the dot tool resides.
+GRAPHVIZ_DOT           = /usr/bin/dot
+
+# The CLASS_GRAPH tag determines if class inheritance diagrams are generated.
+CLASS_GRAPH            = YES
+
+# The COLLABORATION_GRAPH tag determines if class collaboration diagrams are generated.
+COLLABORATION_GRAPH    = YES
+
+# If enabled, Doxygen will generate a legend for each generated graph.
+DOT_GRAPH_LEGEND       = YES
