@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 #define DEFAULT_GOAL 1000
-#define DEFAULT_ACTIVITY_TIMEOUT 10
+#define DEFAULT_ACTIVITY_TIMEOUT 100
 #define DEFAULT_HEIGHT 170
 #define DEFAULT_WEIGHT 70
 

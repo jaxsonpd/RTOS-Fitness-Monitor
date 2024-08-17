@@ -10,9 +10,15 @@
 
 #include <stdint.h>
 
+typedef enum stateStatus_e {
+    STATE_SUCCESS = 0x00,
+    STATE_FINISHED,
+    STATE_FLASHING,
+} stateStatus_t;
+
 typedef struct State {
     void (*Enter)(void);
-    char (*Execute)(void* stateArgs);
+    stateStatus_t (*Execute)(void* stateArgs);
     void (*Exit)(void);
 } state_t;
 

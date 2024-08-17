@@ -8,18 +8,29 @@
 #include <stdint.h>
 
 #include "../hal/display_hal.h"
+#include "../device_info.h"
+
 #include "move_prompt_alert_state.h"
 
-void movePromptAlertState_enter(void) {
-    display_line("7move", 0, ALIGN_CENTRE);
+#define FLASH_LENGTH 5 // deci seconds
+
+static uint32_t flash_time = 0;
+
+void move_prompt_alert_state_enter(void) {
+    display_line("Please Move", 1, ALIGN_CENTRE);
+    flash_time = device_info_get_ds();
 }
 
-char movePromptAlertState_execute(void* args) {
-    // TODO
+stateStatus_t move_prompt_alert_state_execute(void* args) {
+    if ((device_info_get_ds() - flash_time) >= FLASH_LENGTH) {
+        return STATE_FINISHED;
+    }
+
+    return STATE_SUCCESS;
 }
 
-void movePromptAlertState_exit(void) {
+void move_prompt_alert_state_exit(void) {
     display_clear();
 }
 
-state_t movePromptAlertState = { movePromptAlertState_enter,movePromptAlertState_execute,movePromptAlertState_exit };
+state_t movePromptAlertState = { move_prompt_alert_state_enter,move_prompt_alert_state_execute,move_prompt_alert_state_exit };

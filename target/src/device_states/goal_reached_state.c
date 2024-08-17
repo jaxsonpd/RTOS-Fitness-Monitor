@@ -8,18 +8,29 @@
 #include <stdint.h>
 
 #include "../hal/display_hal.h"
-#include "steps_state.h"
+#include "../device_info.h"
 
-void goalReachedState_enter(void) {
-    display_line("6goal_reached", 0, ALIGN_CENTRE);
+#include "goal_reached_state.h"
+
+#define FLASH_LENGTH 30 // 3 seconds
+
+static uint32_t flash_time = 0;
+
+void goal_reached_state_enter(void) {
+    display_line("Goal Reached", 1, ALIGN_CENTRE);
+    flash_time = device_info_get_ds();
 }
 
-char goalReachedState_execute(void* args) {
-    // TODO
+stateStatus_t goal_reached_state_execute(void* args) {
+    if ((device_info_get_ds() - flash_time) >= FLASH_LENGTH) {
+        return STATE_FINISHED;
+    }
+
+    return STATE_SUCCESS;
 }
 
-void goalReachedState_exit(void) {
+void goal_reached_state_exit(void) {
     display_clear();
 }
 
-state_t goalReachedState = { goalReachedState_enter,goalReachedState_execute,goalReachedState_exit };
+state_t goalReachedState = { goal_reached_state_enter,goal_reached_state_execute,goal_reached_state_exit };

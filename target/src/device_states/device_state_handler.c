@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 #include "state.h"
-#include "device_state.h"
+#include "device_state_handler.h"
 
 #include "steps_state.h"
 #include "distance_state.h"

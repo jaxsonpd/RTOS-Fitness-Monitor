@@ -8,25 +8,30 @@
 #include <stdint.h>
 
 #include "../hal/display_hal.h"
+#include "../device_info.h"
+
 #include "reset_state.h"
 
-uint32_t g_reset_count = 0;
 
-void resetState_enter(void) {
-    display_line("8reset", 0, ALIGN_CENTRE);
+#define FLASH_LENGTH 15 // deci seconds
+
+static uint32_t flash_time = 0;
+
+void reset_state_enter(void) {
+    display_line("reset", 1, ALIGN_CENTRE);
+    flash_time = device_info_get_ds();
 }
 
-char resetState_execute(void* args) {
-    if (g_reset_count++ < 1000) {
-        return 0x02;
-    } else {
-        return 0x01;
+stateStatus_t reset_state_execute(void* args) {
+    if ((device_info_get_ds() - flash_time) >= FLASH_LENGTH) {
+        return STATE_FINISHED;
     }
+
+    return STATE_SUCCESS;
 }
 
-void resetState_exit(void) {
-    g_reset_count = 0;
+void reset_state_exit(void) {
     display_clear();
 }
 
-state_t resetState = { resetState_enter,resetState_execute,resetState_exit };
+state_t resetState = { reset_state_enter,reset_state_execute,reset_state_exit };

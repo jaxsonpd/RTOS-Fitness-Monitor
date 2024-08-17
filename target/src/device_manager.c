@@ -11,7 +11,7 @@
 #include "device_states/state.h"
 
 #include "device_states/state.h"
-#include "device_states/device_state.h"
+#include "device_states/device_state_handler.h"
 #include "device_manager.h"
 
 #include "utility/person.h"
@@ -43,6 +43,29 @@ bool device_manager_init(device_state_t* device)
     return device_state_init(device, INITIAL_STATE_ID);
 }
 
+/**
+ * @brief Update the step counter and check for workout start
+ *
+ * @return true if the workout is started
+ */
+bool update_steps(void) {
+    static uint32_t old_steps = 0;;
+    uint32_t new_steps = step_counter_get();
+
+    if (new_steps > old_steps) {
+        device_info_set_last_step_time(device_info_get_ds());
+        if (device_info_get_workout_start_time() == 0) {
+            device_info_set_workout_start_time(device_info_get_ds());
+            device_info_set_last_step_time(device_info_get_ds());
+            return true;
+        }
+    }
+
+    old_steps = new_steps;
+
+    return false;
+}
+
 void device_manager_thread(void* args) 
 {
     device_state_t device;
@@ -52,13 +75,15 @@ void device_manager_thread(void* args)
     char status;
 
     for (;;) {
+        update_steps();
+
         status = device_state_execute(&device,&person);
+        device_info_clear_input_flags();
         if (status != STATE_FLASHING) {
             update_inputs(&device);
             update_state(&device,&person);
         }
-        device_info_clear_input_flags();
-        vTaskDelay(5);
+        vTaskDelay(50);
     }
 }
 
@@ -67,12 +92,12 @@ void device_manager_thread(void* args)
  *
  */
 void update_inputs(device_state_t* device) {
-    uint8_t num_tries = 0;
-    while (input_comms_num_msgs() > 0 && num_tries < 5) {
+    uint8_t num_reads = 0;
+    while (input_comms_num_msgs() > 0 && num_reads < 5) {
         inputCommMsg_t msg = input_comms_receive();
         handle_input(device, msg);
         device_info_set_input_flag(msg, 1);
-        num_tries++;
+        num_reads++;
     }
 }
 
