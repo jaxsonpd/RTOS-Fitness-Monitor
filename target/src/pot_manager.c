@@ -1,7 +1,7 @@
 #include "pot_manager.h"
 
 #include "adc_manager.h"
-#include "pot_comms.h"  
+#include "comms/pot_comms.h"  
 
 #include "FreeRTOS.h"
 #include "task.h"

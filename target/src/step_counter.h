@@ -12,7 +12,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "vector3.h"
+#include "utility/vector3.h"
 
 bool step_counter_init(uint16_t* period);
 

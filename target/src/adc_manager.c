@@ -8,14 +8,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "adc_hal.h"
-#include "circular_buffer.h"
+#include "hal/adc_hal.h"
+#include "utility/circular_buffer.h"
 #include "adc_manager.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "pot_comms.h"
+#include "comms/pot_comms.h"
 
 //*****************************************************************************
 // Constants

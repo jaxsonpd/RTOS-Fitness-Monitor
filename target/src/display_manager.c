@@ -16,12 +16,12 @@
 
 #include "utils/ustdlib.h"
 
-#include "step_counter_comms.h"
-#include "input_comms.h"
+#include "comms/step_counter_comms.h"
+#include "comms/input_comms.h"
 #include "serial_sender.h"
-#include "display_hal.h"
+#include "hal/display_hal.h"
 #include "display_info.h"
-#include "pot_comms.h"
+#include "comms/pot_comms.h"
 #include "stopwatch.h"
 
 #include "display_manager.h"

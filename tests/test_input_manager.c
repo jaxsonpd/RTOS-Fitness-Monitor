@@ -16,8 +16,8 @@ DEFINE_FFF_GLOBALS;
 
 #include "input_manager.h"
 
-#include "input_hal_mock.h"
-#include "input_comms_mock.h"
+#include "hal_mocks/input_hal_mock.h"
+#include "comms_mocks/input_comms_mock.h"
 #include "freertos_mocks/task_mock.h"
 
 void reset_fff(void) {

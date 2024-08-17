@@ -6,8 +6,8 @@
 #include "serial_sender.h"
 #include "accl_manager.h"
 #include "step_counter.h"
-#include "step_counter_comms.h"
-#include "vector3.h"
+#include "comms/step_counter_comms.h"
+#include "utility/vector3.h"
 
 #include "FreeRTOS.h"
 #include "task.h"

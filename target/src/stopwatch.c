@@ -10,7 +10,7 @@
 #include <stdbool.h>
 
 #include "display_info.h"
-#include "display_hal.h"
+#include "hal/display_hal.h"
 
 #include "stopwatch.h"
 

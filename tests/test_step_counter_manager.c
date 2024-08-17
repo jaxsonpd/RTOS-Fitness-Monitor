@@ -11,7 +11,7 @@ DEFINE_FFF_GLOBALS;
 
 #include "math_mock.h"
 #include "step_counter_mock.h"
-#include "step_counter_comms_mock.h"
+#include "comms_mocks/step_counter_comms_mock.h"
 #include "accl_manager_mock.h"
 #include "freertos_mocks/task_mock.h"
 

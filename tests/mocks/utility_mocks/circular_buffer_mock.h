@@ -1,5 +1,5 @@
 #include "fff.h"
-#include "circular_buffer.h"
+#include "utility/circular_buffer.h"
 
 #ifdef FFF_MOCK_IMPL
     #define VOID_FUNC FAKE_VOID_FUNC

@@ -14,8 +14,8 @@
 #include "task.h"
 #include "queue.h"
 
-#include "input_hal.h"
-#include "input_comms.h"
+#include "hal/input_hal.h"
+#include "comms/input_comms.h"
 
 #include "input_manager.h"
 
