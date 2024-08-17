@@ -23,7 +23,7 @@ add_unity_test(test_step_counter_manager test_step_counter_manager.c ${SRC_DIR}/
 add_unity_test(test_step_counter_comms test_step_counter_comms.c ${SRC_DIR}/step_counter_comms.c)
 add_unity_test(test_pot_comms test_pot_comms.c ${SRC_DIR}/pot_comms.c)
 add_unity_test(test_adc_hal test_adc_hal.c ${SRC_DIR}/adc_hal_tiva.c)
-add_unity_test(test_display_hal test_display_hal.c ${SRC_DIR}/display_hal_tiva.c)
+add_unity_test(test_display_hal test_display_hal.c ${SRC_DIR}/display_hal_tiva.c ${TIVAWARE_DIR}/utils/ustdlib.c)
 add_unity_test(test_display_info test_display_info.c ${SRC_DIR}/display_info.c)
 add_unity_test(test_clock_hal test_clock_hal.c ${SRC_DIR}/clock_hal_tiva.c)
 
