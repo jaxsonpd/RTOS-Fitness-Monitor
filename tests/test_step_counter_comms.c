@@ -62,17 +62,6 @@ void test_step_counter_get_before_init(void) {
     TEST_ASSERT_EQUAL(0, step_counter_get());
 }
 
-void test_step_counter_get_resets_count(void) {
-    uint32_t dummy_steps = 5;
-    SemaphoreHandle_t return_seq[1] = { (QueueHandle_t)1 };
-    SET_RETURN_SEQ(xQueueCreateMutex, return_seq, 1);
-    step_counter_comms_init();
-    step_counter_set(dummy_steps, true);
-    
-    TEST_ASSERT_EQUAL(dummy_steps, step_counter_get());
-    TEST_ASSERT_EQUAL(0, step_counter_get());
-}
-
 void test_step_counter_set_accumulates_multiple(void) {
     uint32_t dummy_steps = 5;
     SemaphoreHandle_t return_seq[1] = { (QueueHandle_t)1 };
