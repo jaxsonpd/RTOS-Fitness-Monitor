@@ -18,10 +18,11 @@
 #include "user_parameters_state.h"
 #include "goal_reached_state.h"
 #include "move_prompt_alert_state.h"
+#include "reset_state.h"
 
-state_t* states[STATE_COUNT] = { &stepsState, &distanceState, &goalState, &stopwatchState, &movePromptState, &userParametersState, &goalReachedState, &movePromptAlertState };
+state_t* states[STATE_COUNT] = { &stepsState, &distanceState, &goalState, &stopwatchState, &movePromptState, &userParametersState, &goalReachedState, &movePromptAlertState, &resetState };
 
-bool device_state_init(device_state_t* ds, state_id_t initialID) 
+bool device_state_init(device_state_t* ds, stateID_t initialID) 
 {
     if (ds == NULL) {
         return 0;
@@ -33,19 +34,37 @@ bool device_state_init(device_state_t* ds, state_id_t initialID)
     ds->currentState->Enter();
     return 1;
 }
-void device_state_set(device_state_t* ds, state_id_t newID)
+void device_state_set(device_state_t* ds, stateID_t newID)
 {
     if (ds->currentState != NULL) {
         ds->currentState->Exit();
     }
+    ds->currentID = newID;
     ds->currentState = states[newID];
     ds->currentState->Enter();
 }
 
-void device_state_execute(device_state_t* ds, void* args)
+char device_state_execute(device_state_t* ds, void* args)
 {
+    char status;
     if (ds->currentState != NULL) {
-        ds->currentState->Execute(args);
+        status = ds->currentState->Execute(args);
     }
-    // Push to message queue?
+
+    switch (status) {
+    case STATE_SUCCESS:
+        break;
+
+    case STATE_FINISHED:
+    // End current flashing state
+        device_state_set(ds, STEPS_STATE_ID);
+        break;
+
+    case STATE_FLASHING:
+    // Block updates for flashing state
+        
+    default:
+        break;
+    }
+    return status;
 }

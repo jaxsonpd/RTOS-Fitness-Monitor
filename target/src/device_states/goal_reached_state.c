@@ -14,7 +14,7 @@ void goalReachedState_enter(void) {
     display_line("6goal_reached", 0, ALIGN_CENTRE);
 }
 
-void goalReachedState_execute(void* args) {
+char goalReachedState_execute(void* args) {
     // TODO
 }
 

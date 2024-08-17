@@ -14,7 +14,7 @@ void userParametersState_enter(void) {
     display_line("5user parameters", 0, ALIGN_CENTRE);
 }
 
-void userParametersState_execute(void* args) {
+char userParametersState_execute(void* args) {
     // TODO
 }
 

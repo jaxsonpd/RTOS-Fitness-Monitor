@@ -14,17 +14,28 @@
 #include "device_states/device_state.h"
 #include "device_manager.h"
 
+#include "utility/person.h"
 #include "device_info.h"
 #include "hal/display_hal.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "comms/step_counter_comms.h"
+
 #define NUM_SCREENS 6
 #define INITIAL_STATE_ID 0
 
-void update_inputs(void);
-void process_inputs(device_state_t* device);
+#define DEBUG_STEP_INCREMENT 100
+#define DEBUG_STEP_DECREMENT 500
+
+#define LONG_PRESS_TIME 3/2
+
+static uint32_t g_reset_timeout = 0;
+
+void update_inputs(device_state_t* device);
+void handle_input(device_state_t* device, inputCommMsg_t msg);
+void update_state(device_state_t* device, person_t* person);
 
 bool device_manager_init(device_state_t* device) 
 {
@@ -36,106 +47,160 @@ void device_manager_thread(void* args)
 {
     device_state_t device;
     device_manager_init(&device);
+    person_t person;
+    person_init(&person);
+    char status;
+
     for (;;) {
-        update_inputs();
-        process_inputs(&device);
-        device_state_execute(&device,NULL);
+        status = device_state_execute(&device,&person);
+        if (status != STATE_FLASHING) {
+            update_inputs(&device);
+            update_state(&device,&person);
+        }
         device_info_clear_input_flags();
         vTaskDelay(5);
     }
 }
 
 /**
- * @brief update the input flags and display state
+ * @brief update the input flags and any state change based on inputs
  *
  */
-void update_inputs(void) {
+void update_inputs(device_state_t* device) {
     uint8_t num_tries = 0;
     while (input_comms_num_msgs() > 0 && num_tries < 5) {
         inputCommMsg_t msg = input_comms_receive();
+        handle_input(device, msg);
         device_info_set_input_flag(msg, 1);
         num_tries++;
     }
 }
 
-void process_inputs(device_state_t* device) {
-    // static uint32_t down_button_p_time = 0;
-    state_id_t newID = device->currentID;
-    for (uint16_t i = 0; i < NUM_MSGS; i++) {
-        if (!device_info_get_input_flag(i)) {
-            continue;
+/**
+ * @brief parses message to perform required behaviour from input
+ *
+ */
+void handle_input(device_state_t* device, inputCommMsg_t msg) {
+    stateID_t newID = device->currentID;
+    switch (msg) {
+    case (MSG_SCREEN_LEFT):
+        if (device->currentID > 0) {
+            newID = device->currentID - 1;
+        } else {
+            newID = NUM_SCREENS - 1;
         }
-        switch (i) {
-        case (MSG_SCREEN_LEFT):
-            if (device->currentID > 0) {
-                newID = device->currentID - 1;
+        break;
+
+    case (MSG_SCREEN_RIGHT):
+        newID = (device->currentID + 1) % NUM_SCREENS;
+        break;
+
+    case (MSG_LEFT_SWITCH_ON):
+        device_info_set_alternate(true);
+        break;
+
+    case (MSG_RIGHT_SWITCH_ON):
+        device_info_set_debug(true);
+        break;
+
+    case (MSG_LEFT_SWITCH_OFF):
+        device_info_set_alternate(false);
+        break;
+
+    case (MSG_RIGHT_SWITCH_OFF):
+        device_info_set_debug(false);
+        break;
+
+    case (MSG_UP_BUTTON_P):
+        if (device_info_get_debug()) {
+            step_counter_set(DEBUG_STEP_INCREMENT, true);
+        } else {
+            if (device_info_get_units() == UNITS_SI) {
+                device_info_set_units(UNITS_ALTERNATE);
             } else {
-                newID = NUM_SCREENS - 1;
+                device_info_set_units(UNITS_SI);
             }
-            break;
-
-        case (MSG_SCREEN_RIGHT):
-            newID = (device->currentID + 1) % NUM_SCREENS;
-            break;
-
-        case (MSG_LEFT_SWITCH_ON):
-            device_info_set_alternate(true);
-            break;
-        case (MSG_RIGHT_SWITCH_ON):
-            device_info_set_debug(true);
-            break;
-
-        case (MSG_LEFT_SWITCH_OFF):
-            device_info_set_alternate(false);
-            break;
-        case (MSG_RIGHT_SWITCH_OFF):
-            device_info_set_debug(false);
-            break;
-
-        case (MSG_UP_BUTTON_P):
-            // if (device_info_get_debug()) {
-                // display_info_set_steps(display_info_get_steps() + DEBUG_STEP_INCREMENT);
-            // } else {
-            //     if (display_info_get_units() == UNITS_SI) {
-            //         display_info_set_units(UNITS_ALTERNATE);
-            //     } else {
-            //         display_info_set_units(UNITS_SI);
-            //     }
-            // }
-            break;
-
-        case (MSG_DOWN_BUTTON_P):
-            // down_button_p_time = display_info_get_ds();
-
-            // if (display_info_get_debug()) {
-            //     if (display_info_get_steps() >= DEBUG_STEP_DECREMENT) {
-            //         display_info_set_steps(display_info_get_steps() - DEBUG_STEP_INCREMENT);
-            //     } else {
-            //         display_info_set_steps(0);
-            //     }
-            // }
-            break;
-
-        case (MSG_DOWN_BUTTON_R):
-            // down_button_p_time = 0;
-            break;
-
-        default:
-
-            break;
         }
+        break;
 
-        // if ((down_button_p_time > 0) && ((display_info_get_ds() - down_button_p_time) > LONG_PRESS_TIME * S_TO_DS)) {
-        //     *display_mode = DISPLAY_FLASH_RESET;
-        //     display_info_set_steps(0);
-        //     check_goal_reached(true);
-        //     display_info_set_start(0);
-        //     stopwatch_display(true);
-        //     down_button_p_time = 0;
-        // } 
+    case (MSG_DOWN_BUTTON_P):
+        g_reset_timeout = device_info_get_ds();
+
+        if (device_info_get_debug()) {
+            step_counter_set(DEBUG_STEP_DECREMENT, false);
+        }
+        break;
+
+    case (MSG_DOWN_BUTTON_R):
+        g_reset_timeout = 0;
+        break;
+
+    default:
+        break;
     }
     if (newID != device->currentID) {
         device_state_set(device, newID);
-        device->currentID = newID;
+    }
+}
+
+/**
+ * @brief Check reached goal
+ * @param reset if true reset the function
+ *
+ * @return true if goal has been reached for the first time
+ */
+bool check_goal_reached(bool reset, person_t* person) {
+    static uint32_t last_goal = 0;
+
+    if (reset) {
+        last_goal = 0;
+        return false;
+    }
+
+    if (step_counter_get() >= person->userGoal && last_goal != person->userGoal) {
+        last_goal = person->userGoal;
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * @brief Check how long since last step
+ * @param reset if true reset the function
+ * 
+ * @return true if the user has been inactive for too long
+ */
+bool check_inactive(bool reset, person_t* person) {
+
+    if (reset) {
+        return false;
+    }
+
+    if ((device_info_get_ds() - device_info_get_last_step_time()) > person->userActivityTimeout * S_TO_DS && device_info_get_last_step_time() != device_info_get_ds()) {
+        return true;
+    }   
+
+    return false;
+}
+
+/**
+ * @brief update states based on non-standard input conditions
+ * handles states that are not accessed in the loop.
+ */
+void update_state(device_state_t* device, person_t* person) {
+    stateID_t newID = device->currentID;
+    if (check_goal_reached(false, person)) {
+        newID = GOAL_REACHED_STATE_ID;
+    }
+    if (check_inactive(false, person)) {
+        newID = MOVE_PROMPT_ALERT_STATE_ID;
+    }
+    if ((g_reset_timeout > 0) && ((device_info_get_ds() - g_reset_timeout) > LONG_PRESS_TIME * S_TO_DS)) {
+        newID = RESET_STATE_ID;
+        g_reset_timeout = 0;
+    }
+    if (newID != device->currentID) {
+        device_state_set(device, newID);
     }
 }

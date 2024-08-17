@@ -11,6 +11,7 @@ add_tiva_executable(fitness-tracker
     device_states/user_parameters_state.c
     device_states/goal_reached_state.c
     device_states/move_prompt_alert_state.c
+    device_states/reset_state.c
     hal/accl_hal_tiva.c
     hal/adc_hal_tiva.c
     hal/clock_hal_tiva.c
@@ -19,11 +20,12 @@ add_tiva_executable(fitness-tracker
     hal/input_hal_tiva.c
     utility/circular_buffer.c
     utility/vector3.c
+    utility/person.c
     accl_manager.c
     adc_manager.c
     device_info.c
     device_manager.c
-    display_info.c
+    # display_info.c
     # display_manager.c
     input_manager.c
     fitness_monitor_main.c

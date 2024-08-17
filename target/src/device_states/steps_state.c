@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 
+#include "../comms/step_counter_comms.h"
 #include "../hal/display_hal.h"
 #include "steps_state.h"
 
@@ -14,8 +15,9 @@ void stepsState_enter(void) {
     display_line("0steps", 0, ALIGN_CENTRE);
 }
 
-void stepsState_execute(void* args) {
-    // TODO
+char stepsState_execute(void* args) {
+    uint32_t step_count = step_counter_get();
+    display_value("steps: ", "", step_count, 2, ALIGN_CENTRE, false);
 }
 
 void stepsState_exit(void) {

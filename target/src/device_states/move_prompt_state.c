@@ -14,7 +14,7 @@ void movePromptState_enter(void) {
     display_line("4move prompt", 0, ALIGN_CENTRE);
 }
 
-void movePromptState_execute(void* args) {
+char movePromptState_execute(void* args) {
     // TODO
 }
 

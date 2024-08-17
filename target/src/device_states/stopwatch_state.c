@@ -15,7 +15,7 @@ void stopwatchState_enter(void) {
     display_line("3stopwatch", 0, ALIGN_CENTRE);
 }
 
-void stopwatchState_execute(void* args) {
+char stopwatchState_execute(void* args) {
     stopwatch_display(false);
 }
 

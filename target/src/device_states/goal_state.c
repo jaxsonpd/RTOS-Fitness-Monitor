@@ -14,7 +14,7 @@ void goalState_enter(void) {
     display_line("2goal", 0, ALIGN_CENTRE);
 }
 
-void goalState_execute(void* args) {
+char goalState_execute(void* args) {
     // TODO
 }
 

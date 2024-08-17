@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "display_info.h"
+#include "device_info.h"
 #include "hal/display_hal.h"
 
 #include "stopwatch.h"
@@ -48,15 +48,15 @@ uint32_t stopwatch_state_machine(bool first_run, enum stopwatch_states state) {
 
     case (RUNNING):
         if (first_run) {
-            start_time = display_info_get_ds();
+            start_time = device_info_get_ds();
         }
 
-        run_time = (display_info_get_ds() - start_time);
+        run_time = (device_info_get_ds() - start_time);
         break;
 
     case (PAUSED):
         if (first_run) {
-            stop_time = display_info_get_ds();
+            stop_time = device_info_get_ds();
         }
 
         run_time = (stop_time - start_time);
@@ -83,7 +83,7 @@ void stopwatch_display(bool reset) {
         return;
     }
 
-    if (display_info_get_input_flag(MSG_DOWN_BUTTON_P)) {
+    if (device_info_get_input_flag(MSG_DOWN_BUTTON_P)) {
         state++;
 
         if (state >= NUM_STATES) {

@@ -14,7 +14,7 @@ void distanceState_enter(void) {
     display_line("1distance", 0, ALIGN_CENTRE);
 }
 
-void distanceState_execute(void* args) {
+char distanceState_execute(void* args) {
     // TODO
 }
 

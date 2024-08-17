@@ -26,13 +26,25 @@ bool step_counter_comms_init(void) {
     return mutex_enabled;
 }
 
-bool step_counter_set(uint32_t stepsAccumulated) {
+bool step_counter_set(uint32_t stepsAccumulated, bool increment) {
     if (mutex_enabled == false) {
         return 0;
     }
-    xSemaphoreTake(g_step_count_mutex, portMAX_DELAY);
-    g_step_count = g_step_count + stepsAccumulated;
-    xSemaphoreGive(g_step_count_mutex);
+    if (increment) {
+        xSemaphoreTake(g_step_count_mutex, portMAX_DELAY);
+        g_step_count = g_step_count + stepsAccumulated;
+        xSemaphoreGive(g_step_count_mutex);
+    } else {
+        if (g_step_count > stepsAccumulated) {
+            xSemaphoreTake(g_step_count_mutex, portMAX_DELAY);
+            g_step_count = g_step_count - stepsAccumulated;
+            xSemaphoreGive(g_step_count_mutex);
+        } else {
+            xSemaphoreTake(g_step_count_mutex, portMAX_DELAY);
+            g_step_count = 0;
+            xSemaphoreGive(g_step_count_mutex);
+        }
+    }
     return true;
 }
 
@@ -43,7 +55,10 @@ uint32_t step_counter_get(void) {
     }
     xSemaphoreTake(g_step_count_mutex, portMAX_DELAY);
     step_count = g_step_count;
-    g_step_count = 0;
     xSemaphoreGive(g_step_count_mutex);
     return step_count;
+}
+
+void step_counter_reset(void) {
+    
 }

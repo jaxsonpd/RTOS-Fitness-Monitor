@@ -11,10 +11,10 @@
 #include "move_prompt_alert_state.h"
 
 void movePromptAlertState_enter(void) {
-    display_line("7goal_reached", 0, ALIGN_CENTRE);
+    display_line("7move", 0, ALIGN_CENTRE);
 }
 
-void movePromptAlertState_execute(void* args) {
+char movePromptAlertState_execute(void* args) {
     // TODO
 }
 

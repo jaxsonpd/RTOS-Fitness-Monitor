@@ -15,6 +15,17 @@
 
 #include "comms/input_comms.h"
 
+#define DS_TO_S 1/10 ///< divide by ten to convert from deci-seconds to seconds
+#define S_TO_DS 10 ///< multiply by ten to convert from seconds to deci-seconds
+
+typedef enum {
+    UNITS_SI = 0,    // Steps  /km
+    UNITS_ALTERNATE, // Percent/miles
+    UNITS_NUM_TYPES,
+} units_t;
+
+uint32_t device_info_get_ds(void);
+
 /**
  * @brief Get the relevant input flag
  * @param msg input flag to check
@@ -54,5 +65,48 @@ void device_info_set_debug(bool status);
  * @brief Get debug flag for state logic
  */
 bool device_info_get_debug(void);
+
+
+/**
+ * @brief Set the display units
+ * @param unit the unit to set the display too
+ *
+ */
+void device_info_set_units(units_t units);
+
+/**
+ * @brief Get the units of the display
+ *
+ * @return the displays units
+ */
+units_t device_info_get_units(void);
+
+/**
+ * @brief Set the last step time
+ * @param time the unit to set the display too
+ *
+ */
+void device_info_set_last_step_time(uint32_t time);
+
+/**
+ * @brief Get the last step time
+ *
+ * @return the last step time
+ */
+uint32_t device_info_get_last_step_time(void);
+
+/**
+ * @brief Set the workout start time
+ * @param time time to set
+ *
+ */
+void device_info_set_workout_start_time(uint32_t time);
+
+/**
+ * @brief Get the workout start time
+ *
+ * @return workout start time
+ */
+uint32_t device_info_get_workout_start_time(void);
 
 #endif // DEVICE_INFO_H_
