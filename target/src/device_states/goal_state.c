@@ -19,13 +19,14 @@
 #define KM_TO_MILES 62/100 // Multiply by 0.6215 to convert, this should be good enough
 
 #define GOAL_DEFAULT 1000
-#define GOAL_MAX 19900 // 20000 - 100
+#define GOAL_MAX 19900 // 20000 - 1000
 #define GOAL_POT_SCALE_COEFF GOAL_MAX / POT_MAX // in steps, adjusting to account for the potentiometer's maximum possible reading
-#define HYSTERESIS_THRESHOLD 10
 
 #define M_PER_STEP(x) (x*415)/100000
 
 #define STEP_GOAL_ROUNDING 100
+
+#define NOISE_MARGIN 100
 
 /** 
  * @brief Called once on state entry
@@ -55,9 +56,6 @@ stateStatus_t goal_state_execute(void* args) {
 
     // Check if new goal has been set
     if (device_info_get_input_flag(MSG_DOWN_BUTTON_P) && !device_info_get_debug()) {
-        if ((new_goal-person->userGoal) > HYSTERESIS_THRESHOLD) {
-            person->userGoal = new_goal;
-        }
         person->userGoal = new_goal;
         // g_display_mode = DISPLAY_STEPS;
     }
