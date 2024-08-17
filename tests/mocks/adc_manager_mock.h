@@ -13,12 +13,11 @@
 #endif
 
 #define FFF_ADC_MANAGER_FAKES_LIST(FUNC) \
-    FUNC(callbackADC)                    \
     FUNC(pollADC)                        \
     FUNC(initADC)                        \
     FUNC(readADC)                        \
 
-VOID_FUNC(callbackADC);
+
 VOID_FUNC(pollADC);
 VOID_FUNC(initADC);
 VALUE_FUNC(uint32_t, readADC);

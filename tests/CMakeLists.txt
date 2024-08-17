@@ -25,6 +25,7 @@ add_unity_test(test_step_counter test_step_counter.c ${SRC_DIR}/step_counter_ana
 add_unity_test(test_step_counter_manager test_step_counter_manager.c ${SRC_DIR}/step_counter_manager.c)
 add_unity_test(test_step_counter_comms test_step_counter_comms.c ${COMMS_DIR}/step_counter_comms.c)
 add_unity_test(test_pot_comms test_pot_comms.c ${COMMS_DIR}/pot_comms.c)
+add_unity_test(test_pot_manager test_pot_manager.c ${SRC_DIR}/pot_manager.c)
 add_unity_test(test_adc_hal test_adc_hal.c ${HAL_DIR}/adc_hal_tiva.c)
 add_unity_test(test_display_hal test_display_hal.c ${HAL_DIR}/display_hal_tiva.c)
 add_unity_test(test_display_info test_display_info.c ${SRC_DIR}/display_info.c)
@@ -54,6 +55,9 @@ target_include_directories(test_step_counter PRIVATE ${SRC_DIR} ${TIVAWARE_DIR} 
 
 target_include_directories(test_step_counter_manager PRIVATE ${SRC_DIR} ${MOCK_DIR} ${RTOS_ARM} ${RTOS_DIR_INCLUDE} ${RTOS_CONFIG_DIR})
 target_compile_definitions(test_step_counter_manager PRIVATE UNIT_TESTING)
+
+target_include_directories(test_pot_manager PRIVATE ${SRC_DIR} ${MOCK_DIR} ${RTOS_ARM} ${RTOS_DIR_INCLUDE} ${RTOS_CONFIG_DIR})
+target_compile_definitions(test_pot_manager PRIVATE UNIT_TESTING)
 
 target_include_directories(test_step_counter_comms PRIVATE ${SRC_DIR} ${RTOS_ARM} ${RTOS_DIR_INCLUDE} ${MOCK_DIR} ${RTOS_CONFIG_DIR} ${COMMS_DIR})
 

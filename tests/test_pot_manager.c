@@ -9,8 +9,8 @@ DEFINE_FFF_GLOBALS;
 
 #include "pot_manager.h"
 
-#include "adc_manager_mock.h"
 #include "comms_mocks/pot_comms_mock.h"
+#include "adc_manager_mock.h"
 
 #include "freertos_mocks/task_mock.h"
 
@@ -22,3 +22,19 @@ void reset_fff(void)
     FFF_RESET_HISTORY();
 }
 
+void setUp(void)
+{
+    reset_fff();
+}
+
+void tearDown(void)
+{
+    
+}
+
+void test_pot_manager_init_calls_comms_init(void)
+{
+    pot_read_init();
+
+    TEST_ASSERT_EQUAL(1, pot_comms_init_fake.call_count);
+}
