@@ -12,7 +12,7 @@
 
 typedef struct State {
     void (*Enter)(void);
-    void (*Execute)(void);
+    void (*Execute)(void* stateArgs);
     void (*Exit)(void);
 } state_t;
 

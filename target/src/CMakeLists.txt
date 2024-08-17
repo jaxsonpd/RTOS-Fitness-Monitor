@@ -2,6 +2,13 @@ add_tiva_executable(fitness-tracker
     comms/input_comms.c
     comms/pot_comms.c
     comms/step_counter_comms.c
+    device_states/device_state.c
+    device_states/steps_state.c
+    device_states/distance_state.c
+    device_states/goal_state.c
+    device_states/stopwatch_state.c
+    device_states/move_prompt_state.c
+    device_states/user_parameters_state.c
     hal/accl_hal_tiva.c
     hal/adc_hal_tiva.c
     hal/clock_hal_tiva.c
@@ -12,8 +19,10 @@ add_tiva_executable(fitness-tracker
     utility/vector3.c
     accl_manager.c
     adc_manager.c
+    device_info.c
+    device_manager.c
     display_info.c
-    display_manager.c
+    # display_manager.c
     input_manager.c
     fitness_monitor_main.c
     step_counter_analog.c

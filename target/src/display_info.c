@@ -21,7 +21,7 @@ bool g_debug = false;
 bool g_toggle = false;
 displayUnits_t g_units = UNITS_SI;
 uint32_t g_steps = 0;
-bool g_input_flags[NUM_MSGS] = { 0 };
+bool g_input_flags_OLD[NUM_MSGS] = { 0 };
 uint32_t g_goal = 1000;
 uint32_t g_height = 175;
 uint32_t g_weight = 70;
@@ -42,7 +42,7 @@ uint32_t display_info_get_steps(void) {
 }
 
 bool display_info_get_input_flag(inputCommMsg_t msg) {
-    return g_input_flags[msg];
+    return g_input_flags_OLD[msg];
 }
 
 uint32_t display_info_get_goal(void) {
@@ -86,7 +86,7 @@ void display_info_set_steps(uint32_t steps) {
 }
 
 void display_info_set_input_flag(inputCommMsg_t msg, bool flag) {
-    g_input_flags[msg] = flag;
+    g_input_flags_OLD[msg] = flag;
 }
 
 uint32_t display_info_get_prompt_time(void) {

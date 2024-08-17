@@ -2,7 +2,7 @@
  * @file user_parameters_state.h
  * @author Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
- * @brief Interface for the user parameter setting state
+ * @brief Interface for state
  */
 
 #ifndef USER_PARAMETERS_STATE_H_
