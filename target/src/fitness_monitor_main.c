@@ -16,7 +16,7 @@
 
 #include "serial_sender.h"
 
-#include "clock_hal.h"
+#include "hal/clock_hal.h"
 
 #include "step_counter_manager.h"
 #include "input_manager.h"

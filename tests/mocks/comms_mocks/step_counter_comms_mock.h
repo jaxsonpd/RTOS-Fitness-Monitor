@@ -1,5 +1,5 @@
 #include "fff.h"
-#include "step_counter_comms.h"
+#include "comms/step_counter_comms.h"
 
 #include <stdbool.h>
 #include <stdint.h>

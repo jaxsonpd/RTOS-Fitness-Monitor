@@ -1,6 +1,6 @@
 #include "fff.h"
 
-#include "vector3.h"
+#include "utility/vector3.h"
 
 #ifdef FFF_MOCK_IMPL
     #define VOID_FUNC FAKE_VOID_FUNC

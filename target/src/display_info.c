@@ -13,7 +13,7 @@
 #include "task.h"
 
 #include "display_info.h"
-#include "input_comms.h"
+#include "comms/input_comms.h"
 
 #define TICKS_TO_DS 1/100 ///< To convert from ticks to deci-seconds divide by 100
 

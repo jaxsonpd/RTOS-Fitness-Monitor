@@ -13,7 +13,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "input_comms.h"
+#include "comms/input_comms.h"
 
 #define DS_TO_S 1/10 ///< divide by ten to convert from deci-seconds to seconds
 #define S_TO_DS 10 ///< multiply by ten to convert from seconds to deci-seconds

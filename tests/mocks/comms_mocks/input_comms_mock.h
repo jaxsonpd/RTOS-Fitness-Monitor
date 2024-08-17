@@ -1,5 +1,5 @@
 #include "fff.h"
-#include "input_comms.h"
+#include "comms/input_comms.h"
 
 #include <stdbool.h>
 #include <stdint.h>

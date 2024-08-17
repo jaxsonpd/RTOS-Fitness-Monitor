@@ -1,6 +1,6 @@
 #include "fff.h"
 
-#include "adc_hal.h"
+#include "hal/adc_hal.h"
 
 #ifdef FFF_MOCK_IMPL
     #define VOID_FUNC FAKE_VOID_FUNC
