@@ -22,10 +22,10 @@ bool step_counter_comms_init(void);
 /**
  * @brief update the step count value
  * @param stepsAccumulated the amount to add to the total
- *
+ * @param increment whether to increment or decrement step count
  * @return true if successfully updated
  */
-bool step_counter_set(uint32_t stepsAccumulated);
+bool step_counter_set(uint32_t stepsAccumulated, bool increment);
 
 /**
  * @brief get the step count value

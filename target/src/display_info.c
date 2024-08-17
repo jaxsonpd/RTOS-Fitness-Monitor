@@ -19,30 +19,30 @@
 
 bool g_debug = false;
 bool g_toggle = false;
-displayUnits_t g_units = UNITS_SI;
+// displayUnits_t g_units = UNITS_SI;
 uint32_t g_steps = 0;
-bool g_input_flags[NUM_MSGS] = { 0 };
+bool g_input_flags_OLD[NUM_MSGS] = { 0 };
 uint32_t g_goal = 1000;
 uint32_t g_height = 175;
 uint32_t g_weight = 70;
 uint32_t g_workout_start_time = 0;
-uint32_t g_last_step_time = 0;
+// uint32_t g_last_step_time = 0;
 uint32_t g_prompt_time = 100;
 
 bool display_info_get_debug(void) {
     return g_debug;
 }
 
-displayUnits_t display_info_get_units(void) {
-    return g_units;
-}
+// displayUnits_t display_info_get_units(void) {
+//     return g_units;
+// }
 
 uint32_t display_info_get_steps(void) {
     return g_steps;
 }
 
 bool display_info_get_input_flag(inputCommMsg_t msg) {
-    return g_input_flags[msg];
+    return g_input_flags_OLD[msg];
 }
 
 uint32_t display_info_get_goal(void) {
@@ -77,16 +77,16 @@ bool display_info_get_toggle(void) {
     return g_toggle;
 }
 
-void display_info_set_units(displayUnits_t unit) {
-    g_units = unit;
-}
+// void display_info_set_units(displayUnits_t unit) {
+//     g_units = unit;
+// }
 
 void display_info_set_steps(uint32_t steps) {
     g_steps = steps;
 }
 
 void display_info_set_input_flag(inputCommMsg_t msg, bool flag) {
-    g_input_flags[msg] = flag;
+    g_input_flags_OLD[msg] = flag;
 }
 
 uint32_t display_info_get_prompt_time(void) {
@@ -97,13 +97,13 @@ void display_info_set_prompt_time(uint32_t time) {
     g_prompt_time = time;
 }
 
-uint32_t display_info_get_last_step_time(void) {
-    return g_last_step_time;
-}
+// uint32_t display_info_get_last_step_time(void) {
+//     return g_last_step_time;
+// }
 
-void display_info_set_last_step_time(uint32_t time) {
-    g_last_step_time = time;
-}
+// void display_info_set_last_step_time(uint32_t time) {
+//     g_last_step_time = time;
+// }
 
 void display_info_set_height(uint32_t height) {
     g_height = height;

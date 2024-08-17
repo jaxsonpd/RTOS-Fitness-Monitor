@@ -47,7 +47,7 @@ void step_counter_thread(void* args)
             t_last_step_ticks = xTaskGetTickCount();
             acceleration = accl_mean();
             if (detect_step(acceleration, &stepsAccumulated)) {
-                step_counter_set(stepsAccumulated);
+                step_counter_set(stepsAccumulated, true);
                 stepsAccumulated = 0;
             }
         }

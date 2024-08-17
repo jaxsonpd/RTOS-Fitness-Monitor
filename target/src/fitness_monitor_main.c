@@ -21,7 +21,8 @@
 #include "step_counter_manager.h"
 #include "input_manager.h"
 #include "pot_manager.h"
-#include "display_manager.h"
+// #include "display_manager.h"
+#include "device_manager.h"
 
 /***********************************************************
  * Helper functions
@@ -46,7 +47,7 @@ int main(void) {
     #endif // SERIAL_PLOTTING_ENABLED
     xTaskCreate(&step_counter_thread, "step counter thread", 512, NULL, 1, NULL);
     xTaskCreate(&input_manager_thread, "input manager thread", 128, NULL, 1, NULL);
-    xTaskCreate(&display_manager_thread, "display manager thread", 512, NULL, 1, NULL);
+    xTaskCreate(&device_manager_thread, "device manager thread", 512, NULL, 1, NULL);
     xTaskCreate(&pot_read_thread, "pot read thread", 128, NULL, 1, NULL);
     vTaskStartScheduler();
     return 0;

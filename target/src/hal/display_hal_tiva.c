@@ -61,6 +61,13 @@ void display_line(char* inStr, uint8_t row, textAlignment_t alignment) {
     OLEDStringDraw(toDraw, 0, row);
 }
 
+void display_clear(void) {
+    display_line("",0,ALIGN_CENTRE);
+    display_line("",1,ALIGN_CENTRE);
+    display_line("",2,ALIGN_CENTRE);
+    display_line("",3,ALIGN_CENTRE);
+}
+
 void display_value(char* prefix, char* suffix, int32_t value, uint8_t row, textAlignment_t alignment, bool thousandsFormatting) {
     char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
 

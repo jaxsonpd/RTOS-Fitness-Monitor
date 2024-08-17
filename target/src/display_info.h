@@ -18,11 +18,11 @@
 #define DS_TO_S 1/10 ///< divide by ten to convert from deci-seconds to seconds
 #define S_TO_DS 10 ///< multiply by ten to convert from seconds to deci-seconds
 
-typedef enum {
-    UNITS_SI = 0,    // Steps  /km
-    UNITS_ALTERNATE, // Percent/miles
-    UNITS_NUM_TYPES,
-} displayUnits_t;
+// typedef enum {
+//     UNITS_SI = 0,    // Steps  /km
+//     UNITS_ALTERNATE, // Percent/miles
+//     UNITS_NUM_TYPES,
+// } displayUnits_t;
 
 /**
  * @brief Get the debug state
@@ -36,7 +36,7 @@ bool display_info_get_debug(void);
  *
  * @return the displays units
  */
-displayUnits_t display_info_get_units(void);
+// displayUnits_t display_info_get_units(void);
 
 /**
  * @brief Get the current step count
@@ -116,7 +116,7 @@ bool display_info_get_toggle(void);
  * @param unit the unit to set the display too
  *
  */
-void display_info_set_units(displayUnits_t unit);
+// void display_info_set_units(displayUnits_t unit);
 
 /**
  * @brief Set the step count
