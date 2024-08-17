@@ -26,71 +26,76 @@
  */
 bool input_manager_init(void) {
     bool result = true;
-    result = input_init();
-    result = input_comms_init();
-
-    return result;
-}
-
-void input_manager_thread(void* rtos_param) {
-    input_state_t input_state;
-
-    input_manager_init();
+    result = input_init() & result;
+    result = input_comms_init() & result;
 
     // Setup inital states
     for (uint8_t i = 0; i < DEBOUNCE_NUMBER; i++) {
         input_update();
     }
 
-    if (input_get(RIGHT_SWITCH)) { // Make sure that can have debug enabled on startup
+    // Make sure that switches are in correct state
+    if (input_get(RIGHT_SWITCH)) {
         input_comms_send(MSG_RIGHT_SWITCH_ON);
     }
 
-    if (input_get(LEFT_SWITCH)) { // Make sure that can have debug enabled on startup
+    if (input_get(LEFT_SWITCH)) {
         input_comms_send(MSG_LEFT_SWITCH_ON);
     }
+
+    return result;
+}
+
+void input_manager_send_updates(void) {
+    inputState_t input_state;
+
+    // Change screens
+    if (input_check(LEFT_BUTTON) == PUSHED) {
+        input_comms_send(MSG_SCREEN_LEFT);
+    }
+
+    if (input_check(RIGHT_BUTTON) == PUSHED) {
+        input_comms_send(MSG_SCREEN_RIGHT);
+    }
+
+    // Up down buttons
+    input_state = input_check(UP_BUTTON);
+    if (input_state == PUSHED) {
+        input_comms_send(MSG_UP_BUTTON_P);
+    } else if (input_state == RELEASED) {
+        input_comms_send(MSG_UP_BUTTON_R);
+    }
+
+    input_state = input_check(DOWN_BUTTON);
+    if (input_state == PUSHED) {
+        input_comms_send(MSG_DOWN_BUTTON_P);
+    } else if (input_state == RELEASED) {
+        input_comms_send(MSG_DOWN_BUTTON_R);
+    }
+
+    // Switch
+    input_state = input_check(RIGHT_SWITCH);
+    if (input_state == PUSHED) {
+        input_comms_send(MSG_RIGHT_SWITCH_ON);
+    } else if (input_state == RELEASED) {
+        input_comms_send(MSG_RIGHT_SWITCH_OFF);
+    }
+
+    input_state = input_check(LEFT_SWITCH);
+    if (input_state == PUSHED) {
+        input_comms_send(MSG_LEFT_SWITCH_ON);
+    } else if (input_state == RELEASED) {
+        input_comms_send(MSG_LEFT_SWITCH_OFF);
+    }
+}
+
+void input_manager_thread(void* rtos_param) {
+    input_manager_init();
 
     for (;;) {
         input_update();
 
-        // Change screens
-        if (input_check(LEFT_BUTTON) == PUSHED) {
-            input_comms_send(MSG_SCREEN_LEFT);
-        }
-
-        if (input_check(RIGHT_BUTTON) == PUSHED) {
-            input_comms_send(MSG_SCREEN_RIGHT);
-        }
-
-        // Up down buttons
-        input_state = input_check(UP_BUTTON);
-        if (input_state == PUSHED) {
-            input_comms_send(MSG_UP_BUTTON_P);
-        } else if (input_state == RELEASED) {
-            input_comms_send(MSG_UP_BUTTON_R);
-        }
-
-        input_state = input_check(DOWN_BUTTON);
-        if (input_state == PUSHED) {
-            input_comms_send(MSG_DOWN_BUTTON_P);
-        } else if (input_state == RELEASED) {
-            input_comms_send(MSG_DOWN_BUTTON_R);
-        }
-
-        // Switch
-        input_state = input_check(RIGHT_SWITCH);
-        if (input_state == PUSHED) {
-            input_comms_send(MSG_RIGHT_SWITCH_ON);
-        } else if (input_state == RELEASED) {
-            input_comms_send(MSG_RIGHT_SWITCH_OFF);
-        }
-
-        input_state = input_check(LEFT_SWITCH);
-        if (input_state == PUSHED) {
-            input_comms_send(MSG_LEFT_SWITCH_ON);
-        } else if (input_state == RELEASED) {
-            input_comms_send(MSG_LEFT_SWITCH_OFF);
-        }
+        input_manager_send_updates();
 
         vTaskDelay(10);
     }
