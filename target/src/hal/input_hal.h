@@ -17,20 +17,20 @@
 #define DEBOUNCE_NUMBER 3 ///< number of times before state change
 
 /// The different input button and switches that can be polled.
-typedef enum input_mode_e {
+typedef enum inputMode_e {
     UP_BUTTON,
     DOWN_BUTTON,
     LEFT_BUTTON,
     RIGHT_BUTTON,
     RIGHT_SWITCH,
     LEFT_SWITCH,
-} input_mode_t;
+} inputMode_t;
 
-typedef enum input_state_e {
+typedef enum inputState_e {
     PUSHED,
     RELEASED,
     NO_CHANGE
-} input_state_t;
+} inputState_t;
 
 
 /**
@@ -48,7 +48,7 @@ bool input_init(void);
  * @param input the input to get the state of
  * @return true if the input is pressed or switched and false otherwise
  */
-bool input_get(input_mode_t input);
+bool input_get(inputMode_t input);
 
 
 /**
@@ -66,6 +66,6 @@ void input_update(void);
  * @param input the input to get the flag of
  * @return the state change of the button
  */
-input_state_t input_check(input_mode_t input);
+inputState_t input_check(inputMode_t input);
 
 #endif // INPUT_HAL_H_
