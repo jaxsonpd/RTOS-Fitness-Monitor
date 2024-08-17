@@ -21,8 +21,8 @@ DEFINE_FFF_GLOBALS;
 
 #include "input_hal.h"
 
-#define INPUTS_ON_LIST 0x00000000, 0x00000004, 0x00000000, 0x00000000, 0x00000080, 0x00000040
-#define INPUTS_OFF_LIST 0x00000001, 0x00000000, 0x00000010, 0x00000001, 0x00000000, 0x00000000
+#define INPUTS_ON_LIST 0x00000001, 0x00000004, 0x00000000, 0x00000000, 0x00000080, 0x00000040
+#define INPUTS_OFF_LIST 0x00000000, 0x00000000, 0x00000010, 0x00000001, 0x00000000, 0x00000000
 
 bool auto_input_init(void) {
     bool return_seq[1] = {true};
@@ -105,7 +105,7 @@ void test_input_hal_correct_eventually(void) {
     }
 }
 
-void test_IO_input_debounce(void) {
+void test_input_hal_debounce(void) {
     uint32_t return_seq[NUM_INPUT_MODES*3] = { INPUTS_ON_LIST, INPUTS_ON_LIST, INPUTS_OFF_LIST };
 
     SET_RETURN_SEQ(GPIOPinRead, return_seq, NUM_INPUT_MODES*3);
@@ -121,7 +121,7 @@ void test_IO_input_debounce(void) {
     }
 }
 
-void test_IO_input_pushed_indicated(void) {
+void test_input_hal_pushed_indicated(void) {
     uint32_t return_seq[NUM_INPUT_MODES*3] = { INPUTS_ON_LIST, INPUTS_ON_LIST, INPUTS_ON_LIST };
 
     SET_RETURN_SEQ(GPIOPinRead, return_seq, NUM_INPUT_MODES*3);
@@ -137,7 +137,7 @@ void test_IO_input_pushed_indicated(void) {
     }
 }
 
-void test_IO_input_released_indicated(void) {
+void test_input_hal_released_indicated(void) {
     uint32_t return_seq[NUM_INPUT_MODES*6] = { INPUTS_ON_LIST, INPUTS_ON_LIST, INPUTS_ON_LIST,
                                INPUTS_OFF_LIST, INPUTS_OFF_LIST, INPUTS_OFF_LIST };
 

@@ -46,7 +46,7 @@ input_mode_info_t g_up_button = {
     .port_base = GPIO_PORTE_BASE,
     .pin = GPIO_PIN_0,
     .type = GPIO_PIN_TYPE_STD_WPD,
-    .normal = true,
+    .normal = false,
     .name = UP_BUTTON };
 
 /// DOWN button on orbit board
