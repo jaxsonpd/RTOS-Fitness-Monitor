@@ -7,9 +7,9 @@
 DEFINE_FFF_GLOBALS;
 #define FFF_MOCK_IMPL // Includes mock implementations
 
-#include "circular_buffer_T_mock.h"
-#include "accl_hal_mock.h"
-#include "vector3_mock.h"
+#include "utility_mocks/circular_buffer_mock.h"
+#include "hal_mocks/accl_hal_mock.h"
+#include "utility_mocks/vector3_mock.h"
 
 #define BUF_SIZE 20
 #define FAKE_ACCL_X 10

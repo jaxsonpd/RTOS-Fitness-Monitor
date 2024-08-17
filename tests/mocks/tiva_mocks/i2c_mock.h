@@ -12,6 +12,18 @@
 #endif
 
 #define FFF_I2C_FAKES_LIST(FUNC) \
-    FUNC(I2CMasterInitExpClk)
+    FUNC(I2CMasterSlaveAddrSet)  \
+    FUNC(I2CMasterInitExpClk)    \
+    FUNC(I2CMasterDataPut)       \
+    FUNC(I2CMasterControl)       \
+    FUNC(I2CMasterBusBusy)       \
+    FUNC(I2CMasterBusy)          \
+    FUNC(I2CMasterDataGet)       \
 
 VOID_FUNC(I2CMasterInitExpClk, uint32_t, uint32_t, bool);
+VOID_FUNC(I2CMasterSlaveAddrSet, uint32_t, uint8_t, bool);
+VOID_FUNC(I2CMasterDataPut, uint32_t, uint8_t);
+VOID_FUNC(I2CMasterControl, uint32_t, uint32_t);
+VALUE_FUNC(bool, I2CMasterBusBusy, uint32_t);
+VALUE_FUNC(bool, I2CMasterBusy, uint32_t);
+VALUE_FUNC(uint32_t, I2CMasterDataGet, uint32_t);

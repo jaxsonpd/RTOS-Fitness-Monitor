@@ -12,7 +12,7 @@
 
 #include <stdint.h> // needed to init the vector type
 #include <stdbool.h>
-#include "vector3.h"
+#include "utility/vector3.h"
 
 bool accl_init(void);           // set up library
 void accl_poll(void);           // Run periodically

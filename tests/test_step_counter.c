@@ -5,7 +5,7 @@ DEFINE_FFF_GLOBALS;
 
 #include "step_counter.h"
 
-#include "vector3_mock.h"
+#include "utility_mocks/vector3_mock.h"
 
 void setUp(void) {
     FFF_RESET_HISTORY();
