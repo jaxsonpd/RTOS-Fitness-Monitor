@@ -10,7 +10,7 @@
 
 #include "fff.h"
 
-#include "input_hal.h"
+#include "hal/input_hal.h"
 
 #ifdef FFF_MOCK_IMPL
 #define VOID_FUNC FAKE_VOID_FUNC
