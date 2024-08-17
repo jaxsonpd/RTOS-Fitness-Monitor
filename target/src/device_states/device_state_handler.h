@@ -24,12 +24,6 @@ typedef enum stateID_e {
     STATE_COUNT,
 } stateID_t;
 
-typedef enum stateStatus_e {
-    STATE_SUCCESS = 0x00,
-    STATE_FINISHED,
-    STATE_FLASHING,
-} stateStatus_t;
-
 typedef struct {
     stateID_t currentID;
     state_t* currentState;
