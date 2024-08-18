@@ -56,6 +56,6 @@ void move_prompt_state_exit(void) {
 }
 
 void move_prompt_state_reset(void) {
-
+    device_info_set_last_step_time(device_info_get_ds());
 }
 state_t movePromptState = { move_prompt_state_enter,move_prompt_state_excute,move_prompt_state_exit,move_prompt_state_reset };

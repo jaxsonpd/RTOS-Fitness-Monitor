@@ -1,4 +1,4 @@
-/** 
+/**
  * @file device_manager.h
  * @author Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
@@ -47,16 +47,14 @@ void update_state(deviceState_t* device, person_t* person);
  *
  * @return true if successful
  */
-bool device_manager_init(deviceState_t* device) 
-{
+bool device_manager_init(deviceState_t* device) {
     bool success = true;
     success &= display_init();
     success &= device_state_init(device, INITIAL_STATE_ID);
     return success;
 }
 
-void device_manager_thread(void* args) 
-{
+void device_manager_thread(void* args) {
     deviceState_t device;
     device_manager_init(&device);
     person_t person;
@@ -66,11 +64,11 @@ void device_manager_thread(void* args)
     for (;;) {
         update_steps();
 
-        status = device_state_execute(&device,&person);
+        status = device_state_execute(&device, &person);
         device_info_clear_input_flags();
         if (status != STATE_FLASHING) {
             update_inputs(&device);
-            update_state(&device,&person);
+            update_state(&device, &person);
         }
         vTaskDelay(50);
     }
@@ -115,7 +113,7 @@ void update_inputs(deviceState_t* device) {
 
 /**
  * @brief parses input message to update state accordingly
- * 
+ *
  * @param device the deviceState_t to be updated
  * @param msg the input comms message from queue
  */
@@ -219,15 +217,15 @@ bool check_inactive(bool reset, person_t* person) {
 
     if ((device_info_get_ds() - device_info_get_last_step_time()) > person->userActivityTimeout * S_TO_DS && device_info_get_last_step_time() != device_info_get_ds()) {
         return true;
-    }   
+    }
 
     return false;
 }
 
 /**
- * @brief helper function to compare reset timer to global time 
+ * @brief helper function to compare reset timer to global time
  * to determine if reset condition is met.
- * 
+ *
  * @return true if ready to reset
  */
 bool reset_hold_condition(void) {
@@ -237,7 +235,7 @@ bool reset_hold_condition(void) {
 /**
  * @brief checks conditions to put device into states that are not
  * accessible from usual cycling operations.
- * 
+ *
  * @param device the device instance to be updated
  * @param person the instance of person_t holding user data
  */
