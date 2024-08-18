@@ -2,7 +2,7 @@
  * @file goal_reached_state.c
  * @author Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
- * @brief Implementation of state for setting user parameters
+ * @brief Implementation of state for goal reached alert
  */
 
 #include <stdint.h>
@@ -33,4 +33,8 @@ void goal_reached_state_exit(void) {
     display_clear();
 }
 
-state_t goalReachedState = { goal_reached_state_enter,goal_reached_state_execute,goal_reached_state_exit };
+void goal_reached_state_reset(void) {
+    flash_time = 0;
+}
+
+state_t goalReachedState = { goal_reached_state_enter,goal_reached_state_execute,goal_reached_state_exit,goal_reached_state_reset };

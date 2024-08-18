@@ -24,6 +24,18 @@ typedef enum {
     UNITS_NUM_TYPES,
 } units_t;
 
+/**
+ * @brief reset all device info global variables to default
+ *
+ * @return true if successful
+ */
+bool device_info_reset(void);
+
+/**
+ * @brief Get the current system time in deci-seconds
+ *
+ * @return system time in ds
+ */
 uint32_t device_info_get_ds(void);
 
 /**

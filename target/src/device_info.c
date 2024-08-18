@@ -17,12 +17,29 @@
 
 #define TICKS_TO_DS 1/100 ///< To convert from ticks to deci-seconds divide by 100
 
-bool g_input_flags[NUM_MSGS] = { 0 };
-bool g_alternate_mode = false;
-bool g_debug_mode = false;
-uint32_t g_last_step_time = 0;
-uint32_t g_workout_start_time = 0;
-units_t g_units = UNITS_SI;
+#define DEFAULT_INPUT_FLAG 0
+#define DEFAULT_ALTERNATE_MODE false
+#define DEFAULT_DEBUG_MODE false
+#define DEFAULT_LAST_STEP_TIME 0
+#define DEFAULT_WORKOUT_START_TIME 0
+#define DEFAULT_UNITS UNITS_SI
+
+bool g_input_flags[NUM_MSGS] = { DEFAULT_INPUT_FLAG };
+bool g_alternate_mode = DEFAULT_ALTERNATE_MODE;
+bool g_debug_mode = DEFAULT_DEBUG_MODE;
+uint32_t g_last_step_time = DEFAULT_LAST_STEP_TIME;
+uint32_t g_workout_start_time = DEFAULT_WORKOUT_START_TIME;
+units_t g_units = DEFAULT_UNITS;
+
+bool device_info_reset(void) {
+    device_info_clear_input_flags();
+    g_alternate_mode = DEFAULT_ALTERNATE_MODE;
+    g_debug_mode = DEFAULT_DEBUG_MODE;
+    g_last_step_time = DEFAULT_LAST_STEP_TIME;
+    g_workout_start_time = DEFAULT_WORKOUT_START_TIME;
+    g_units = DEFAULT_UNITS;
+    return true;
+}
 
 uint32_t device_info_get_ds(void) {
     return (uint32_t)(xTaskGetTickCount()*TICKS_TO_DS);

@@ -2,7 +2,7 @@
  * @file steps_state.c
  * @author Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
- * @brief Implementation of state for setting user parameters
+ * @brief Implementation of state for showing steps
  */
 
 #include <stdint.h>
@@ -14,21 +14,11 @@
 
 #include "steps_state.h"
 
-/** 
- * @brief Called once on state entry
- * 
- */
 void steps_state_enter(void) {
     display_line("", 0, ALIGN_CENTRE);
     display_line("", 3, ALIGN_CENTRE);
 }
 
-/** 
- * @brief Called contionously while in state
- * @param args arguments from the state machine
- * 
- * @return the status of the state
- */
 stateStatus_t steps_state_execute(void* args) {
     person_t *person = (person_t *)args;
     
@@ -49,12 +39,12 @@ stateStatus_t steps_state_execute(void* args) {
     return STATE_SUCCESS;
 }
 
-/** 
- * @brief Called on state change
- * 
- */
 void steps_state_exit(void) {
     display_clear();
 }
 
-state_t stepsState = { steps_state_enter,steps_state_execute,steps_state_exit };
+void steps_state_reset(void) {
+
+}
+
+state_t stepsState = { steps_state_enter,steps_state_execute,steps_state_exit,steps_state_reset };

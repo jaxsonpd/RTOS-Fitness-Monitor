@@ -2,7 +2,7 @@
  * @file stopwatch_state.c
  * @author Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
- * @brief Implementation of state for setting user parameters
+ * @brief Implementation of state for stopwatch
  */
 
 #include <stdint.h>
@@ -12,14 +12,17 @@
 
 #include "stopwatch_state.h"
 
-uint32_t last_stops[2] = { 0 };
-
+/// States of the stopwatch
 enum stopwatch_states {
-    ZEROED,
-    RUNNING,
-    PAUSED,
+    ZEROED,     ///< Cleared ready for next time
+    RUNNING,    ///< Running timer
+    PAUSED,     /// Stopped timer ready to be zeroed
     NUM_STATES
 };
+
+uint32_t last_stops[2] = { 0 };
+enum stopwatch_states state = ZEROED;
+bool first_run = false;
 
 /**
  * @brief Update the stopwatch_state_machine
@@ -70,31 +73,11 @@ static uint32_t stopwatch_state_machine(bool first_run, enum stopwatch_states st
     return run_time;
 }
 
-/** 
- * @brief Called once on state entry
- * 
- */
 void stopwatch_state_enter(void) {
     display_line("Stopwatch", 0, ALIGN_CENTRE);
 }
 
-/** 
- * @brief Called contionously while in state
- * @param args arguments from the state machine
- * 
- * @return the status of the state
- */
 stateStatus_t stopwatch_state_execute(void* args) {
-    static enum stopwatch_states state = ZEROED;
-    static bool first_run = false;
-
-    // if (reset) {
-    //     last_stops[0] = 0;
-    //     last_stops[1] = 0;
-    //     state = ZEROED;
-    //     return;
-    // }
-
     if (device_info_get_input_flag(MSG_DOWN_BUTTON_P)) {
         state++;
 
@@ -116,12 +99,15 @@ stateStatus_t stopwatch_state_execute(void* args) {
     return STATE_SUCCESS;
 }
 
-/** 
- * @brief Called on state change
- * 
- */
 void stopwatch_state_exit(void) {
     display_clear();
 }
 
-state_t stopwatchState = { stopwatch_state_enter,stopwatch_state_execute,stopwatch_state_exit };
+void stopwatch_state_reset(void) {
+    last_stops[0] = 0;
+    last_stops[1] = 0;
+    state = ZEROED;
+    first_run = false;
+}
+
+state_t stopwatchState = { stopwatch_state_enter,stopwatch_state_execute,stopwatch_state_exit,stopwatch_state_reset };

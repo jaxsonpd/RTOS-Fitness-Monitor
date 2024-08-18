@@ -22,8 +22,7 @@
 
 state_t* states[STATE_COUNT] = { &stepsState, &distanceState, &goalState, &stopwatchState, &movePromptState, &userParametersState, &goalReachedState, &movePromptAlertState, &resetState };
 
-bool device_state_init(device_state_t* ds, stateID_t initialID) 
-{
+bool device_state_init(deviceState_t* ds, stateID_t initialID) {
     if (ds == NULL) {
         return 0;
     }
@@ -34,19 +33,22 @@ bool device_state_init(device_state_t* ds, stateID_t initialID)
     ds->currentState->Enter();
     return 1;
 }
-void device_state_set(device_state_t* ds, stateID_t newID)
-{
+
+bool device_state_set(deviceState_t* ds, stateID_t newID) {
     if (ds->currentState != NULL) {
         ds->currentState->Exit();
+    }
+    if (newID >= STATE_COUNT) {
+        return 0;
     }
     ds->currentID = newID;
     ds->currentState = states[newID];
     ds->currentState->Enter();
+    return 1;
 }
 
-char device_state_execute(device_state_t* ds, void* args)
-{
-    char status;
+stateStatus_t device_state_execute(deviceState_t* ds, void* args) {
+    stateStatus_t status;
     if (ds->currentState != NULL) {
         status = ds->currentState->Execute(args);
     }
@@ -57,7 +59,13 @@ char device_state_execute(device_state_t* ds, void* args)
 
     case STATE_FINISHED:
     // End current flashing state
-        device_state_set(ds, STEPS_STATE_ID);
+        bool success;
+        if (ds->currentID == RESET_STATE_ID) {
+            success = device_state_reset(ds);
+        } else {
+            success = device_state_set(ds, STEPS_STATE_ID);
+        }
+        assert(success);
         break;
 
     case STATE_FLASHING:
@@ -67,4 +75,12 @@ char device_state_execute(device_state_t* ds, void* args)
         break;
     }
     return status;
+}
+
+bool device_state_reset(deviceState_t* ds) {
+    for (uint32_t i = 0; i < STATE_COUNT; i++)
+    {
+        states[i]->Reset();
+    }
+    return device_state_init(ds, 0);
 }

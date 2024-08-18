@@ -2,7 +2,7 @@
  * @file move_prompt_alert_state.c
  * @author Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
- * @brief Implementation of state for setting user parameters
+ * @brief Implementation of state for move alert
  */
 
 #include <stdint.h>
@@ -33,4 +33,8 @@ void move_prompt_alert_state_exit(void) {
     display_clear();
 }
 
-state_t movePromptAlertState = { move_prompt_alert_state_enter,move_prompt_alert_state_execute,move_prompt_alert_state_exit };
+void move_prompt_alert_state_reset(void) {
+    flash_time = 0;
+}
+
+state_t movePromptAlertState = { move_prompt_alert_state_enter,move_prompt_alert_state_execute,move_prompt_alert_state_exit,move_prompt_alert_state_reset };

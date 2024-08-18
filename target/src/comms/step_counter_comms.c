@@ -59,6 +59,12 @@ uint32_t step_counter_get(void) {
     return step_count;
 }
 
-void step_counter_reset(void) {
-    
+bool step_counter_reset(void) {
+    if (mutex_enabled == false) {
+        return false;
+    }
+    xSemaphoreTake(g_step_count_mutex, portMAX_DELAY);
+    g_step_count = 0;
+    xSemaphoreGive(g_step_count_mutex);
+    return true;
 }

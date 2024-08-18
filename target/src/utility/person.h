@@ -1,3 +1,10 @@
+/** 
+ * @file person.h
+ * @author Isaac Cone (ico29@uclive.ac.nz)
+ * @date 2024-08
+ * @brief Defines person type for holding user information
+ */
+
 #ifndef PERSON_H_
 #define PERSON_H_
 

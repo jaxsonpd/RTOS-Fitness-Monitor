@@ -2,7 +2,7 @@
  * @file reset_state.c
  * @author Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
- * @brief Implementation of state for setting user parameters
+ * @brief Implementation of state for reset alert
  */
 
 #include <stdint.h>
@@ -34,4 +34,8 @@ void reset_state_exit(void) {
     display_clear();
 }
 
-state_t resetState = { reset_state_enter,reset_state_execute,reset_state_exit };
+void reset_state_reset(void) {
+    flash_time = 0;
+}
+
+state_t resetState = { reset_state_enter,reset_state_execute,reset_state_exit,reset_state_reset };

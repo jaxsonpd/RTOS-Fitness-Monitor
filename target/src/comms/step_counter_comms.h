@@ -34,6 +34,11 @@ bool step_counter_set(uint32_t stepsAccumulated, bool increment);
  */
 uint32_t step_counter_get(void);
 
-
+/**
+ * @brief reset the step count value to zero
+ *
+ * @return true if successful
+ */
+bool step_counter_reset(void);
 
 #endif // INPUT_COMMS_H
