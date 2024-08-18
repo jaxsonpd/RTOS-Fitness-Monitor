@@ -78,7 +78,7 @@ void stopwatch_state_enter(void) {
 }
 
 stateStatus_t stopwatch_state_execute(void* args) {
-    if (device_info_get_input_flag(MSG_DOWN_BUTTON_P)) {
+    if (device_info_get_input_flag(MSG_DOWN_BUTTON_P) && !device_info_get_debug()) {
         state++;
 
         if (state >= NUM_STATES) {

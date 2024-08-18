@@ -35,14 +35,14 @@ bool device_info_reset(void) {
     device_info_clear_input_flags();
     g_alternate_mode = DEFAULT_ALTERNATE_MODE;
     g_debug_mode = DEFAULT_DEBUG_MODE;
-    g_last_step_time = device_info_get_ds()*DS_TO_S;
+    g_last_step_time = device_info_get_ds();
     g_workout_start_time = DEFAULT_WORKOUT_START_TIME;
     g_units = DEFAULT_UNITS;
     return true;
 }
 
 uint32_t device_info_get_ds(void) {
-    return (uint32_t)(xTaskGetTickCount()*TICKS_TO_DS);
+    return (uint32_t)(xTaskGetTickCount() * TICKS_TO_DS);
 }
 
 bool device_info_get_input_flag(inputCommMsg_t msg) {
