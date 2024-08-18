@@ -11,7 +11,7 @@
 #include "device_states/state.h"
 
 #include "device_states/state.h"
-#include "device_states/device_state_handler.h"
+#include "device_state_handler.h"
 #include "device_manager.h"
 
 #include "utility/person.h"
@@ -231,7 +231,7 @@ bool check_inactive(bool reset, person_t* person) {
  * @return true if ready to reset
  */
 bool reset_hold_condition(void) {
-    return (g_reset_timeout > 0) && ((device_info_get_ds() - g_reset_timeout) > LONG_PRESS_TIME * S_TO_DS);
+    return !device_info_get_debug() && (g_reset_timeout > 0) && ((device_info_get_ds() - g_reset_timeout) > LONG_PRESS_TIME * S_TO_DS);
 }
 
 /**

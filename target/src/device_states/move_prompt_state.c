@@ -1,4 +1,4 @@
-/** 
+/**
  * @file move_prompt_state.c
  * @author Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
@@ -27,7 +27,7 @@ void move_prompt_state_enter(void) {
 }
 
 stateStatus_t move_prompt_state_excute(void* args) {
-    person_t *person = (person_t *)args;
+    person_t* person = (person_t*)args;
 
     uint32_t new_prompt_time = PROMPT_TO_MOVE_TIME_DEFAULT;
     uint32_t dial_value = pot_get();
@@ -45,6 +45,7 @@ stateStatus_t move_prompt_state_excute(void* args) {
 
     display_time("", new_prompt_time, 1, ALIGN_CENTRE);
     display_time("Current:", person->userActivityTimeout, 2, ALIGN_CENTRE);
+    display_time("Inactive:", (device_info_get_ds() - device_info_get_last_step_time()) * DS_TO_S, 3, ALIGN_CENTRE);
 
     return STATE_SUCCESS;
 }

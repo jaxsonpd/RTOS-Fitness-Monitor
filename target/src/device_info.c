@@ -35,7 +35,7 @@ bool device_info_reset(void) {
     device_info_clear_input_flags();
     g_alternate_mode = DEFAULT_ALTERNATE_MODE;
     g_debug_mode = DEFAULT_DEBUG_MODE;
-    g_last_step_time = DEFAULT_LAST_STEP_TIME;
+    g_last_step_time = device_info_get_ds()*DS_TO_S;
     g_workout_start_time = DEFAULT_WORKOUT_START_TIME;
     g_units = DEFAULT_UNITS;
     return true;
