@@ -39,6 +39,8 @@ the functionality of the device follows the correct specification.
 | 9 | Goal Reached | All | - | When the step goal is reached this should be displayed by a flashed message. This message will not appear again until reset or new goal set. | |
 | 10 | Distance Display | Distance | - | The distance screen should display the users distance, time, speed, and energy used. | |
 | 11 | Workout Start | All | - | The workout timer should not start until the first step is registered. | |
+| 12 | Step Count | All | - | Moving the device in a cyclical motion causes the step counter to increase. | |
+| 13 | Average Speed | All | - | Average speed updates with distance and time travelled | |
 
 ## Fitness Manager v2 Functionality Tests
 
@@ -54,4 +56,4 @@ the functionality of the device follows the correct specification.
 | 8 | Change Inactivity Delay | Inactivity Delay Select | Pot Rotate | Rotating the potentiometer value should change the new inactivity timer value in increments of 10. | |
 | 9 | Set Inactivity Delay | Inactivity Delay Select | Down Button | Pressing the down button should save the new inactivity delay. | |
 | 10 | Inactivity prompt | All | - | When no new steps have been registered or longer than the inactivity delay a message should be displayed to prompt the user to move this should not stop displaying until a new stop is registered. | |
-
+| 11 | Caloric Tracking | Distance, Parameter Selection | - | The caloric expenditure count increases on step count. This value changes based on the weight selected | |
