@@ -35,6 +35,6 @@ void pot_read_thread(void* args) {
             pot_set(pot_value); 
         }
 
-        vTaskDelay(5); // Poll at specified rate
+        vTaskDelay(20); // Poll at specified rate
     }
 }
