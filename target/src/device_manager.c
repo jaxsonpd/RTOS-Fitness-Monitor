@@ -20,6 +20,7 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "assert.h"
 
 #include "comms/step_counter_comms.h"
 
@@ -33,14 +34,46 @@
 
 static uint32_t g_reset_timeout = 0;
 
-void update_inputs(device_state_t* device);
-void handle_input(device_state_t* device, inputCommMsg_t msg);
-void update_state(device_state_t* device, person_t* person);
+bool update_steps(void);
+void update_inputs(deviceState_t* device);
+void handle_input(deviceState_t* device, inputCommMsg_t msg);
+bool check_goal_reached(bool reset, person_t* person);
+bool check_inactive(bool reset, person_t* person);
+bool reset_hold_condition(void);
+void update_state(deviceState_t* device, person_t* person);
 
-bool device_manager_init(device_state_t* device) 
+/**
+ * @brief Initialise the device ready for execution
+ *
+ * @return true if successful
+ */
+bool device_manager_init(deviceState_t* device) 
 {
-    display_init();
-    return device_state_init(device, INITIAL_STATE_ID);
+    bool success = true;
+    success &= display_init();
+    success &= device_state_init(device, INITIAL_STATE_ID);
+    return success;
+}
+
+void device_manager_thread(void* args) 
+{
+    deviceState_t device;
+    device_manager_init(&device);
+    person_t person;
+    person_init(&person);
+    char status;
+
+    for (;;) {
+        update_steps();
+
+        status = device_state_execute(&device,&person);
+        device_info_clear_input_flags();
+        if (status != STATE_FLASHING) {
+            update_inputs(&device);
+            update_state(&device,&person);
+        }
+        vTaskDelay(50);
+    }
 }
 
 /**
@@ -66,32 +99,11 @@ bool update_steps(void) {
     return false;
 }
 
-void device_manager_thread(void* args) 
-{
-    device_state_t device;
-    device_manager_init(&device);
-    person_t person;
-    person_init(&person);
-    char status;
-
-    for (;;) {
-        update_steps();
-
-        status = device_state_execute(&device,&person);
-        device_info_clear_input_flags();
-        if (status != STATE_FLASHING) {
-            update_inputs(&device);
-            update_state(&device,&person);
-        }
-        vTaskDelay(50);
-    }
-}
-
 /**
  * @brief update the input flags and any state change based on inputs
- *
+ * @param device the device to be passed through for state updating
  */
-void update_inputs(device_state_t* device) {
+void update_inputs(deviceState_t* device) {
     uint8_t num_reads = 0;
     while (input_comms_num_msgs() > 0 && num_reads < 5) {
         inputCommMsg_t msg = input_comms_receive();
@@ -102,10 +114,12 @@ void update_inputs(device_state_t* device) {
 }
 
 /**
- * @brief parses message to perform required behaviour from input
- *
+ * @brief parses input message to update state accordingly
+ * 
+ * @param device the deviceState_t to be updated
+ * @param msg the input comms message from queue
  */
-void handle_input(device_state_t* device, inputCommMsg_t msg) {
+void handle_input(deviceState_t* device, inputCommMsg_t msg) {
     stateID_t newID = device->currentID;
     switch (msg) {
     case (MSG_SCREEN_LEFT):
@@ -164,14 +178,15 @@ void handle_input(device_state_t* device, inputCommMsg_t msg) {
         break;
     }
     if (newID != device->currentID) {
-        device_state_set(device, newID);
+        bool success = device_state_set(device, newID);
+        assert(success);
     }
 }
 
 /**
  * @brief Check reached goal
  * @param reset if true reset the function
- *
+ * @param person the instance of person_t holding user data
  * @return true if goal has been reached for the first time
  */
 bool check_goal_reached(bool reset, person_t* person) {
@@ -193,7 +208,7 @@ bool check_goal_reached(bool reset, person_t* person) {
 /**
  * @brief Check how long since last step
  * @param reset if true reset the function
- * 
+ * @param person the instance of person_t holding user data
  * @return true if the user has been inactive for too long
  */
 bool check_inactive(bool reset, person_t* person) {
@@ -210,10 +225,23 @@ bool check_inactive(bool reset, person_t* person) {
 }
 
 /**
- * @brief update states based on non-standard input conditions
- * handles states that are not accessed in the loop.
+ * @brief helper function to compare reset timer to global time 
+ * to determine if reset condition is met.
+ * 
+ * @return true if ready to reset
  */
-void update_state(device_state_t* device, person_t* person) {
+bool reset_hold_condition(void) {
+    return (g_reset_timeout > 0) && ((device_info_get_ds() - g_reset_timeout) > LONG_PRESS_TIME * S_TO_DS);
+}
+
+/**
+ * @brief checks conditions to put device into states that are not
+ * accessible from usual cycling operations.
+ * 
+ * @param device the device instance to be updated
+ * @param person the instance of person_t holding user data
+ */
+void update_state(deviceState_t* device, person_t* person) {
     stateID_t newID = device->currentID;
     if (check_goal_reached(false, person)) {
         newID = GOAL_REACHED_STATE_ID;
@@ -221,11 +249,17 @@ void update_state(device_state_t* device, person_t* person) {
     if (check_inactive(false, person)) {
         newID = MOVE_PROMPT_ALERT_STATE_ID;
     }
-    if ((g_reset_timeout > 0) && ((device_info_get_ds() - g_reset_timeout) > LONG_PRESS_TIME * S_TO_DS)) {
+    if (reset_hold_condition() && device->currentID != GOAL_STATE_ID) {
+        device_info_reset();
+        step_counter_reset();
+        check_goal_reached(true, person);
+        check_inactive(true, person);
+        person_reset(person);
         newID = RESET_STATE_ID;
         g_reset_timeout = 0;
     }
     if (newID != device->currentID) {
-        device_state_set(device, newID);
+        bool success = device_state_set(device, newID);
+        assert(success);
     }
 }

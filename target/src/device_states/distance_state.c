@@ -21,20 +21,10 @@
 #define M_PER_STEP(x) (x*415)/100000
 #define M_KG_TO_CAL(x,y) (125*x*y)/100000 // https://www.analog.com/en/resources/analog-dialogue/articles/pedometer-design-3-axis-digital-acceler.html
 
-
-/** 
- * @brief Called once on state entry
- * 
- */
 void distance_state_enter(void) {
+
 }
 
-/** 
- * @brief Called contionously while in state
- * @param args arguments from the state machine
- * 
- * @return the status of the state
- */
 stateStatus_t distance_state_execute(void* args) {
     person_t *person = (person_t *)args;
 
@@ -72,12 +62,12 @@ stateStatus_t distance_state_execute(void* args) {
     return STATE_SUCCESS;
 }
 
-/** 
- * @brief Called on state change
- * 
- */
 void distance_state_exit(void) {
     display_clear();
 }
 
-state_t distanceState = { distance_state_enter,distance_state_execute,distance_state_exit };
+void distance_state_reset(void) {
+    
+}
+
+state_t distanceState = { distance_state_enter,distance_state_execute,distance_state_exit,distance_state_reset };

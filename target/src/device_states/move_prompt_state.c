@@ -54,4 +54,7 @@ void move_prompt_state_exit(void) {
     display_clear();
 }
 
-state_t movePromptState = { move_prompt_state_enter,move_prompt_state_excute,move_prompt_state_exit };
+void move_prompt_state_reset(void) {
+
+}
+state_t movePromptState = { move_prompt_state_enter,move_prompt_state_excute,move_prompt_state_exit,move_prompt_state_reset };

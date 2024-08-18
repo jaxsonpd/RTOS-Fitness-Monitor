@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include "state.h"
 
+/// IDs of possible states defined in their own .h files
 typedef enum stateID_e {
     STEPS_STATE_ID = 0,
     DISTANCE_STATE_ID,
@@ -24,15 +25,57 @@ typedef enum stateID_e {
     STATE_COUNT,
 } stateID_t;
 
+/**
+ * @struct deviceState_t
+ *  A structure to hold the current state and corresponding ID for a device
+ *  
+ */
 typedef struct {
-    stateID_t currentID;
-    state_t* currentState;
-} device_state_t;
+    stateID_t currentID;        ///< stateID of current state
+    state_t* currentState;      ///< current state
+} deviceState_t;
 
+/// Array of all possible states for the device. States are defined in their own .h files
 extern state_t* states[STATE_COUNT];
 
-bool device_state_init(device_state_t* ds, stateID_t initialID);
-void device_state_set(device_state_t* ds, stateID_t newID);
-char device_state_execute(device_state_t* ds, void* args);
+/** 
+ * @brief Initialise deviceState_t instance to start at the specified initial ID.
+ * Checks for invalid parameters provided.
+ * @param ds pointer to a deviceState_t instance to be initialised
+ * @param initialID changeable id to intialise the device to
+ * 
+ * @return true if succesful
+ */
+bool device_state_init(deviceState_t* ds, stateID_t initialID);
+
+/** 
+ * @brief Set device to the state with the defined new id
+ * Checks for invalid parameters provided.
+ * @param ds pointer to a deviceState_t instance to be initialised
+ * @param newID id for the state the device will be set to
+ * 
+ * @return true if succesful
+ */
+
+bool device_state_set(deviceState_t* ds, stateID_t newID);
+
+/** 
+ * @brief Execute the behavior defined by the current state
+ * 
+ * @param ds device holding state to be executed
+ * @param args generic pointer to arguments passed in to the state
+ * 
+ * @return status code from execution to allow for advanced behaviour
+ */
+stateStatus_t device_state_execute(deviceState_t* ds, void* args);
+
+/** 
+ * @brief Reset the device state to the initial value
+ * 
+ * @param ds the device to be reset
+ * 
+ * @return true if reset successful
+ */
+bool device_state_reset(deviceState_t* ds);
 
 #endif // DEVICE_STATE_H_

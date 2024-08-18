@@ -26,6 +26,7 @@ typedef enum inputMode_e {
     LEFT_SWITCH,
 } inputMode_t;
 
+/// The possible states of the buttons and switches
 typedef enum inputState_e {
     PUSHED,
     RELEASED,

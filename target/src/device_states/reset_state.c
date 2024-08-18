@@ -34,4 +34,8 @@ void reset_state_exit(void) {
     display_clear();
 }
 
-state_t resetState = { reset_state_enter,reset_state_execute,reset_state_exit };
+void reset_state_reset(void) {
+    flash_time = 0;
+}
+
+state_t resetState = { reset_state_enter,reset_state_execute,reset_state_exit,reset_state_reset };
