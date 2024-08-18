@@ -40,6 +40,7 @@ stateStatus_t move_prompt_state_excute(void* args) {
     }
 
     if (device_info_get_input_flag(MSG_DOWN_BUTTON_P) && !device_info_get_debug()) {
+        device_info_set_last_step_time(device_info_get_ds());
         person->userActivityTimeout = new_prompt_time;
     }
 
