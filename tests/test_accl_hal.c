@@ -61,8 +61,8 @@ DEFINE_FFF_GLOBALS;
 #define ACCL_RATE_0_20HZ    0x01
 #define ACCL_RATE_0_10HZ    0x00
 
-char mock_data[] = {0, 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC};
-
+char mock_data[] = {ACCL_DATA_X0, 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC};
+uint8_t mock_data_size = 6;
 
 /* Helper functions */
 void reset_fff(void)
@@ -75,15 +75,12 @@ void reset_fff(void)
 
 char i2c_hal_read_fake_char(uint8_t arg0, char *arg1, int32_t arg2, char arg3)
 {
-    (void)arg0;
-    (void)arg3;
-
-    char mock_data[] = {0, 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC};
-    // char mock_data[] = {0, 0, 0, 0, 0, 0, 0};
-
-    memcpy(arg1, mock_data, arg2);
-
-    return 0x00;
+    char simulatedData[7] = {ACCL_DATA_X0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06};
+    
+    // Copy the simulated data into the provided data buffer
+    memcpy(arg1, simulatedData, arg2 + 1);
+    
+    return 0x00; // Return success
 }
 
 /* Unity setup and teardown */
@@ -150,16 +147,15 @@ void test_accl_chip_init_random(void)
 
 void test_accl_data_get_new()
 {
+    // Arrange
     int16_t acceleration[3] = {0};
-    // int16_t expected[3] = {0, 0, 0};
-    int16_t expected[3] = {0x3412, 0x7856, 0xBC9A};
-
-
     i2c_hal_read_fake.custom_fake = i2c_hal_read_fake_char;
-
+    
+    // Act
     accl_data_get(acceleration);
 
-    for (int i = 0; i < 3; i++) {
-        TEST_ASSERT_EQUAL(acceleration[i], expected[i]);
-    }
+    // Assert
+    TEST_ASSERT_EQUAL(0x0201, acceleration[0]); // X-axis
+    TEST_ASSERT_EQUAL(0x0403, acceleration[1]); // Y-axis
+    TEST_ASSERT_EQUAL(0x0605, acceleration[2]); // Z-axis
 }

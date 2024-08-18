@@ -25,5 +25,3 @@ void test_step_counter_init_null_pointer(void) {
     bool result = step_counter_init(NULL);
     TEST_ASSERT_FALSE(result);
 }
-
-// TODO test step detect???? Could require extensive arrange
