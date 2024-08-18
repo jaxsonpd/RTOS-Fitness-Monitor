@@ -54,6 +54,11 @@ void display_line(char* inStr, uint8_t row, textAlignment_t alignment);
 void display_value(char* prefix, char* suffix, int32_t value, uint8_t row, textAlignment_t alignment, bool thousandsFormatting);
 
 /** 
+ * @brief clear all display lines
+ */
+void display_clear(void);
+
+/** 
  * @brief Display a given number of seconds as ether mm:ss or hh:mm:ss
  * @param prefix Text to display before the time
  * @param time The time to display in seconds

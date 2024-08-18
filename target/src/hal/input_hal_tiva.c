@@ -22,9 +22,9 @@
 
 
 /**
- * @struct input_mode_info_t
+ * @struct inputModeInfo_t
  *  A structure to store information about a input mode (button or switch)
- *
+ *  
  */
 typedef struct input_mode_info {
     uint32_t periph;            ///< Gpio peripheral for the device
@@ -32,16 +32,16 @@ typedef struct input_mode_info {
     uint8_t pin;                ///< Gpio pin
     uint32_t type;              ///< Gpio type pull down etc.
     bool normal;                ///< Normal state of the device (off state)
-    inputMode_t name;          ///< Corrsponding name of the device
+    inputMode_t name;           ///< Corrsponding name of the device
     bool state;                 ///< Current state after debouncing
     bool value;                 ///< Raw value of the device
     uint8_t count;              ///< Number of times at the given value
     bool flag;                  ///< Wether the input has changed
     uint8_t deb_limit;          ///< Number of counts before state change
-} input_mode_info_t;
+} inputModeInfo_t;
 
 /// UP button on orbit board
-input_mode_info_t g_up_button = {
+inputModeInfo_t g_up_button = {
     .periph = SYSCTL_PERIPH_GPIOE,
     .port_base = GPIO_PORTE_BASE,
     .pin = GPIO_PIN_0,
@@ -50,7 +50,7 @@ input_mode_info_t g_up_button = {
     .name = UP_BUTTON };
 
 /// DOWN button on orbit board
-input_mode_info_t g_down_button = {
+inputModeInfo_t g_down_button = {
     .periph = SYSCTL_PERIPH_GPIOD,
     .port_base = GPIO_PORTD_BASE,
     .pin = GPIO_PIN_2,
@@ -59,7 +59,7 @@ input_mode_info_t g_down_button = {
     .name = DOWN_BUTTON };
 
 /// LEFT button on Tiva board
-input_mode_info_t g_left_button = {
+inputModeInfo_t g_left_button = {
     .periph = SYSCTL_PERIPH_GPIOF,
     .port_base = GPIO_PORTF_BASE,
     .pin = GPIO_PIN_4,
@@ -68,7 +68,7 @@ input_mode_info_t g_left_button = {
     .name = LEFT_BUTTON };
 
 /// RIGHT button on Tiva board
-input_mode_info_t g_right_button = {
+inputModeInfo_t g_right_button = {
     .periph = SYSCTL_PERIPH_GPIOF,
     .port_base = GPIO_PORTF_BASE,
     .pin = GPIO_PIN_0,
@@ -77,7 +77,7 @@ input_mode_info_t g_right_button = {
     .name = RIGHT_BUTTON };
 
 /// SW1 Right switch on orbit board
-input_mode_info_t g_right_switch = {
+inputModeInfo_t g_right_switch = {
     .periph = SYSCTL_PERIPH_GPIOA,
     .port_base = GPIO_PORTA_BASE,
     .pin = GPIO_PIN_7,
@@ -85,7 +85,7 @@ input_mode_info_t g_right_switch = {
     .normal = false,
     .name = RIGHT_SWITCH };
 
-input_mode_info_t g_left_switch = {
+inputModeInfo_t g_left_switch = {
     .periph = SYSCTL_PERIPH_GPIOA,
     .port_base = GPIO_PORTA_BASE,
     .pin = GPIO_PIN_6,
@@ -94,7 +94,7 @@ input_mode_info_t g_left_switch = {
     .name = LEFT_SWITCH
 };
 
-input_mode_info_t g_mode_arr[6] = { 0 };
+inputModeInfo_t g_mode_arr[6] = { 0 };
 
 bool input_init(void) {
     g_mode_arr[0] = g_up_button;

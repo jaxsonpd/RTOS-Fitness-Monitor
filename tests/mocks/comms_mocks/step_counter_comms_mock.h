@@ -19,5 +19,5 @@
 
 
 VALUE_FUNC(bool, step_counter_comms_init);
-VALUE_FUNC(bool, step_counter_set, uint32_t);
+VALUE_FUNC(bool, step_counter_set, uint32_t, bool);
 VALUE_FUNC(uint32_t, step_counter_get);

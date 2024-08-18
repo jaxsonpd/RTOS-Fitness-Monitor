@@ -11,6 +11,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define POT_MAX 4095
+
 /**
  * @brief Initialise the potentiometer comms module
  * 

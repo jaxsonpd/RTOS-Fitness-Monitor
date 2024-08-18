@@ -1,27 +1,28 @@
-/**
- * @file stopwatch.c
- * @author Jack Duignan (Jdu80@uclive.ac.nz)
- * @date 2024-08-14
- * @brief Implementation of the stopwatch screen
+/** 
+ * @file stopwatch_state.c
+ * @author Isaac Cone (ico29@uclive.ac.nz)
+ * @date 2024-08
+ * @brief Implementation of state for stopwatch
  */
 
-
 #include <stdint.h>
-#include <stdbool.h>
 
-#include "display_info.h"
-#include "hal/display_hal.h"
+#include "../hal/display_hal.h"
+#include "../device_info.h"
 
-#include "stopwatch.h"
+#include "stopwatch_state.h"
 
-uint32_t last_stops[2] = { 0 };
-
+/// States of the stopwatch
 enum stopwatch_states {
-    ZEROED,
-    RUNNING,
-    PAUSED,
+    ZEROED,     ///< Cleared ready for next time
+    RUNNING,    ///< Running timer
+    PAUSED,     /// Stopped timer ready to be zeroed
     NUM_STATES
 };
+
+uint32_t last_stops[2] = { 0 };
+enum stopwatch_states state = ZEROED;
+bool first_run = false;
 
 /**
  * @brief Update the stopwatch_state_machine
@@ -30,7 +31,7 @@ enum stopwatch_states {
  *
  * @return the run time of the stopwatch
  */
-uint32_t stopwatch_state_machine(bool first_run, enum stopwatch_states state) {
+static uint32_t stopwatch_state_machine(bool first_run, enum stopwatch_states state) {
     static uint32_t start_time = 0;
     static uint32_t stop_time = 0;
     uint32_t run_time = 0;
@@ -48,15 +49,15 @@ uint32_t stopwatch_state_machine(bool first_run, enum stopwatch_states state) {
 
     case (RUNNING):
         if (first_run) {
-            start_time = display_info_get_ds();
+            start_time = device_info_get_ds();
         }
 
-        run_time = (display_info_get_ds() - start_time);
+        run_time = (device_info_get_ds() - start_time);
         break;
 
     case (PAUSED):
         if (first_run) {
-            stop_time = display_info_get_ds();
+            stop_time = device_info_get_ds();
         }
 
         run_time = (stop_time - start_time);
@@ -72,18 +73,12 @@ uint32_t stopwatch_state_machine(bool first_run, enum stopwatch_states state) {
     return run_time;
 }
 
-void stopwatch_display(bool reset) {
-    static enum stopwatch_states state = ZEROED;
-    static bool first_run = false;
+void stopwatch_state_enter(void) {
+    display_line("Stopwatch", 0, ALIGN_CENTRE);
+}
 
-    if (reset) {
-        last_stops[0] = 0;
-        last_stops[1] = 0;
-        state = ZEROED;
-        return;
-    }
-
-    if (display_info_get_input_flag(MSG_DOWN_BUTTON_P)) {
+stateStatus_t stopwatch_state_execute(void* args) {
+    if (device_info_get_input_flag(MSG_DOWN_BUTTON_P)) {
         state++;
 
         if (state >= NUM_STATES) {
@@ -100,6 +95,19 @@ void stopwatch_display(bool reset) {
     display_time_ds("Elapsed: ", run_time, 1, ALIGN_CENTRE);
     display_time_ds("Stop-1: ", last_stops[0], 2, ALIGN_CENTRE);
     display_time_ds("Stop-2: ", last_stops[1], 3, ALIGN_CENTRE);
+
+    return STATE_SUCCESS;
 }
 
+void stopwatch_state_exit(void) {
+    display_clear();
+}
 
+void stopwatch_state_reset(void) {
+    last_stops[0] = 0;
+    last_stops[1] = 0;
+    state = ZEROED;
+    first_run = false;
+}
+
+state_t stopwatchState = { stopwatch_state_enter,stopwatch_state_execute,stopwatch_state_exit,stopwatch_state_reset };
