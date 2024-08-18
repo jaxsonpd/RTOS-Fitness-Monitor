@@ -31,8 +31,7 @@ uint32_t g_last_step_time = DEFAULT_LAST_STEP_TIME;
 uint32_t g_workout_start_time = DEFAULT_WORKOUT_START_TIME;
 units_t g_units = DEFAULT_UNITS;
 
-bool device_info_reset(void) 
-{
+bool device_info_reset(void) {
     device_info_clear_input_flags();
     g_alternate_mode = DEFAULT_ALTERNATE_MODE;
     g_debug_mode = DEFAULT_DEBUG_MODE;
@@ -42,74 +41,60 @@ bool device_info_reset(void)
     return true;
 }
 
-uint32_t device_info_get_ds(void) 
-{
+uint32_t device_info_get_ds(void) {
     return (uint32_t)(xTaskGetTickCount()*TICKS_TO_DS);
 }
 
-bool device_info_get_input_flag(inputCommMsg_t msg) 
-{
+bool device_info_get_input_flag(inputCommMsg_t msg) {
     return g_input_flags[msg];
 }
 
-void device_info_set_input_flag(inputCommMsg_t msg, bool flag) 
-{
+void device_info_set_input_flag(inputCommMsg_t msg, bool flag) {
     g_input_flags[msg] = flag;
 }
 
-void device_info_clear_input_flags(void) 
-{
+void device_info_clear_input_flags(void) {
     for (uint8_t i = 0; i < NUM_MSGS; i++) {
         device_info_set_input_flag(i, 0);
     }
 }
 
-void device_info_set_alternate(bool status) 
-{
+void device_info_set_alternate(bool status) {
     g_alternate_mode = status;
 }
 
-bool device_info_get_alternate(void) 
-{
+bool device_info_get_alternate(void) {
     return g_alternate_mode;
 }
 
-void device_info_set_debug(bool status) 
-{
+void device_info_set_debug(bool status) {
     g_debug_mode = status;
 }
 
-bool device_info_get_debug(void) 
-{
+bool device_info_get_debug(void) {
     return g_debug_mode;
 }
 
-void device_info_set_units(units_t units) 
-{
+void device_info_set_units(units_t units) {
     g_units = units;
 }
 
-units_t device_info_get_units(void) 
-{
+units_t device_info_get_units(void) {
     return g_units;
 }
 
-void device_info_set_last_step_time(uint32_t time) 
-{
+void device_info_set_last_step_time(uint32_t time) {
     g_last_step_time = time;
 }
 
-uint32_t device_info_get_last_step_time(void) 
-{
+uint32_t device_info_get_last_step_time(void) {
     return g_last_step_time;
 }
 
-void device_info_set_workout_start_time(uint32_t time) 
-{
+void device_info_set_workout_start_time(uint32_t time) {
     g_workout_start_time = time;
 }
 
-uint32_t device_info_get_workout_start_time(void) 
-{
+uint32_t device_info_get_workout_start_time(void) {
     return g_workout_start_time;
 }
