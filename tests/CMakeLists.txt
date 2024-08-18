@@ -27,6 +27,7 @@ add_unity_test(test_step_counter_comms test_step_counter_comms.c ${COMMS_DIR}/st
 add_unity_test(test_pot_comms test_pot_comms.c ${COMMS_DIR}/pot_comms.c)
 add_unity_test(test_pot_manager test_pot_manager.c ${SRC_DIR}/pot_manager.c)
 add_unity_test(test_adc_hal test_adc_hal.c ${HAL_DIR}/adc_hal_tiva.c)
+add_unity_test(test_accl_hal test_accl_hal.c ${HAL_DIR}/accl_hal_tiva.c)
 add_unity_test(test_display_hal test_display_hal.c ${HAL_DIR}/display_hal_tiva.c ${TIVAWARE_DIR}/utils/ustdlib.c)
 add_unity_test(test_device_info test_device_info.c ${SRC_DIR}/device_info.c)
 add_unity_test(test_clock_hal test_clock_hal.c ${HAL_DIR}/clock_hal_tiva.c)
@@ -43,6 +44,9 @@ target_compile_definitions(test_accl_manager PRIVATE PART_TM4C123GH6PM)
 
 target_include_directories(test_adc_hal PRIVATE ${SRC_DIR} ${TIVAWARE_DIR} ${MOCK_DIR} ${HAL_DIR})
 target_compile_definitions(test_adc_hal PRIVATE PART_TM4C123GH6PM)
+
+target_include_directories(test_accl_hal PRIVATE ${SRC_DIR} ${TIVAWARE_DIR} ${MOCK_DIR} ${HAL_DIR})
+target_compile_definitions(test_accl_hal PRIVATE PART_TM4C123GH6PM)
 
 target_include_directories(test_input_manager PRIVATE ${SRC_DIR} ${MOCK_DIR} ${RTOS_ARM} ${RTOS_DIR_INCLUDE} ${RTOS_CONFIG_DIR})
 target_compile_definitions(test_input_manager PRIVATE UNIT_TESTING)
