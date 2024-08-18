@@ -74,7 +74,7 @@ stateStatus_t device_state_execute(deviceState_t* ds, void* args) {
     case STATE_SUCCESS:
         break;
 
-    case STATE_FINISHED:
+    case STATE_FINISHED: ;
     // End current flashing state
         bool success;
         if (ds->currentID == RESET_STATE_ID) {
