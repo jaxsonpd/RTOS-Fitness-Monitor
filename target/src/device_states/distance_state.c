@@ -1,5 +1,5 @@
 /**
- * @file steps_state.c
+ * @file distance_state.c
  * @author Isaac Cone (ico29@uclive.ac.nz), Jack Duignan (jdu80@uclive.ac.nz)
  * @date 2024-08
  * @brief Display the distance travelled by the user

@@ -19,11 +19,9 @@
 
 #include "user_parameters_state.h"
 
-#define WEIGHT_DEFAULT 70
 #define WEIGHT_MAX 150
 #define WEIGHT_POT_SCALE_COEFF WEIGHT_MAX / POT_MAX
 
-#define HEIGHT_DEFAULT 150
 #define HEIGHT_MAX 200
 #define HEIGHT_POT_SCALE_COEFF HEIGHT_MAX / POT_MAX
 
@@ -53,7 +51,7 @@ void user_height_line(char* toDraw, uint16_t new_height, uint16_t current_height
     }
     if (!device_info_get_alternate()) {
         if (device_info_get_units() == UNITS_SI) {
-            usnprintf(toDraw, DISPLAY_WIDTH + 1, "%3d cm <- %d cm", current_height, new_height);    
+            usnprintf(toDraw, DISPLAY_WIDTH + 1, "%3d cm <- %3d cm", current_height, new_height);    
         } else {
             usnprintf(toDraw, DISPLAY_WIDTH + 1, "%d'%2d\"  <- %d'%2d\"", current_height / 12, current_height % 12, new_height / 12, new_height % 12);    
         }
@@ -74,17 +72,23 @@ void user_parameters_state_enter(void) {
 stateStatus_t user_parameters_state_execute(void* args) {
     person_t *person = (person_t *)args;
 
-    uint32_t new_weight = WEIGHT_DEFAULT;
-    uint32_t new_height = HEIGHT_DEFAULT;
+    uint32_t new_weight = DEFAULT_WEIGHT;
+    uint32_t new_height = DEFAULT_HEIGHT;
     uint32_t dial_value = pot_get();
 
     char toDraw[DISPLAY_WIDTH + 1]; // Must be one character longer to account for EOFs
 
     if (dial_value != 0) {
-        if (device_info_get_alternate()) { // Setting weight
+        if (device_info_get_alternate()) {                      // Setting weight
             new_weight = dial_value * WEIGHT_POT_SCALE_COEFF;
-        } else if (!device_info_get_alternate()) {
+        } else if (!device_info_get_alternate()) {              // Setting height
             new_height = dial_value * HEIGHT_POT_SCALE_COEFF;
+        }
+    } else {
+        if (device_info_get_alternate()) {                      // Setting weight
+            new_weight = WEIGHT_POT_SCALE_COEFF;
+        } else if (!device_info_get_alternate()) {              // Setting height
+            new_height = HEIGHT_POT_SCALE_COEFF;
         }
     }
 

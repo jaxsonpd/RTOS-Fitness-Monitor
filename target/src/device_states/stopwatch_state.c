@@ -2,7 +2,7 @@
  * @file stopwatch_state.c
  * @author Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
- * @brief Implementation of state for setting user parameters
+ * @brief Implementation of state for stopwatch
  */
 
 #include <stdint.h>

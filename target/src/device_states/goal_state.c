@@ -1,5 +1,5 @@
 /** 
- * @file steps_state.c
+ * @file goal_state.c
  * @author Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
  * @brief Display the set goal screen
@@ -41,10 +41,12 @@ stateStatus_t goal_state_execute(void* args) {
 
     // Get new goal
     uint32_t new_goal = DEFAULT_GOAL;
-    uint32_t adc_value = pot_get();
-    if (adc_value != 0) {
-        new_goal = adc_value * GOAL_POT_SCALE_COEFF;
+    uint32_t dial_value = pot_get();
+    if (dial_value != 0) {
+        new_goal = dial_value * GOAL_POT_SCALE_COEFF;
         new_goal = (new_goal / STEP_GOAL_ROUNDING) * STEP_GOAL_ROUNDING + STEP_GOAL_ROUNDING;
+    } else {
+        new_goal = STEP_GOAL_ROUNDING;
     }
 
     // Check if new goal has been set
