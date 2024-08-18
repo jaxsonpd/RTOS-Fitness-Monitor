@@ -18,13 +18,17 @@
 
 #define KM_TO_MILES 62/100 ///< Multiply by 0.6215 to convert, this should be good enough
 
-#define GOAL_MAX 20000
+#define GOAL_MAX 19900 // 20000 - 1000
 #define GOAL_POT_SCALE_COEFF GOAL_MAX / POT_MAX ///< in steps, adjusting to account for the potentiometer's maximum possible reading
 
 #define M_PER_STEP(x) (x*415)/100000
 
 #define STEP_GOAL_ROUNDING 100
 
+/** 
+ * @brief Called once on state entry
+ * 
+ */
 void goal_state_enter(void) {
     display_line("Set goal:", 0, ALIGN_CENTRE);
     display_line("", 3, ALIGN_CENTRE);
@@ -40,7 +44,7 @@ stateStatus_t goal_state_execute(void* args) {
     uint32_t adc_value = pot_get();
     if (adc_value != 0) {
         new_goal = adc_value * GOAL_POT_SCALE_COEFF;
-        new_goal = (new_goal / STEP_GOAL_ROUNDING) * STEP_GOAL_ROUNDING;
+        new_goal = (new_goal / STEP_GOAL_ROUNDING) * STEP_GOAL_ROUNDING + STEP_GOAL_ROUNDING;
     }
 
     // Check if new goal has been set

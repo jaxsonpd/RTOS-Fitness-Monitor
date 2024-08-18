@@ -16,9 +16,9 @@
 
 #include "move_prompt_state.h"
 
-#define PROMPT_TO_MOVE_TIME_DEFAULT 100 // 10 seconds
-#define PROMPT_TO_MOVE_TIME_MAX 3600 // 1 hour
-#define PROMPT_TO_MOVE_TIME_ROUNDING 10
+#define PROMPT_TO_MOVE_TIME_DEFAULT 100 // 100 seconds
+#define PROMPT_TO_MOVE_TIME_MAX 3590 // 1 hour - 10 secs
+#define PROMPT_TO_MOVE_TIME_ROUNDING 10 // Increment by 10 seconds 
 #define PROMPT_TO_MOVE_TIME_POT_SCALE_COEFF PROMPT_TO_MOVE_TIME_MAX / POT_MAX
 
 void move_prompt_state_enter(void) {
@@ -33,7 +33,7 @@ stateStatus_t move_prompt_state_excute(void* args) {
 
     if (adc_value != 0) {
         new_prompt_time = adc_value * PROMPT_TO_MOVE_TIME_POT_SCALE_COEFF;
-        new_prompt_time = (new_prompt_time / PROMPT_TO_MOVE_TIME_ROUNDING) * PROMPT_TO_MOVE_TIME_ROUNDING;
+        new_prompt_time = ((new_prompt_time / PROMPT_TO_MOVE_TIME_ROUNDING) * PROMPT_TO_MOVE_TIME_ROUNDING + 10);
     }
 
     if (device_info_get_input_flag(MSG_DOWN_BUTTON_P) && !device_info_get_debug()) {
