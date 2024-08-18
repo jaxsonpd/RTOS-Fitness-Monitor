@@ -9,16 +9,16 @@
 #define DEVICE_STATE_H_
 
 #include <stdbool.h>
-#include "state.h"
+#include "device_states/state.h"
 
 /// IDs of possible states defined in their own .h files
 typedef enum stateID_e {
     STEPS_STATE_ID = 0,
     DISTANCE_STATE_ID,
-    GOAL_STATE_ID,
     STOPWATCH_STATE_ID,
-    MOVE_PROMPT_STATE_ID,
+    GOAL_STATE_ID,
     USER_PARAMETERS_STATE_ID,
+    MOVE_PROMPT_STATE_ID,
     GOAL_REACHED_STATE_ID,
     MOVE_PROMPT_ALERT_STATE_ID,
     RESET_STATE_ID,

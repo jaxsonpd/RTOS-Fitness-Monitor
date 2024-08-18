@@ -2,7 +2,7 @@ add_tiva_executable(fitness-tracker
     comms/input_comms.c
     comms/pot_comms.c
     comms/step_counter_comms.c
-    device_states/device_state_handler.c
+    device_state_handler.c
     device_states/steps_state.c
     device_states/distance_state.c
     device_states/goal_state.c

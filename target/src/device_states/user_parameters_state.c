@@ -20,9 +20,11 @@
 #include "user_parameters_state.h"
 
 #define WEIGHT_MAX 150
+#define WEIGHT_MIN 30
 #define WEIGHT_POT_SCALE_COEFF WEIGHT_MAX / POT_MAX
 
 #define HEIGHT_MAX 200
+#define HEIGHT_MIN 54
 #define HEIGHT_POT_SCALE_COEFF HEIGHT_MAX / POT_MAX
 
 #define KG_TO_LB 22/10
@@ -80,15 +82,15 @@ stateStatus_t user_parameters_state_execute(void* args) {
 
     if (dial_value != 0) {
         if (device_info_get_alternate()) {                      // Setting weight
-            new_weight = dial_value * WEIGHT_POT_SCALE_COEFF;
+            new_weight = dial_value * WEIGHT_POT_SCALE_COEFF + WEIGHT_MIN;
         } else if (!device_info_get_alternate()) {              // Setting height
-            new_height = dial_value * HEIGHT_POT_SCALE_COEFF;
+            new_height = dial_value * HEIGHT_POT_SCALE_COEFF + HEIGHT_MIN;
         }
     } else {
         if (device_info_get_alternate()) {                      // Setting weight
-            new_weight = WEIGHT_POT_SCALE_COEFF;
+            new_weight = WEIGHT_MIN;
         } else if (!device_info_get_alternate()) {              // Setting height
-            new_height = HEIGHT_POT_SCALE_COEFF;
+            new_height = HEIGHT_MIN;
         }
     }
 
