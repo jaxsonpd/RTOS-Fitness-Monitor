@@ -5,7 +5,7 @@ to be more robust and feature rich. We have ported the firmware over to FreeRTOS
 implemented 5 new features, including an inactivity timer, revamped custom step counting,
 energy tracking, stopwatch and height based distance estimation. While completing
 this work we implemented test driven design, solid Principle and software design patterns to ensure that
-the code is maintable going forward.
+the code is maintainable going forward.
 
 I will discuss the system level acceptance tests and showcase the UI, Jack
 will discuss test driven development and the free rtos implementation, and Isaac
@@ -13,7 +13,7 @@ will discuss the solid principles and the design patterns in the code.
 
 ## System Level Acceptance Testing - Daniel
 
-- Take through systen acceptance testing.
+- Take through system acceptance testing.
 - Show case new display features.
 
 ## Test driven development and free RTOS- Jack
@@ -28,7 +28,7 @@ but several like display have extra files included in testing where it makes sen
 
 We did not test several files due to there complexity and visual components this includes
 the display states, display manager, and the main file. We believe that this is a
-sufficent comprimise to ensure development time is not overlyong and development code is
+sufficient compromise to ensure development time is not overly-long and development code is
 not affected by tests.
 
 - Show tests running
@@ -45,4 +45,4 @@ the display manager which uses a finite state machine to display the various UI 
 
 - Hals
 
-- Solid principles.
+- Solid principles
