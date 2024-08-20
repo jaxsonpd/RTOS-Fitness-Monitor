@@ -1,4 +1,4 @@
-/** 
+/**
  * @file adc_hal.h
  * @author Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
@@ -13,7 +13,7 @@
 typedef enum {
     ADC_ID_0 = 0,
     MAX_ADC_IDS
-} adc_id_t;
+} adcID_t;
 
 typedef void (*callback_t)(uint32_t);
 

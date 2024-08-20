@@ -2,7 +2,7 @@
  * @file device_info.h
  * @author Jack Duignan (Jdu80@uclive.ac.nz)
  * @date 2024-08-12
- * @brief Struct and interface to information for the device
+ * @brief Interface to information for the device
  */
 
 

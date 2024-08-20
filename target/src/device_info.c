@@ -1,6 +1,6 @@
 /**
  * @file device_info.c
- * @author Jack Duignan (Jdu80@uclive.ac.nz)
+ * @author Jack Duignan (Jdu80@uclive.ac.nz), Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08-12
  * @brief Definitions for the device info interface
  */

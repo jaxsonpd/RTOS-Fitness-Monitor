@@ -3,7 +3,7 @@
  * @author Daniel Hawes (dha144@uclive.ac.nz)
  * @date 2024-08-12
  * @brief Definitions for the pot comms interface
- * Handles sending info to the display manager
+ * Handles mutex for communication with potentiometer read thread.
  */
 
 
