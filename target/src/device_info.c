@@ -24,12 +24,12 @@
 #define DEFAULT_WORKOUT_START_TIME 0
 #define DEFAULT_UNITS UNITS_SI
 
-bool g_input_flags[NUM_MSGS] = { DEFAULT_INPUT_FLAG };
-bool g_alternate_mode = DEFAULT_ALTERNATE_MODE;
-bool g_debug_mode = DEFAULT_DEBUG_MODE;
-uint32_t g_last_step_time = DEFAULT_LAST_STEP_TIME;
-uint32_t g_workout_start_time = DEFAULT_WORKOUT_START_TIME;
-units_t g_units = DEFAULT_UNITS;
+bool g_input_flags[NUM_MSGS] = { DEFAULT_INPUT_FLAG };          ///< array of input flags from input comms
+bool g_alternate_mode = DEFAULT_ALTERNATE_MODE;                 ///< holds generic display alternate mode value to toggle alternate behaviour
+bool g_debug_mode = DEFAULT_DEBUG_MODE;                         ///< holds generic debug mode to toggle debug behaviour
+uint32_t g_last_step_time = DEFAULT_LAST_STEP_TIME;             ///< holds the users last step time
+uint32_t g_workout_start_time = DEFAULT_WORKOUT_START_TIME;     ///< holds the workout start time
+units_t g_units = DEFAULT_UNITS;                                ///< holds the mode of units for user displaying
 
 bool device_info_reset(void) {
     device_info_clear_input_flags();

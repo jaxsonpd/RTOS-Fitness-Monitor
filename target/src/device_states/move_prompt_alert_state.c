@@ -1,6 +1,6 @@
 /** 
  * @file move_prompt_alert_state.c
- * @author Isaac Cone (ico29@uclive.ac.nz)
+ * @author Daniel Hawes (dha144@uclive.ac.nz), Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
  * @brief Implementation of state for move alert
  */

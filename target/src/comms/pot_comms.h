@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define POT_MAX 4095
+#define POT_MAX 4095 ///< Max value possible used for scaling
 
 /**
  * @brief Initialise the potentiometer comms module

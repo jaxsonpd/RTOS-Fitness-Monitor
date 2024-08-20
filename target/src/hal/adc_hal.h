@@ -2,7 +2,7 @@
  * @file adc_hal.h
  * @author Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
- * @brief Hardware Abstraction Layer header for an ADC
+ * @brief Hardware abstraction layer interface for an ADC
  */
 
 #ifndef ADC_HAL_
@@ -18,13 +18,12 @@ typedef enum {
 typedef void (*callback_t)(uint32_t);
 
 /**
- * @brief check interrupt flags, handle raised interrupts from callback, 
- * clear flags. 
+ * @brief handle interrupt from adc
  */
 void adc_hal_isr(void);
 
 /**
- * @brief enable adc peripheral and register callback function to instance
+ * @brief initialise adc peripheral and register callback function
  * @param id adc peripheral id
  * @param callback callback function pointer to handle uint32_t reading
  */

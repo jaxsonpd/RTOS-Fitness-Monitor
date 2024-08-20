@@ -10,6 +10,7 @@
 
 #include "state.h"
 
+/// @brief State showing distance, time, energy, and speed
 extern state_t distanceState;
 
 #endif // DISTANCE_STATE_H_

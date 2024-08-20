@@ -33,7 +33,7 @@ void adc_poll(void);
  * ignores any invalid values
  * @return average of reading
  */
-uint32_t adc_read(void);     // Call to read the averaged readings from the buffer
+uint32_t adc_read(void);
 
 
 #endif //ADC_HANDLER_H_

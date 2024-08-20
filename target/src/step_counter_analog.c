@@ -13,14 +13,13 @@
 
 #include "step_counter.h"
 
-// Defined parameters
 #define ALGORITHM_PERIOD_MS 20
 #define TIME_WINDOW_LOWER 10        ///< Lower period limit for high frequency noise rejection
 #define TIME_WINDOW_UPPER 100       ///< Upper period limit for low frequency rejection
 #define DYNAMIC_PRECISION 100       ///< Tunable parameter, depends on accelerometer data magnitudes
 #define RHYTHMIC_SEQUENCE_START 2   ///< Steps in a row required to begin tracking rhythmic sequence 
 
-// typedefs to store algorithm information
+/// typedefs to store algorithm information
 typedef enum {
     STATE_SEARCHING,    ///< Searching for rhytmic steps
     STATE_RHYTHMIC,     ///< In rhythmic step pattern
@@ -45,8 +44,12 @@ typedef struct {
 // Initialise step counter context
 static stepContext_t context;
 
-// Local helper functions
-static void init_step_context(stepContext_t* context) {
+/**
+ * @brief Initialise the step counter context
+ *
+ * @param context a pointer to the context to be initialised
+ */
+void init_step_context(stepContext_t* context) {
     context->min_threshold = INT16_MAX;
     context->max_threshold = INT16_MIN;
     context->sample_old = 0;
@@ -57,7 +60,12 @@ static void init_step_context(stepContext_t* context) {
     context->state = STATE_SEARCHING;
 }
 
-static int16_t calculate_sample(stepContext_t* context, vector3_t acceleration) {
+/**
+ * @brief find the acceleration axis with the largest change in magnitude since previous sample
+ *
+ * @return acceleration value from axis with largest change since previous sample
+ */
+int16_t calculate_sample(stepContext_t* context, vector3_t acceleration) {
     int32_t dx = acceleration.x - context->acceleration_old.x;
     int32_t dy = acceleration.y - context->acceleration_old.y;
     int32_t dz = acceleration.z - context->acceleration_old.z;
@@ -77,16 +85,44 @@ static int16_t calculate_sample(stepContext_t* context, vector3_t acceleration) 
     }
 }
 
-static void update_dynamic_threshold(stepContext_t* context, int16_t sample) {
+/**
+ * @brief update context with new thresholds if sample is outside current range
+ *
+ * @param context step counter context to be updated
+ * @param sample sample value to be set if outside current threshold
+ */
+void update_dynamic_threshold(stepContext_t* context, int16_t sample) {
     context->max_threshold = (context->max_threshold < sample) ? sample : context->max_threshold;
     context->min_threshold = (context->min_threshold > sample) ? sample : context->min_threshold;
 }
 
-static bool is_step_detected(int16_t sample_new, int16_t sample_old, int dynamic_threshold) {
+/**
+ * @brief determine if a step is detected
+ * 
+ * Step is detected based on a negative acceleration gradient when the magnitude crosses the threshold
+ *
+ * @param sample_new new sample for comparison
+ * @param sample_old old sample for comparison
+ * @param dynamic_threshold average of context max and min threshold
+ * 
+ * @return true if step detected
+ */
+bool is_step_detected(int16_t sample_new, int16_t sample_old, int dynamic_threshold) {
     return (sample_new < sample_old && sample_new < dynamic_threshold);
 }
 
-static bool handle_searching_state(stepContext_t* context, uint32_t* stepsAccumulated, vector3_t acceleration) {
+/**
+ * @brief executed when step counter is searching for a rhythmic step pattern
+ * 
+ * Checks for rhythmic conditions to change state
+ *
+ * @param context the step counter context
+ * @param stepsAccumulated pointer to the running total of steps counted
+ * @param acceleration the latest acceleration vector for decision-making
+ * 
+ * @return true if step detected (always false for searching)
+ */
+ bool handle_searching_state(stepContext_t* context, uint32_t* stepsAccumulated, vector3_t acceleration) {
     if (is_step_detected(context->sample_new, context->sample_old, (context->max_threshold + context->min_threshold) / 2)) {
         context->rhythmic_step_counter++;
         if (context->rhythmic_step_counter >= RHYTHMIC_SEQUENCE_START) {
@@ -100,7 +136,18 @@ static bool handle_searching_state(stepContext_t* context, uint32_t* stepsAccumu
     return false;
 }
 
-static bool handle_rhythmic_state(stepContext_t* context, uint32_t* stepsAccumulated, vector3_t acceleration) {
+/**
+ * @brief executed when step counter has found a rhythmic step pattern
+ * 
+ * Checks for non-rhythmic conditions to change state to searching
+ *
+ * @param context the step counter context
+ * @param stepsAccumulated pointer to the running total of steps counted
+ * @param acceleration the latest acceleration vector for decision-making
+ * 
+ * @return true if step detected
+ */
+bool handle_rhythmic_state(stepContext_t* context, uint32_t* stepsAccumulated, vector3_t acceleration) {
     if (is_step_detected(context->sample_new, context->sample_old, (context->max_threshold + context->min_threshold) / 2)) {
         if (context->samples_counter >= TIME_WINDOW_LOWER && context->samples_counter <= TIME_WINDOW_UPPER) {
             if (context->rhythmic_step_counter != 0) {
@@ -123,7 +170,6 @@ static bool handle_rhythmic_state(stepContext_t* context, uint32_t* stepsAccumul
     return false;
 }
 
-// Implementations of interface functions
 bool step_counter_init(uint16_t* period) {
     if (period == NULL) {
         return false;

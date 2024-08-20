@@ -24,7 +24,6 @@ void vAssertCalled(const char* pcFile, unsigned long ulLine) {
 }
 
 int main(void) {
-    // Init libs
     init_clock();
 
     xTaskCreate(&step_counter_thread, "step counter thread", 128, NULL, 4, NULL);

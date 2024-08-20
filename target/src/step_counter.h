@@ -14,6 +14,13 @@
 
 #include "utility/vector3.h"
 
+/**
+ * @brief Initialise the step counter
+ *
+ * @param period pointer to algorithm period
+ * 
+ * @return true if successful
+ */
 bool step_counter_init(uint16_t* period);
 
 /**

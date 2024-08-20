@@ -16,7 +16,6 @@
 #include "../utility/person.h"
 #include "../device_info.h"
 
-
 #include "user_parameters_state.h"
 
 #define WEIGHT_MAX 150

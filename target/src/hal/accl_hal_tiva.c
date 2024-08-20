@@ -15,9 +15,7 @@
 
 #include "accl_hal.h"
 
-/*
- * Accl Interrupt Pins
- */
+/// Tiva accl pin definitions
 #define ACCL_INT1Port       GPIO_PORTB_BASE
 #define ACCL_INT2Port       GPIO_PORTE_BASE
 #define ACCL_INT1           GPIO_PIN_4
@@ -71,7 +69,6 @@ void accl_chip_init(void) {
     char    toAccl[] = {0, 0};  // parameter, value
 
     //Initialize ADXL345 Acceleromter
-
     // set +-16g, 13 bit resolution, active low interrupts
     toAccl[0] = ACCL_DATA_FORMAT;
     toAccl[1] = (ACCL_RANGE_16G | ACCL_FULL_RES);
@@ -102,9 +99,8 @@ void accl_chip_init(void) {
     i2c_hal_write(I2C_ID_0, toAccl, 1, ACCL_ADDR);
 }
 
-// Read the accl chip
 void accl_data_get(int16_t* acceleration) {
-    char    fromAccl[] = {0, 0, 0, 0, 0, 0, 0}; // starting address, placeholders for data to be read.
+    char    fromAccl[] = {0, 0, 0, 0, 0, 0, 0}; 
     uint8_t bytesToRead = 6;
 
     fromAccl[0] = ACCL_DATA_X0;

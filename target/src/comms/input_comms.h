@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+/// Defined input messages to be pushed to the queue
 enum inputCommMsg_e {
     MSG_SCREEN_LEFT = 0,
     MSG_SCREEN_RIGHT,

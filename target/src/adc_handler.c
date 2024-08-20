@@ -15,10 +15,10 @@
 #define ADC_BUF_SIZE 10
 #define ADC_ID ADC_ID_0
 
-static CircBuf_t ADC_inBuffer;
+static circBuf_t ADC_inBuffer;
 
 void adc_callback(uint32_t adc_value) {
-    CircBuf_write(&ADC_inBuffer, adc_value);
+    circ_buf_write(&ADC_inBuffer, adc_value);
 }
 
 void adc_poll(void) {
@@ -26,7 +26,7 @@ void adc_poll(void) {
 }
 
 void adc_init(void) {
-    CircBuf_init(&ADC_inBuffer, ADC_BUF_SIZE);
+    circ_buf_init(&ADC_inBuffer, ADC_BUF_SIZE);
     adc_hal_register(ADC_ID, adc_callback);
 }
 
@@ -35,7 +35,7 @@ uint32_t adc_read() {
     uint32_t sum = 0;
     uint32_t i = 0;
 
-    while ((value = CircBuf_read(&ADC_inBuffer)) != BUF_EMPTY_VAL && i < ADC_BUF_SIZE)
+    while ((value = circ_buf_read(&ADC_inBuffer)) != BUF_EMPTY_VAL && i < ADC_BUF_SIZE)
     {
         sum += value;
         i++;

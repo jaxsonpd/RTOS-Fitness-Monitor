@@ -10,6 +10,7 @@
 
 #include "state.h"
 
+/// @brief State allowing user to set their step goal
 extern state_t goalState;
 
 #endif // GOAL_STATE_H_

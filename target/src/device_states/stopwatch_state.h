@@ -10,6 +10,7 @@
 
 #include "state.h"
 
+/// @brief State showing a custom stopwatch implementation
 extern state_t stopwatchState;
 
 #endif // STOPWATCH_STATE_H_

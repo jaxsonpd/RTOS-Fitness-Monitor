@@ -13,6 +13,11 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+/**
+ * @brief Initialise the potentiometer manager thread
+ *
+ * @return true if successful
+ */
 bool pot_read_init(void) {
     bool result = true;
     result = pot_comms_init() && result;

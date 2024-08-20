@@ -14,7 +14,7 @@
 
 #include "distance_state.h"
 
-#define KM_TO_MILES 62/100 // Multiply by 0.6215 to convert, this should be good enough
+#define KM_TO_MILES 62/100  ///< Approximation of 0.6215
 #define MS_TO_KMH 36/10
 
 #define CAL_TO_KJ(x) (4184*x)/1000

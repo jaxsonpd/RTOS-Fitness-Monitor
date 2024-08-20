@@ -1,3 +1,10 @@
+/** 
+ * @file adc_hal.h
+ * @author Isaac Cone (ico29@uclive.ac.nz)
+ * @date 2024-08
+ * @brief Hardware abstraction layer implementation for tiva SysCtlClock
+ */
+
 #include <stdint.h>
 #include <stdbool.h>
 

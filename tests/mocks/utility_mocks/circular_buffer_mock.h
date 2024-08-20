@@ -10,12 +10,12 @@
 #endif
 
 #define FFF_CIRCULAR_BUFFER_FAKES_LIST(FUNC)         \
-    FUNC(CircBuf_init)                    \
-    FUNC(CircBuf_write)                   \
-    FUNC(CircBuf_read)                    \
-    FUNC(CircBuf_free)                    \
+    FUNC(circ_buf_init)                    \
+    FUNC(circ_buf_write)                   \
+    FUNC(circ_buf_read)                    \
+    FUNC(circ_buf_free)                    \
 
-VALUE_FUNC(int32_t *, CircBuf_init, CircBuf_t *, uint32_t);
-VALUE_FUNC(bool, CircBuf_write, CircBuf_t *, int32_t);
-VALUE_FUNC(int32_t, CircBuf_read, CircBuf_t *);
-VOID_FUNC(CircBuf_free, CircBuf_t *);
+VALUE_FUNC(int32_t *, circ_buf_init, circBuf_t *, uint32_t);
+VALUE_FUNC(bool, circ_buf_write, circBuf_t *, int32_t);
+VALUE_FUNC(int32_t, circ_buf_read, circBuf_t *);
+VOID_FUNC(circ_buf_free, circBuf_t *);
