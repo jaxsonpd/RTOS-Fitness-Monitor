@@ -17,3 +17,5 @@ documentation is split into several parts detailed below.
 - [Overview](./fitness-monitor-v1-overview.md)
 
 ## Fitness Monitor v2
+
+- [RTOS Implementation](./RTOS-implementation.md) 
