@@ -10,14 +10,14 @@ DEFINE_FFF_GLOBALS;
 #include "pot_manager.h"
 
 #include "comms_mocks/pot_comms_mock.h"
-#include "adc_manager_mock.h"
+#include "adc_handler_mock.h"
 
 #include "freertos_mocks/task_mock.h"
 
 void reset_fff(void)
 {
     FFF_POT_COMMS_FAKES_LIST(RESET_FAKE);
-    FFF_ADC_MANAGER_FAKES_LIST(RESET_FAKE);
+    FFF_ADC_HANDLER_FAKES_LIST(RESET_FAKE);
     FFF_TASK_FAKES_LIST(RESET_FAKE);
     FFF_RESET_HISTORY();
 }

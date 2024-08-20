@@ -8,7 +8,11 @@
 bool step_counter_manager_init(uint16_t* period);
 #endif // UNIT_TESTING
 
-void step_counter_thread(void* args);
+/**
+ * @brief The entry to the step counter thread
+ * @param rtos_param the rtos parameter
+ */
+void step_counter_thread(void* rtos_param);
 
 
 #endif // STEP_COUNTER_H_

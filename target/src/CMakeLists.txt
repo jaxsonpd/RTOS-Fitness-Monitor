@@ -21,8 +21,8 @@ add_tiva_executable(fitness-tracker
     utility/circular_buffer.c
     utility/vector3.c
     utility/person.c
-    accl_manager.c
-    adc_manager.c
+    accl_handler.c
+    adc_handler.c
     device_info.c
     device_manager.c
     input_manager.c

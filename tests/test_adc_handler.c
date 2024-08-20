@@ -1,5 +1,5 @@
 #include "unity.h"
-#include "adc_manager.h"
+#include "adc_handler.h"
 
 #include "fff.h"
 DEFINE_FFF_GLOBALS;
@@ -21,7 +21,7 @@ void reset_fff(void)
 
 CircBuf_t *get_circBuf_ptr_and_reset_fff(void)
 {
-    initADC();
+    adc_init();
     CircBuf_t *buffer_ptr = CircBuf_init_fake.arg0_val;
     reset_fff();
     return buffer_ptr;
@@ -37,11 +37,11 @@ void tearDown(void)
 {
 }
 
-/* Test cases - initADC */
+/* Test cases - adc_init */
 void test_adc_init_initialises_buffer(void)
 {
     // Act
-    initADC();
+    adc_init();
 
     // Assert
     TEST_ASSERT_EQUAL(1, CircBuf_init_fake.call_count);
@@ -51,33 +51,33 @@ void test_adc_init_initialises_buffer(void)
 void test_adc_init_enables_adc(void)
 {
     // Act
-    initADC();
+    adc_init();
 
     // Assert
     TEST_ASSERT_EQUAL(1, adc_hal_register_fake.call_count);
 }
 
-/* Test cases - pollADC */
+/* Test cases - adc_poll */
 void test_adc_poll_triggers_adc(void)
 {
     // Arrange
-    initADC();
+    adc_init();
     
     // Act
-    pollADC();
+    adc_poll();
 
     // Assert
     TEST_ASSERT_EQUAL(1, adc_hal_conversion_fake.call_count);
     TEST_ASSERT_EQUAL(ADC_ID_0, adc_hal_conversion_fake.arg0_val);}
 
-/* Test cases - readADC */
+/* Test cases - adc_read */
 void test_adc_read_reads_correct_buffer(void)
 {
     // Arrange
     CircBuf_t *correct_buffer = get_circBuf_ptr_and_reset_fff();
 
     // Act
-    readADC();
+    adc_read();
 
     // Assert
     TEST_ASSERT_EQUAL(correct_buffer, CircBuf_read_fake.arg0_val);
@@ -86,7 +86,7 @@ void test_adc_read_reads_correct_buffer(void)
 void test_adc_reads_buffer_correct_amount(void)
 {
     // Act
-    readADC();
+    adc_read();
 
     // Assert
     TEST_ASSERT_EQUAL(ADC_BUF_SIZE + 1, CircBuf_read_fake.call_count);
@@ -101,7 +101,7 @@ void test_adc_averages_correctly_homogenous(void)
     SET_RETURN_SEQ(CircBuf_read, fake_buffer_values, ADC_BUF_SIZE);
 
     // Act
-    fake_avg = readADC();
+    fake_avg = adc_read();
 
     // Assert
     TEST_ASSERT_EQUAL(2, fake_avg);
@@ -116,7 +116,7 @@ void test_adc_averages_correctly_nonhomogenous(void)
     SET_RETURN_SEQ(CircBuf_read, fake_buffer_values, ADC_BUF_SIZE);
 
     // Act
-    fake_avg = readADC();
+    fake_avg = adc_read();
 
     TEST_ASSERT_EQUAL(55, fake_avg);
 }
@@ -130,7 +130,7 @@ void test_adc_averages_correctly_zeros(void)
     SET_RETURN_SEQ(CircBuf_read, fake_buffer_values, ADC_BUF_SIZE);
 
     // Act
-    fake_avg = readADC();
+    fake_avg = adc_read();
 
     TEST_ASSERT_EQUAL(0, fake_avg);
 }

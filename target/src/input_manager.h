@@ -16,7 +16,7 @@
 
 /**
  * @brief The entry to the input manager thread
- *
+ * @param rtos_param the rtos parameter
  */
 void input_manager_thread(void* rtos_param);
 

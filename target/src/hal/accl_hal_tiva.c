@@ -66,8 +66,7 @@
 #define ACCL_RATE_0_10HZ    0x00
 
 // Init the accl chip via I2C
-void accl_chip_init(void)
-{
+void accl_chip_init(void) {
     i2c_hal_init(I2C_ID_0);
     char    toAccl[] = {0, 0};  // parameter, value
 
@@ -104,8 +103,7 @@ void accl_chip_init(void)
 }
 
 // Read the accl chip
-void accl_data_get(int16_t* acceleration)
-{
+void accl_data_get(int16_t* acceleration) {
     char    fromAccl[] = {0, 0, 0, 0, 0, 0, 0}; // starting address, placeholders for data to be read.
     uint8_t bytesToRead = 6;
 

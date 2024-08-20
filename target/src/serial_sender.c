@@ -56,8 +56,7 @@ static char sendStr[MAX_SERIAL_STR_LEN + 1];
  *******************************************/
 
 // Init this library
-void SerialInit (void)
-{
+void SerialInit (void) {
     //
     // Enable GPIO port A which is used for UART0 pins.
     //
@@ -80,8 +79,7 @@ void SerialInit (void)
 
 
 // Send a string over serial
-void SerialSend (char *pucBuffer)
-{
+void SerialSend (char *pucBuffer) {
     // Loop while there are more characters to send.
     while(*pucBuffer)
     {
@@ -94,8 +92,7 @@ void SerialSend (char *pucBuffer)
 
 
 // Plot four values over serial
-void SerialPlot(int16_t value1, int16_t value2, int16_t value3, int16_t value4)
-{
+void SerialPlot(int16_t value1, int16_t value2, int16_t value3, int16_t value4) {
     usprintf(sendStr, "%d, %d, %d, %d\n\r", value1, value2, value3, value4);
     SerialSend(sendStr);
 }

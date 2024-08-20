@@ -24,8 +24,8 @@ bool pot_read_init(void);
 
 /**
  * @brief The entry to the potentiometer manager thread
- * 
+ * @param rtos_param the rtos parameter
  */
-void pot_read_thread(void* args);
+void pot_read_thread(void* rtos_param);
 
 #endif // POT_MANGER_H_
