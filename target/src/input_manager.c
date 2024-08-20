@@ -46,6 +46,9 @@ bool input_manager_init(void) {
     return result;
 }
 
+/**
+ * @brief Send messages over queue
+ */
 void input_manager_send_updates(void) {
     inputState_t input_state;
 

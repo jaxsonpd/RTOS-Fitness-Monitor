@@ -18,14 +18,17 @@
 
 #define BUF_EMPTY_VAL INT32_MIN
 
-// *******************************************************
-// Buffer structure
+/**
+ * @struct circBuf_t
+ *  A structure to store information about a input mode (button or switch)
+ *  
+ */
 typedef struct {
 	uint32_t size;		// Number of entries in buffer
 	uint32_t windex;	// index for writing, mod(size)
 	uint32_t rindex;	// index for reading, mod(size)
 	int32_t *data;		// pointer to the data
-} CircBuf_t;
+} circBuf_t;
 
 
 /** 
@@ -38,7 +41,7 @@ typedef struct {
  * 
  * @return the pointer to the buffers data array
  */
-int32_t *CircBuf_init (CircBuf_t *buffer, uint32_t size);
+int32_t *circ_buf_init (circBuf_t *buffer, uint32_t size);
 
 
 /** 
@@ -52,7 +55,7 @@ int32_t *CircBuf_init (CircBuf_t *buffer, uint32_t size);
  * 
  * @return false if buffer is full
  */
-bool CircBuf_write (CircBuf_t *buffer, int32_t entry);
+bool circ_buf_write (circBuf_t *buffer, int32_t entry);
 
 
 /** 
@@ -65,17 +68,17 @@ bool CircBuf_write (CircBuf_t *buffer, int32_t entry);
  * 
  * @return the entry at the write index
  */
-int32_t CircBuf_read (CircBuf_t *buffer);
+int32_t circ_buf_read (circBuf_t *buffer);
 
 
 /** 
  * @brief Releases the memory allocated to the buffer data,
  * sets pointer to NULL and other fields to 0. The buffer can
- * re initialised by another call to initCircBuf().
+ * re initialised by another call to init_circ_buf.
  * 
  * @param buffer the buffer to write to
  * 
  */
-void CircBuf_free (CircBuf_t *buffer);
+void circ_buf_free (circBuf_t *buffer);
 
 #endif /*CIRCULAR_BUFFER_H_*/

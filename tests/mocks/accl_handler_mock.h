@@ -1,5 +1,5 @@
 #include "fff.h"
-#include "accl_manager.h"
+#include "accl_handler.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -12,7 +12,7 @@
 #define VALUE_FUNC DECLARE_FAKE_VALUE_FUNC
 #endif
 
-#define FFF_ACCL_MANAGER_FAKES_LIST(FUNC) \
+#define FFF_ACCL_HANDLER_FAKES_LIST(FUNC) \
     FUNC(accl_init)                              \
     FUNC(accl_poll)                              \
     FUNC(accl_mean)                              \

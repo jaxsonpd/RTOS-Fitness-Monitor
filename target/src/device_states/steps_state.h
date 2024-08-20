@@ -10,6 +10,7 @@
 
 #include "state.h"
 
+/// @brief State showing step count or percent of goal and workout time
 extern state_t stepsState;
 
 #endif // STEPS_STATE_H_

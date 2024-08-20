@@ -14,7 +14,7 @@
 #include "stdlib.h"
 #include "circular_buffer.h"
 
-int32_t *CircBuf_init (CircBuf_t *buffer, uint32_t size) {
+int32_t *circ_buf_init (circBuf_t *buffer, uint32_t size) {
 	if (size == 0) {
 		return NULL;
 	} else if (size > 2000) {
@@ -34,13 +34,11 @@ int32_t *CircBuf_init (CircBuf_t *buffer, uint32_t size) {
 }
 
 
-bool CircBuf_write (CircBuf_t *buffer, int32_t entry) {
+bool circ_buf_write (circBuf_t *buffer, int32_t entry) {
 	if (buffer->data[buffer->windex] != BUF_EMPTY_VAL) {
 		// Don't over write buffer
-		printf("Write Failed\n");
 		return false;
 	}
-	printf("Write Successed\n");
 	if (entry == BUF_EMPTY_VAL) {
 		entry = entry + 1; 
 	}
@@ -54,7 +52,7 @@ bool CircBuf_write (CircBuf_t *buffer, int32_t entry) {
 }
 
 
-int32_t CircBuf_read (CircBuf_t *buffer) {
+int32_t circ_buf_read (circBuf_t *buffer) {
 	int32_t entry;
 	
 	if (buffer->data[buffer->rindex] == BUF_EMPTY_VAL && buffer->rindex == buffer->windex) {
@@ -72,11 +70,10 @@ int32_t CircBuf_read (CircBuf_t *buffer) {
 	return entry;
 }
 
-void CircBuf_free (CircBuf_t * buffer) {
+void circ_buf_free (circBuf_t * buffer) {
 	buffer->windex = 0;
 	buffer->rindex = 0;
 	buffer->size = 0;
-	free (buffer->data);
+	free(buffer->data);
 	buffer->data = NULL;
 }
-

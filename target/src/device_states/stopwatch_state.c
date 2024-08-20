@@ -1,6 +1,6 @@
 /** 
  * @file stopwatch_state.c
- * @author Isaac Cone (ico29@uclive.ac.nz)
+ * @author Jack Duignan (jdu80@uclive.ac.nz), Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
  * @brief Implementation of state for stopwatch
  */

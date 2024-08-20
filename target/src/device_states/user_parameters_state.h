@@ -10,6 +10,7 @@
 
 #include "state.h"
 
+/// @brief State allowing the user to set their height and weight
 extern state_t userParametersState;
 
 #endif // USER_PARAMETERS_STATE_H_

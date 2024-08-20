@@ -21,10 +21,10 @@ void reset_fff(void)
     FFF_RESET_HISTORY();
 }
 
-CircBuf_t* get_circBuf_ptr_and_reset_fff(void)
+circBuf_t* get_circBuf_ptr_and_reset_fff(void)
 {
     initADC();
-    CircBuf_t* buffer_ptr = initCircBuf_fake.arg0_val;
+    circBuf_t* buffer_ptr = initCircBuf_fake.arg0_val;
     reset_fff();
     return buffer_ptr;
 }

@@ -12,20 +12,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-
-/**
- * @brief Initialise the potentiometer manager
- * 
- * @return true if successful
- */
 #ifdef UNIT_TESTING
 bool pot_read_init(void);
 #endif // UNIT_TESTING
 
 /**
  * @brief The entry to the potentiometer manager thread
- * 
+ * @param rtos_param the rtos parameter
  */
-void pot_read_thread(void* args);
+void pot_read_thread(void* rtos_param);
 
 #endif // POT_MANGER_H_

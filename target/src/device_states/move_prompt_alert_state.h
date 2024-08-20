@@ -1,6 +1,6 @@
 /** 
  * @file move_prompt_alert_state.h
- * @author Isaac Cone (ico29@uclive.ac.nz)
+ * @author Daniel Hawes (dha144@uclive.ac.nz), Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
  * @brief Interface for state
  */
@@ -10,6 +10,7 @@
 
 #include "state.h"
 
+/// @brief Alert state prompting movement
 extern state_t movePromptAlertState;
 
 #endif // MOVE_PROMPT_ALERT_STATE_H_

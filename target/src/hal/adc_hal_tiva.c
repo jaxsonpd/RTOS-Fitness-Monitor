@@ -29,8 +29,7 @@ static adc_config_t adc_configurations[MAX_ADC_IDS] = {
     {SYSCTL_PERIPH_ADC0, ADC0_BASE, 3, 0, ADC_CTL_CH0 | ADC_CTL_IE | ADC_CTL_END, 0, NULL},
 };
 
-void adc_hal_isr(void)
-{
+void adc_hal_isr(void) {
     adc_config_t config;
 
     for (uint8_t id = 0; id < MAX_ADC_IDS; id++)
@@ -49,8 +48,7 @@ void adc_hal_isr(void)
     }
 }
 
-void adc_hal_register(uint8_t id, callback_t callback)
-{
+void adc_hal_register(uint8_t id, callback_t callback) {
     // Catch invalid id
     if (id >= MAX_ADC_IDS) {
         return;
@@ -76,8 +74,7 @@ void adc_hal_register(uint8_t id, callback_t callback)
     config->callback = callback;
 }
 
-void adc_hal_conversion(uint8_t id)
-{
+void adc_hal_conversion(uint8_t id) {
     adc_config_t config = adc_configurations[id];
 
     // Catch unregistered adc

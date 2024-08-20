@@ -10,6 +10,7 @@
 
 #include "state.h"
 
+/// @brief Alert state showing device was soft reset
 extern state_t resetState;
 
 #endif // RESET_STATE_H_

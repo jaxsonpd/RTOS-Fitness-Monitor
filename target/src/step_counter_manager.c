@@ -4,7 +4,7 @@
 #include "step_counter_manager.h"
 
 #include "serial_sender.h"
-#include "accl_manager.h"
+#include "accl_handler.h"
 #include "step_counter.h"
 #include "comms/step_counter_comms.h"
 #include "utility/vector3.h"
@@ -15,13 +15,13 @@
 // #define STEP_SERIAL_ENABLED
 
 static uint16_t step_counter_period = 0;
+
 /** 
  * @brief Initialise the accelerometer manager thread
- * 
+ * @param p_step_counter_period pointer to step counter period from algorithm
  * @return true if successful
  */
-bool step_counter_manager_init(uint16_t* p_step_counter_period) 
-{
+bool step_counter_manager_init(uint16_t* p_step_counter_period) {
     #ifdef STEP_SERIAL_ENABLED
     SerialInit ();
     #endif // STEP_SERIAL_ENABLED
@@ -32,8 +32,7 @@ bool step_counter_manager_init(uint16_t* p_step_counter_period)
     return result;
 }
 
-void step_counter_thread(void* args) 
-{
+void step_counter_thread(void* args) {
     assert(step_counter_manager_init(&step_counter_period));
     assert(step_counter_period > 0);
 

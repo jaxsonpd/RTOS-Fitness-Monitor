@@ -10,6 +10,7 @@
 
 #include "state.h"
 
+/// @brief Alert state step goal was reached
 extern state_t goalReachedState;
 
 #endif // GOAL_REACHED_STATE_H_

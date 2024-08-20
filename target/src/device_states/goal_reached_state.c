@@ -12,7 +12,7 @@
 
 #include "goal_reached_state.h"
 
-#define FLASH_LENGTH 30 // 3 seconds
+#define FLASH_LENGTH 30 // deci seconds
 
 static uint32_t flash_time = 0;
 

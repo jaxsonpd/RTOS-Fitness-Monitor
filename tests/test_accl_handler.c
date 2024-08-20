@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "accl_manager.h"
+#include "accl_handler.h"
 
 #include "unity.h"
 
@@ -64,7 +64,7 @@ void test_accl_init_initialises_buffers(void)
     accl_init();
 
     // Assert
-    TEST_ASSERT_EQUAL(3,CircBuf_init_fake.call_count);
+    TEST_ASSERT_EQUAL(3,circ_buf_init_fake.call_count);
 }
 
 void test_accl_init_configures_accl(void)
@@ -89,10 +89,10 @@ void test_accl_process_gets_acceleration(void)
     accl_poll();
     
     // Assert
-    TEST_ASSERT_EQUAL(3, CircBuf_write_fake.call_count);
-    TEST_ASSERT_EQUAL(FAKE_ACCL_X, CircBuf_write_fake.arg1_history[0]);
-    TEST_ASSERT_EQUAL(FAKE_ACCL_Y, CircBuf_write_fake.arg1_history[1]);
-    TEST_ASSERT_EQUAL(FAKE_ACCL_Z, CircBuf_write_fake.arg1_history[2]);
+    TEST_ASSERT_EQUAL(3, circ_buf_write_fake.call_count);
+    TEST_ASSERT_EQUAL(FAKE_ACCL_X, circ_buf_write_fake.arg1_history[0]);
+    TEST_ASSERT_EQUAL(FAKE_ACCL_Y, circ_buf_write_fake.arg1_history[1]);
+    TEST_ASSERT_EQUAL(FAKE_ACCL_Z, circ_buf_write_fake.arg1_history[2]);
 }
 
 void test_accl_mean_zero(void) 
@@ -101,7 +101,7 @@ void test_accl_mean_zero(void)
     int16_t test_value = 0;
 
     // Set up the fake to return the test value for each call
-    CircBuf_read_fake.return_val = test_value;
+    circ_buf_read_fake.return_val = test_value;
 
     // Act
     vector3_t result = accl_mean();
@@ -118,7 +118,7 @@ void test_accl_mean_homogenous(void)
     int16_t test_value = 10;
 
     // Set up the fake to return the test value for each call
-    CircBuf_read_fake.return_val = test_value;
+    circ_buf_read_fake.return_val = test_value;
     v3_constructor_fake.custom_fake = v3_constructor_fake_construction;
 
     // Act
@@ -137,7 +137,7 @@ void test_accl_mean_nonhomogenous(void) {
         return_values[i] = i+1;
     }
 
-    SET_RETURN_SEQ(CircBuf_read, return_values, 3*BUF_SIZE);
+    SET_RETURN_SEQ(circ_buf_read, return_values, 3*BUF_SIZE);
     v3_constructor_fake.custom_fake = v3_constructor_fake_construction;
 
     // Act
