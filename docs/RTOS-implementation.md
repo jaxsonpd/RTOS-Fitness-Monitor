@@ -1,7 +1,10 @@
 # RTOS Implementation
 
 This file covers the implementation of the real time operating system in the
-firmware. A high level overview can be found in the following table.
+firmware. A high level overview of the RTOS can be seen in the image below.
+The task sizes can be found in the following table.
+
+![RTOS overview](./images/RTOS-overview.png)
 
 | Task Name | Priority | Task Size | Internal Delay (ms) |
 | - | - | - | - |
