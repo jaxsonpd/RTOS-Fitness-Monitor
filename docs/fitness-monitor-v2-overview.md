@@ -54,5 +54,10 @@ To summarise, state_t defines an interface for a state. This has four functions:
 
 The device interacts only with the current state stored in device_state_t. This handles interaction with the currently active state. Specific states are then implemented to define behaviour. The purpose of this design pattern is to keep the specific behaviour abstracted from the device. This allows for seamless additions of new states by creating new implementations of the state interface. To create a new state, the source file should be created in [device_states](../target/src/device_states/) and included in [device_state_handler](../target/src/device_state_handler.c) to be registered in the appropriate position.
 
+
+@TODO write about this 
 ![UML state machine diagram](./images/Display-State-Machine.png)
 Figure 4: State machine diagram showing 
+
+@TODO write about new functions?
+@TODO write about likely expansions.
