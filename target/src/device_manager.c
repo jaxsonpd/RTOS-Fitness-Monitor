@@ -2,7 +2,7 @@
  * @file device_manager.h
  * @author Isaac Cone (ico29@uclive.ac.nz)
  * @date 2024-08
- * @brief Implementation of the device manager thread which handles the device state
+ * @brief Implementation of the device manager thread which handles the device state and display
  */
 
 #include <stdbool.h>
@@ -34,7 +34,7 @@
 
 static uint32_t g_reset_timeout = 0;
 
-bool update_steps(void);
+bool check_steps(void);
 void update_inputs(deviceState_t* device);
 void handle_input(deviceState_t* device, inputCommMsg_t msg);
 bool check_goal_reached(bool reset, person_t* person);
@@ -62,7 +62,7 @@ void device_manager_thread(void* args) {
     char status;
 
     for (;;) {
-        update_steps();
+        check_steps();
 
         status = device_state_execute(&device, &person);
         device_info_clear_input_flags();
@@ -75,11 +75,11 @@ void device_manager_thread(void* args) {
 }
 
 /**
- * @brief Update the step counter and check for workout start
+ * @brief Check for workout start
  *
  * @return true if the workout is started
  */
-bool update_steps(void) {
+bool check_steps(void) {
     static uint32_t old_steps = 0;;
     uint32_t new_steps = step_counter_get();
 
@@ -241,6 +241,8 @@ bool reset_hold_condition(void) {
  */
 void update_state(deviceState_t* device, person_t* person) {
     stateID_t newID = device->currentID;
+    
+    // Check for global flash states
     if (check_goal_reached(false, person)) {
         newID = GOAL_REACHED_STATE_ID;
     }
@@ -256,6 +258,8 @@ void update_state(deviceState_t* device, person_t* person) {
         newID = RESET_STATE_ID;
         g_reset_timeout = 0;
     }
+    
+    // Update displayed state
     if (newID != device->currentID) {
         bool success = device_state_set(device, newID);
         assert(success);
