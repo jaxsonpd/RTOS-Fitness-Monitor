@@ -1,4 +1,3 @@
 # Fitness Monitor v2 Overview
 
-This file outlines the structure and architecture of the version two fitness monitor project.
-It serves to give a high-level view of the project and highlight key differences from the version one, summarised 
+This file outlines the structure and architecture of the version two fitness monitor project. It serves to give a high-level view of the project in its current state and highlight key differences from the version one, summarised in [fitness-monitor-v1-overview](fitness-monitor-v1-overview.md). There are several changes that have been made in line with concepts presented in ENCE464 lectures in order to improve the project.
