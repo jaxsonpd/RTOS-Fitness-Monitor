@@ -52,6 +52,7 @@ To summarise, state_t defines an interface for a state. This has four functions:
 - `Exit()` - Called once on state end to clean up context before transitioning to new state.
 - `Reset()` - Called asynchronously on user input to reset all states manually.
 
-The device interacts only with the current state stored in device_state_t. This handles interaction with the currently active state. Specific states are then implemented to define behaviour. The purpose of this design pattern is to keep the specific behaviour abstracted from the device. This allows for seamless additions of new states by creating new implementations of the state interface. To create a new state, the source file should be created in [device_states](../target/src/device_states/) and included in [device_state_handler](../target/src/device_state_handler.c)
+The device interacts only with the current state stored in device_state_t. This handles interaction with the currently active state. Specific states are then implemented to define behaviour. The purpose of this design pattern is to keep the specific behaviour abstracted from the device. This allows for seamless additions of new states by creating new implementations of the state interface. To create a new state, the source file should be created in [device_states](../target/src/device_states/) and included in [device_state_handler](../target/src/device_state_handler.c) to be registered in the appropriate position.
+
 ![UML state machine diagram](./images/Display-State-Machine.png)
 Figure 4: State machine diagram showing 
