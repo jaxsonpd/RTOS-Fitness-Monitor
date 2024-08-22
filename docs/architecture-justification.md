@@ -25,4 +25,4 @@ The device task only interacts with the current task stored in the `device_state
 
 ## State Implementation
 In the version two fitness monitor there are nine possible device states. These implement the version one functionality and a number of additional features described in [fitness-monitor-v2-features](./fitness-monitor-v2-features.md). A summary of these states and the transitions between them is outlined below.
-![UML state machine diagram](./images/Display-State-Machine.png)
+![UML state machine diagram](./images/Display-State-Machine.svg)

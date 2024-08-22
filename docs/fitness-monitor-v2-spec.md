@@ -22,11 +22,11 @@ _Note: The Fitness Monitor v2.0 is an adaption of the Fitness Monitor v1.0 which
 
    5.3. For the Speed, the units are either kilometers per hour (kph) or miles per hour (mph)
 
-   5.4. For the Energy burnt, the units are either kilojoules (kJ) or Calorise (cal)
+   5.4. For the Energy burnt, the units are either kilojoules (kJ) or Calories (cal)
 
    5.5. For the Weight the units are either kilograms (kg) or pounds (lb)
 
-   5.6. For the Height the units are either centimeters (cm) or feet (ft) 
+   5.6. For the Height the units are either centimeters (cm) or feet/inches (ft/in) 
 
    5.7. In all the above cases, numbers shown on the OLED display should be accompanied by units.
 
