@@ -25,3 +25,4 @@ documentation is split into several parts detailed below.
 - [RTOS Implementation](./RTOS-implementation.md)
 - [Architecture Justification](./architecture-justification.md)
 - [New Features](./fitness-monitor-v2-features.md)
+- [Manual Acceptance Tests](./acceptance-tests.md)

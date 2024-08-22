@@ -54,7 +54,7 @@ _Note: The Fitness Monitor v2.0 is an adaption of the Fitness Monitor v1.0 which
 
     9.1. On the Set step goal, set parameter and set inactivity time displays, rotating the potentiometer on the Orbit board clockwise should increase the number displayed. Rotating the potentiometer on the Orbit board anti-clockwise should decrease the displayed value.
 
-    9.2. The Goal value should increment in units of 100 steps. The height value should increment in units of 1 centimeter. The weight should increment in 0.1 kilograms. The inactivity time value should increment in values of 10 seconds. 
+    9.2. The Goal value should increment in units of 100 steps. The height value should increment in units of 1 centimeter. The weight should increment by 0.1kg. The inactivity time should increment by 10s. 
 
 10. Setting SW1 (RIGHT switch) to the UP position should put the fitness monitor in a test mode, where the functionality of the GUI can be verified. In the test mode:
 
@@ -70,8 +70,6 @@ _Note: The Fitness Monitor v2.0 is an adaption of the Fitness Monitor v1.0 which
 
 11. Flash screens:
 
-    11.1. When the Step Goal value is surpassed or equal to the step count value the fitness monitor should display the goal reached flash screen for 3 seconds. 
+    11.1. When the Step Goal valueg is surpassed or equal to the step count value the fitness monitor should display the goal reached flash screen for 3 seconds. 
 
     11.2. When the time since the last step exceeds the inactivity time value, the fitness monitor should prompt the user to move, and exit the screen when it detects a step. 
-
-

@@ -1,5 +1,5 @@
 # Fitness Monitor v1 Overview
-`Authors: Isaac Cone (ico29), Jack Duignan (jdu80), Daniel Hawes (dha144)`
+`Group 1: Isaac Cone (ico29), Jack Duignan (jdu80), Daniel Hawes (dha144)`
 
 ## Structure
 The version one firmware is modular, but has inconsistent levels of abstraction. There are several modules with reused functionality and a circular dependency. It does not exhibit clean code practices and so needs to be improved. The structural dependencies are summarised below.
