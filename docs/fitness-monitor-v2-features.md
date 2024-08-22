@@ -1,7 +1,7 @@
 # Fitness Monitor v2 Features
 
 ## Step counting
-The new fitness monitor implements an algorithm from [Analog Devices](https://www.analog.com/en/resources/analog-dialogue/articles/pedometer-design-3-axis-digital-acceler.html) in [step_counter_analog.c](../target/src/step_counter_analog.c). The premise of this algorithm is similar to the existing algorithm, but it implements an adaptive threshold and more precise step definition. The algorithm is executed at `50 [Hz]`. It first determines the axis with the largest change in acceleration between samples. If this value is below the noise threshold it is ignored. If a sample is above the threshold, it is saved for future comparison. The algorithm detects a step when there is a negative change in acceleration at the point the magnitude drops below the dynamic threshold. This dynamic threshold is updated at `1 [Hz]` based on if any acceleration is detected outside the current threshold. The algorithm also implements a simple sttae machine to classify steps as a part of a real sequence or not. This is achieved by requiring three steps in a row before the count is pushed to the global counter value.
+The new fitness monitor implements an algorithm from [Analog Devices](https://www.analog.com/en/resources/analog-dialogue/articles/pedometer-design-3-axis-digital-acceler.html) in [step_counter_analog.c](../target/src/step_counter_analog.c). The premise of this algorithm is similar to the existing algorithm, but it implements an adaptive threshold and more precise step definition. The algorithm is executed at `50 [Hz]`. It first determines the axis with the largest change in acceleration between samples. If this value is below the noise threshold it is ignored. If a sample is above the threshold, it is saved for future comparison. The algorithm detects a step when there is a negative change in acceleration at the point the magnitude drops below the dynamic threshold. This dynamic threshold is updated at `1 [Hz]` based on if any acceleration is detected outside the current threshold. The algorithm also implements a simple sttae machine to classify steps as a part of a real sequence or not. This is achieved by requiring three steps in a row before the count saved.
 
 ## Energy estimation
 
@@ -32,15 +32,15 @@ on every execution of the display task loop to trigger the [move_prompt_alert_st
 
 ## Stopwatch
 
-A significant feature that has been implemented is a custom stopwatch display in [stopwatch_state.c](../target/src/display_states/stopwatch_state.c).
-display. This screen allows for the timing of events and contains the
-history of the last two runs. These values are reset on device reset 
-and the stopwatch moves to the zeroed state.
-The stopwatch uses its own internal state machine to allow for background timing.
-The state machine which proceeds consecutively can be seen in the following table.
+A significant feature that has been implemented is a custom stopwatch in 
+[stopwatch_state.c](../target/src/display_states/stopwatch_state.c).
+display. This allows the user to time events independently of the main workout 
+timer and contains the history of the last two runs. The stopwatch uses its 
+own internal state machine to allow for background timing. The stopwatch state 
+machine is summarised in the following table.
 
 | State | Action | Leave Event |
 | - | - | - |
-| Zeroed | Move current value to history one and history one value to history two. | Left button down |
-| Running | Display current elapsed time | Left button down  |
-| Stopped | Hold elapsed value on display | Left button down |
+| Zeroed | Move current value to history one and history one value to history two. | Down button pressed |
+| Running | Display current elapsed time | Down button pressed  |
+| Stopped | Hold elapsed value on display | Down button pressed |
