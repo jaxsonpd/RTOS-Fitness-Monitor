@@ -23,7 +23,7 @@ We did not do TTD for the high level functions as the implementation was complex
 and new to us making it difficult to test from the beginning. For these modules
 we added tests retroactively.
 
-Over all we have --- tests mostly unit due to many modules being very self contained
+Over all we have 121 tests mostly unit due to many modules being very self contained
 but several like display have extra files included in testing where it makes sense.
 
 We did not test several files due to there complexity and visual components this includes
