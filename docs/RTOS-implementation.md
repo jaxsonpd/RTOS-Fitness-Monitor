@@ -1,12 +1,10 @@
 # RTOS Implementation
-
 This project uses a micro kernel architecture to allow concurrency. This reduces
 missed task deadlines and because of this ensured that more complex features
 could be succinctly implemented. This file covers the implementation of the
 real time operating system in the firmware. A high level overview of the RTOS
 can be seen in the image below. The task sizes can be found in the following
 table.
-
 ![RTOS overview](./images/RTOS-overview.png)
 
 | Task Name | Priority | Task Size | Internal Delay (ms) |
@@ -26,45 +24,26 @@ hence the need for a larger stack size than expected.
 
 ## Task Breakdown
 
-### Input Manager Task
-
 The input manager task handles the debouncing of all GPIO and then
 sends this information to the input queue. The input manager is
 purely a producer it doesn't receive information from any other
-tasks.
-
-This task is located in [input_manager.c](../target/src/input_manager.c).
-
-### Potentiometer Manager Task
+tasks. This task is located in [input_manager.c](../target/src/input_manager.c).
 
 The potentiometer task handles the adc polling for the potentiometer
 on the orbit board. This task does not affect the value simply saves
 it to the mutex locked variable. This task does not receive information
-from any other tasks.
+from any other tasks. This task is located in [pot_manager.c](../target/src/pot_manager.c).
 
-This task is located in [pot_manager.c](../target/src/pot_manager.c).
+The device manager tasks handles the storage of device information and displaying the various screens that make up the GUI of the device. This is the largest task in the firmware and contains the state machine that controls all of the devices features. This task get data from the three other tasks through their respective communications modules. This task is located in [device_manager.c](../target/src/device_manager.c)
 
-### Device/Display Manager Task
-
-The device manager tasks handles the storage of device information and displaying the various screens that make up the GUI of the device. This is the largest task in the firmware and contains the state machine that controls all of the devices features. This task get data from the three other tasks through their respective communications modules.
-
-This task is located in [device_manager.c](../target/src/device_manager.c)
-
-### Step Counter Manager Task
-
-The step counter task handles the counting of steps using a custom algorithm. This thread saves the step count value to the mutex locked communication module.
-
-This task is located in [step_counter_manager.c](../target/src/step_counter_manager.c)
+The step counter task handles the counting of steps using a custom algorithm. This thread saves the step count value to the mutex locked communication module. This task is located in [step_counter_manager.c](../target/src/step_counter_manager.c)
 
 ## Inter Task Communication
 
 The tasks communicate through a mixture of queues and mutexes to
 allow for the asynchronous nature of the firmware. Each of these
 methods is located in its own module with a single getter and
-setter to ensure that deadlock doesn't occur.
-
-An overview of the interfaces for the comms modules can be seen in the following image:
-
+setter to ensure that deadlock doesn't occur. An overview of the interfaces for the comms modules can be seen in the following image:
 ![Comms Module UML diagrams](./images/comms-umls.svg)
 
 ### Input Queue
