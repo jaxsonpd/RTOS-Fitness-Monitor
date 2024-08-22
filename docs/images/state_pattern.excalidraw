@@ -576,8 +576,8 @@
     },
     {
       "type": "line",
-      "version": 122,
-      "versionNonce": 862738751,
+      "version": 123,
+      "versionNonce": 2032203437,
       "index": "b7K",
       "isDeleted": false,
       "id": "W9H2vvJTqIL3vWm2gRO54",
@@ -591,14 +591,14 @@
       "y": 660,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
-      "width": 220,
+      "width": 240,
       "height": 0,
       "seed": 1449965361,
       "groupIds": [],
       "frameId": null,
       "roundness": null,
       "boundElements": [],
-      "updated": 1724283618211,
+      "updated": 1724294042686,
       "link": null,
       "locked": false,
       "startBinding": null,
@@ -612,7 +612,7 @@
           0
         ],
         [
-          220,
+          240,
           0
         ]
       ]
