@@ -20,7 +20,7 @@ A more in depth description of the version 1's modules and there functions can b
 
 - `button_manager` - Updates the device state based on user inputs to buttons and switches.
 - `display_manager` - Updates the devices screen based on the current state of the device.
-- `adc_read` - Perform reads to the adc to measure the poteniometer.
+- `adc_read` - Perform reads to the adc to measure the potentiometer.
 - `accl_manger` - Handle communications to the accelerometer including initialisation, signal processing and reads.
 - `circBufV/T` - Provides functionality for a int32_t and vector3_t circular buffer respectivly.
 - `serial_sender` - Provides functionality to write to the serial port.

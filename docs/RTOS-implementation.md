@@ -1,8 +1,11 @@
 # RTOS Implementation
 
-This file covers the implementation of the real time operating system in the
-firmware. A high level overview of the RTOS can be seen in the image below.
-The task sizes can be found in the following table.
+This project uses a micro kernel architecture to allow concurrency. This reduces
+missed task deadlines and because of this ensured that more complex features
+could be succinctly implemented. This file covers the implementation of the
+real time operating system in the firmware. A high level overview of the RTOS
+can be seen in the image below. The task sizes can be found in the following
+table.
 
 ![RTOS overview](./images/RTOS-overview.png)
 
@@ -13,12 +16,13 @@ The task sizes can be found in the following table.
 | Device Manager | 2 | 512 | 50 |
 | Potentiometer Manager | 3 | 64 | 20 |
 
-The philosophy for this is step counting is the highest priority
-while display manager is least important. The stack sizes are
-selected based on the complexity of the threads the display
-manager having the most depth to function calls etc. has the
+The philosophy for the above task priorities and stack size is as follows:
+the step counting task is the highest priority as it is the most timing critical
+while display manager is least important due to the slow refresh time. The stack
+sizes are selected based on the complexity of the threads with the display
+manager which has the most depth to function calls etc. has the
 largest stack size. The step counter contains an complex algorithm
-hence the need for a larger stack size than expected. 
+hence the need for a larger stack size than expected.
 
 ## Task Breakdown
 
@@ -59,12 +63,16 @@ allow for the asynchronous nature of the firmware. Each of these
 methods is located in its own module with a single getter and
 setter to ensure that deadlock doesn't occur.
 
+An overview of the interfaces for the comms modules can be seen in the following image:
+
+![Comms Module UML diagrams](./images/comms-umls.svg)
+
 ### Input Queue
 
 The input messages which include button presses and switch inputs
 are added to a queue located in the [./comms/input_comms.c](../target/src/comms/input_comms.c)
 module. This queue is then picked up by the device manager.  A
-queue is used over a mutex to ensure polling isn't nessasary and all
+queue is used over a mutex to ensure polling isn't necessary and all
 inputs are preserved and handled.
 
 ### Potentiometer Mutex 
