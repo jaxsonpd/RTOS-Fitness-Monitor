@@ -8,11 +8,7 @@ _Note: The Fitness Monitor v2.0 is an adaption of the Fitness Monitor v1.0 which
 
 2. Pushing the RESET button on the TIVA board should restart the program and return any stored step, distance, timer and goal values to their default values.
 
-   2.1. The default step count, speed, energy, distance and stopwatch time values are zero
-
-   2.2. The default goal value is 1,000 steps
-
-   2.3. The default prompt to move value is 100 seconds 
+   2.1. The default step count, speed, energy, distance and stopwatch time values are zero. The default goal value is 1,000 steps. The default prompt to move value is 100 seconds 
 
 3. At startup the OLED board should display the number of steps counted since the last reset or power cycle.
 
@@ -30,19 +26,7 @@ _Note: The Fitness Monitor v2.0 is an adaption of the Fitness Monitor v1.0 which
 
    4.6. Pushing the LEFT button again should display the number of steps counted since the last reset or power cycle.
 
-5. RIGHT button behaviour. Pushing the RIGHT button should achieve the same change in state as pushing the LEFT button, but in the opposite direction:
-
-   5.1. Pushing the RIGHT button when the number of steps is displayed should take the user to the Distance, Speed and Energy display.
-
-   5.2. Pushing the RIGHT button again should take the user to the Stopwatch display.
-
-   5.3. Pushing the RIGHT button again should take the user to the Set Goal display. 
-
-   5.4. Pushing the RIGHT button again should take the user to the Weight and Height set display.
-
-   5.5. Pushing the RIGHT button again should take the user to the set Inactivity Timer display. 
-
-   5.6. Pushing the RIGHT button again will bring the user back to the Step Count display, which should show the total number of steps since the last reset. 
+5. RIGHT button behaviour. Pushing the RIGHT button should achieve the same change in state as pushing the LEFT button, but in the opposite direction.
 
 6. Pushing the UP button on the TIVA board should toggle the units used by the fitness monitor.
 
@@ -64,11 +48,7 @@ _Note: The Fitness Monitor v2.0 is an adaption of the Fitness Monitor v1.0 which
 
     7.1. Pressing the DOWN button in the Set Goal Display should set the new step goal to the number displayed.
 
-    7.2. Pressing the DOWN button in the Set Parameters display should set the respective unit. 
-
-    * When the SW2 (LEFT switch) is set to DOWN, the user height should be set to the number displayed.
-
-    * When the SW2 is set to UP, the user weight should be set to the number shown.
+    7.2. Pressing the DOWN button in the Set Parameters display should set the respective unit. When the SW2 (LEFT switch) is set to DOWN, the user height should be set to the number displayed. When the SW2 is set to UP, the user weight should be set to the number shown.
 
     7.3. Pressing the DOWN button in the Set Inactivity Time display should set the prompt to move time value to the number on the display. The time since last step should return to zero. 
 
@@ -76,15 +56,9 @@ _Note: The Fitness Monitor v2.0 is an adaption of the Fitness Monitor v1.0 which
 
     7.5. Pressing the DOWN button in the Stopwatch display should activate the stopwatch
 
-    * When the DOWN button is pressed, the timer should begin.
+    * When the DOWN button is pressed, the timer should begin. Pressing the DOWN button again will result in the timer being stopped. Pressing the DOWN button again will log the timer value from the Elapsed row down to the number 1 slot. The Elapsed row will be reset to zero.
 
-    * Pressing the DOWN button again will result in the timer being stopped. 
-
-    * Pressing the DOWN button again will log the timer value from the Elapsed row down to the number 1 slot. The Elapsed row will be reset to zero.
-
-    * After recording a new time, pressing the DOWN button again will bring the row 1 time to the number 2 row. The elapsed time will be moved to row 1. The elapsed time will again be set to zero. 
-
-    * When a new time is logged again the row 2 time will be purged. 
+    * After recording a new time, pressing the DOWN button again will bring the row 1 time to the number 2 row. The elapsed time will be moved to row 1. The elapsed time will again be set to zero. When a new time is logged again the row 2 time will be purged. 
 
 8. When not in the Set Goal display a long press on the DOWN button should reset the number of steps counted and distance travelled to zero. All variables should be set to their default values. The user should be brought back to the Step Count display
 
@@ -92,11 +66,7 @@ _Note: The Fitness Monitor v2.0 is an adaption of the Fitness Monitor v1.0 which
 
 10. Setting the step goal, height, weight and inactivity time value:
 
-    10.1. On the Set step goal, set parameter and set inactivity time displays:
-    
-    * Rotating the potentiometer on the Orbit board clockwise  should increase the number displayed.
-
-    * Rotating the potentiometer on the Orbit board anti-clockwise should decrease the displayed value.
+    10.1. On the Set step goal, set parameter and set inactivity time displays, rotating the potentiometer on the Orbit board clockwise should increase the number displayed. Rotating the potentiometer on the Orbit board anti-clockwise should decrease the displayed value.
 
     10.2. The Goal value should increment in units of 100 steps. The height value should increment in units of 1 centimeter. The weight should increment in 0.1 kilograms. The inactivity time value should increment in values of 10 seconds. 
 
