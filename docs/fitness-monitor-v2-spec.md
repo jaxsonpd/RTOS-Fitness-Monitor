@@ -10,7 +10,7 @@ _Note: The Fitness Monitor v2.0 is an adaption of the Fitness Monitor v1.0 which
 
    2.1. The default step count, speed, energy, distance and stopwatch time values are zero. The default goal value is 1,000 steps. The default prompt to move value is 100 seconds 
 
-3. At startup the OLED board should display the number of steps counted since the last reset or power cycle.
+3. At startup the OLED board should display the steps counted since the last reset or power cycle.
 
 4. Pressing the RIGHT button should increment through the displays (Step Count &rarr; Distance &rarr; Stopwatch &rarr; Set Step Goal &rarr; User Parameters &rarr; Inactivity Time Display). Pressing the LEFT button should decrement through the displays in the opposite order of pressing teh right button. 
 
@@ -48,7 +48,7 @@ _Note: The Fitness Monitor v2.0 is an adaption of the Fitness Monitor v1.0 which
 
 7. When not in the Set Goal display a long press on the DOWN button should reset the number of steps counted and distance travelled to zero. All variables should be set to their default values. The user should be brought back to the Step Count display
 
-8. The UI should provide feedback to the user that acknowledges and diﬀerentiates between long and short pushes on the DOWN button.
+8. The UI should diﬀerentiate between long and short pushes on the DOWN button.
 
 9.  Setting the step goal, height, weight and inactivity time value:
 
@@ -62,7 +62,7 @@ _Note: The Fitness Monitor v2.0 is an adaption of the Fitness Monitor v1.0 which
 
     10.2. Each push of the DOWN button should decrement the step count by 500.
 
-    10.3. Other functions of the UP and DOWN buttons, namely toggling units, setting values and resetting counts, should be disabled while SW1 is UP.
+    10.3. Other functions of the UP and DOWN buttons should be disabled while SW1 is UP.
 
     10.4. The functionality of the LEFT and RIGHT buttons should not be aﬀected by SW1.
 
