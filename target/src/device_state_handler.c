@@ -34,12 +34,7 @@ bool device_state_init(deviceState_t* ds, stateID_t initialID) {
     states[MOVE_PROMPT_ALERT_STATE_ID] = &movePromptAlertState;
     states[RESET_STATE_ID] = &resetState;
 
-    if (ds == NULL) {
-        return 0;
-    }
-    if (states[initialID] == NULL) {
-        return 0;
-    }
+    assert(ds != NULL);
 
     for (uint8_t i = 0; i < STATE_COUNT; i++) {
         assert(states[i] != NULL);

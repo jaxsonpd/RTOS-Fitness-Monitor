@@ -2,7 +2,7 @@
  * @file pot_comms.h
  * @author Daniel Hawes (dha144@uclive.ac.nz)
  * @date 2024-08-12
- * @brief Interface to handle communication of the step
+ * @brief Interface to handle communication of the potentiometer value
  */
 
 #ifndef POT_COMMS_H
